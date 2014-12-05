@@ -70,7 +70,6 @@ object BodyParaRefAnnotator {
 
 
     def annotateRx(rdoc: RxDocumentSvg): Annotator = {
-      val outputPath: String = "~/out.svg"
       val tokenization: NewHtmlTokenizationSvg = rdoc.getTokenization
       val segmentations: collection.mutable.Map[Any, Any] = rdoc.getScope("document").get("segmentation").getOrElse(null).asInstanceOf[collection.mutable.Map[Any, Any]]
       if (tokenization == null) {
