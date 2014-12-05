@@ -130,26 +130,49 @@ object MetaDataSvgAnnotator {
               token2.getNumericProperty("lineNum").asInstanceOf[Int]
   }
 
-  private def getSegmentRawType(tokens:ArrayBuffer[Token], labelId:Int, labels:Sequence, perLine:Boolean):Map[String,String]=
-  {
-    val currentToken:Token = tokens.head
-    val tokenBlockId:Int = currentToken.getProperty("divElement").asInstanceOf[scala.Tuple2[Any, Any]]._1.toString.toInt
-    val pageNumber:Int = currentToken.getProperty("pageNum").asInstanceOf[Double].toInt
-    if(tokens.size>1)
-    {
-      val tokTail = tokens.tail
-      if(perLine && hasSameLine(currentToken, tokTail.head)){
-        return Map((tokenBlockId + "_" + pageNumber).toString -> labels.get(labelId).toString) ++ (getSegmentRawType(tokTail, labelId, labels, perLine))
+  //ORIGINAL RECURSIVE getSegmentRawType
+  //private def getSegmentRawType(tokens:ArrayBuffer[Token], labelId:Int, labels:Sequence, perLine:Boolean):Map[String,String]= {
+  //  val currentToken:Token = tokens.head
+  //  val tokenBlockId:Int = currentToken.getProperty("divElement").asInstanceOf[scala.Tuple2[Any, Any]]._1.toString.toInt
+  //  val pageNumber:Int = currentToken.getProperty("pageNum").asInstanceOf[Double].toInt
+  //  if (tokens.size>1) {
+  //    val tokTail = tokens.tail
+  //    if(perLine && hasSameLine(currentToken, tokTail.head)){
+  //      return Map((tokenBlockId + "_" + pageNumber).toString -> labels.get(labelId).toString) ++ (getSegmentRawType(tokTail, labelId, labels, perLine))
+  //    } else {
+  //      return Map((tokenBlockId + "_" + pageNumber).toString -> labels.get(labelId).toString) ++ (getSegmentRawType(tokTail, labelId+1, labels, perLine))
+  //    }
+  //  } else {
+  //    return Map((tokenBlockId + "_" + pageNumber).toString -> labels.get(labelId).toString)
+  //  }
+  //}
+
+  //TAIL RECURSIVE getSegmentRawType
+  private def getSegmentRawType(tokens:ArrayBuffer[Token], labelId:Int, labels:Sequence, perLine:Boolean): Map[String,String] = {
+    require(!tokens.isEmpty)
+
+    def loop(mapAcc: Map[String, String])(toks: ArrayBuffer[Token], lId: Int): Map[String, String] = {
+
+      val currentToken:Token = toks.head
+      val tokenBlockId:Int = currentToken.getProperty("divElement").asInstanceOf[scala.Tuple2[Any, Any]]._1.toString.toInt
+      val pageNumber:Int = currentToken.getProperty("pageNum").asInstanceOf[Double].toInt
+      val tokTail = toks.tail
+      val pair = (tokenBlockId + "_" + pageNumber).toString -> labels.get(lId).toString
+
+      if (toks.size > 1) {
+        if(perLine && hasSameLine(currentToken, tokTail.head)){
+          loop(mapAcc + pair)(tokTail, lId)
+        } else {
+          loop(mapAcc + pair)(tokTail, lId + 1)
+        }
+      } else {
+        mapAcc + pair
       }
-      else
-      {
-        return Map((tokenBlockId + "_" + pageNumber).toString -> labels.get(labelId).toString) ++ (getSegmentRawType(tokTail, labelId+1, labels, perLine))
-      }
+
     }
-    else
-    {
-      return Map((tokenBlockId + "_" + pageNumber).toString -> labels.get(labelId).toString)
-    }
+
+    loop(Map[String, String]())(tokens, labelId)
+
   }
 
   private def insertLast(listTags:List[Tuple3[Int,String,String]]):List[Tuple3[Int,String,String]] =
