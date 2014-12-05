@@ -21,115 +21,6 @@ object ReferencePartAnnotator {
 
   def addAnnotation(annotator: Annotator): Annotator =  {
 
-    val refTable = HashMap(
-      (78,0) -> Some(I), 
-      (29,0) -> Some(L), 
-      (50,0) -> Some(I),
-      (5,0) -> None,
-      (55,0) -> Some(B('r')),
-      (135,0) -> Some(B('r')),
-      (34,0) -> Some(I),
-      (27,0) -> Some(I),
-      (9,0) -> None,
-      (91,0) -> Some(L),
-      (102,0) -> Some(L),
-      (100,0) -> Some(I),
-      (0,0) -> None,
-      (26,0) -> Some(B('r')),
-      (84,0) -> Some(L),
-      (32,0) -> Some(I),
-      (4,0) -> None,
-      (47,0) -> Some(L),
-      (99,0) -> Some(B('r')),
-      (134,0) -> Some(L),
-      (92,0) -> Some(B('r')),
-      (13,0) -> Some(I),
-      (124,0) -> Some(I),
-      (57,0) -> Some(I),
-      (40,0) -> Some(I),
-      (76,0) -> Some(B('r')),
-      (15,0) -> Some(I),
-      (136,0) -> Some(I),
-      (119,0) -> Some(I),
-      (138,0) -> Some(I),
-      (2,0) -> None,
-      (56,0) -> Some(I),
-      (3,0) -> None,
-      (93,0) -> Some(I),
-      (43,0) -> Some(B('r')),
-      (8,0) -> None,
-      (60,0) -> Some(B('r')),
-      (131,0) -> Some(I),
-      (45,0) -> Some(I),
-      (25,0) -> Some(L),
-      (68,0) -> Some(I),
-      (128,0) -> Some(L),
-      (77,0) -> Some(I),
-      (30,0) -> Some(B('r')),
-      (105,0) -> Some(I),
-      (52,0) -> Some(I),
-      (67,0) -> Some(B('r')),
-      (33,0) -> Some(I),
-      (104,0) -> Some(B('r')),
-      (38,0) -> Some(I),
-      (111,0) -> Some(B('r')),
-      (116,0) -> Some(L),
-      (61,0) -> Some(I),
-      (85,0) -> Some(B('r')),
-      (36,0) -> Some(L),
-      (86,0) -> Some(I),
-      (83,0) -> Some(I),
-      (70,0) -> Some(L),
-      (71,0) -> Some(B('r')),
-      (54,0) -> Some(L),
-      (28,0) -> Some(I),
-      (49,0) -> Some(I),
-      (117,0) -> Some(B('r')),
-      (81,0) -> Some(B('r')),
-      (122,0) -> Some(L),
-      (59,0) -> Some(L),
-      (123,0) -> Some(B('r')),
-      (44,0) -> Some(I),
-      (114,0) -> Some(I),
-      (109,0) -> Some(I),
-      (17,0) -> Some(L),
-      (96,0) -> Some(I),
-      (88,0) -> Some(I),
-      (63,0) -> Some(I),
-      (73,0) -> Some(I),
-      (110,0) -> Some(L),
-      (95,0) -> Some(I),
-      (113,0) -> Some(I),
-      (10,0) -> None,
-      (18,0) -> Some(B('r')),
-      (42,0) -> Some(L),
-      (98,0) -> Some(L),
-      (140,0) -> Some(L),
-      (64,0) -> Some(I),
-      (90,0) -> Some(I),
-      (6,0) -> None,
-      (75,0) -> Some(L),
-      (129,0) -> Some(B('r')),
-      (80,0) -> Some(L),
-      (48,0) -> Some(B('r')),
-      (11,0) -> None,
-      (1,0) -> None,
-      (126,0) -> Some(I),
-      (121,0) -> Some(I),
-      (12,0) -> Some(B('r')),
-      (21,0) -> Some(I),
-      (23,0) -> Some(I),
-      (118,0) -> Some(I),
-      (107,0) -> Some(I),
-      (37,0) -> Some(B('r')),
-      (66,0) -> Some(L),
-      (7,0) -> None,
-      (132,0) -> Some(I)
-    )
-    val _annotator = annotator.annotate(List("reference" -> 'r'), Single(SegmentCon("line")), (blockIndex, charIndex) => {
-      refTable(blockIndex -> charIndex)
-    })
-
     import bibie._  
     import cc.factorie.app.nlp.Document
     import cc.factorie.app.nlp.segment.DeterministicTokenizer
@@ -140,12 +31,12 @@ object ReferencePartAnnotator {
       "file:///home/thomas/iesl/bibie/src/main/resources/lexicons"
     )
 
-    val refBIndexPairSet = _annotator.getAnnotatableIndexPairSet(Single(SegmentCon("reference")))
+    val refBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
 
     val docAndPairIndexSeqSet = {
       val pairs = refBIndexPairSet.toSeq.map {
         case (blockIndex, charIndex) =>
-          val textMap = _annotator.getTextMap("reference")(blockIndex, charIndex)
+          val textMap = annotator.getTextMap("biblio-marker")(blockIndex, charIndex)
           val pairIndexSeq = textMap.toIndexedSeq.flatMap {
             case (_blockIndex, text) =>
               val _charIndex = if (_blockIndex == blockIndex) charIndex else 0
@@ -170,7 +61,6 @@ object ReferencePartAnnotator {
       pairs
       
     }
-
 
     val pairIndex2typeLabelMapList= docAndPairIndexSeqSet.flatMap {
       case (doc, pairIndexSeq) =>
@@ -219,7 +109,7 @@ object ReferencePartAnnotator {
 
     val typeStrings = List("authors", "person", "person-last", "person-first", "date", "year", "title", "venue", "journal")
 
-    typeStrings.foldLeft(_annotator) {
+    typeStrings.foldLeft(annotator) {
       case (anno, typeString) =>
         val c = typeString.toCharArray()(0)
         anno.annotate(List(typeString -> c), Single(SegmentCon("token")), (blockIndex, charIndex) => {
