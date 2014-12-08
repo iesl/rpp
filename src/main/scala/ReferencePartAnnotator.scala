@@ -35,17 +35,16 @@ object ReferencePartAnnotator {
 
     val docAndPairIndexSeqSet = {
       val pairs = refBIndexPairSet.toSeq.map {
-        case (blockIndex, charIndex) =>
-          val textMap = annotator.getTextMap("biblio-marker")(blockIndex, charIndex)
+        case (blockBIndex, charBIndex) =>
+          val textMap = annotator.getTextMap("biblio-marker")(blockBIndex, charBIndex)
           val pairIndexSeq = textMap.toIndexedSeq.flatMap {
             case (_blockIndex, text) =>
-              val _charIndex = if (_blockIndex == blockIndex) charIndex else 0
+              val _charIndex = if (_blockIndex == blockBIndex) charBIndex else 0
               (0 until text.size).map(i => _blockIndex -> (_charIndex + i))
           }
 
           val doc = {
             val text = textMap.values.mkString("")
-            println("ref text: " + text)
             val d = new Document(text)
             DeterministicTokenizer.process(d)
             new Sentence(d.asSection, 0, d.tokens.size)
