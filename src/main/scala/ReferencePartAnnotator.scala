@@ -11,20 +11,23 @@ import scala.collection.immutable.IntMap
 import org.jdom2.input.SAXBuilder
 import org.jdom2.filter.ElementFilter
 import org.jdom2.Element
-import org.jdom2.Document
 import org.jdom2.util.IteratorIterable
 
 import annotator.Annotator 
+
+import bibie._  
+import cc.factorie.app.nlp.Document
+import cc.factorie.app.nlp.segment.DeterministicTokenizer
+import cc.factorie.app.nlp.Sentence
+
+import cc.factorie.app.nlp.Token
+
 
 object ReferencePartAnnotator {
   import Annotator._
 
   def addAnnotation(annotator: Annotator): Annotator =  {
 
-    import bibie._  
-    import cc.factorie.app.nlp.Document
-    import cc.factorie.app.nlp.segment.DeterministicTokenizer
-    import cc.factorie.app.nlp.Sentence
 
     val trainer = TestCitationModel.loadModel(
       "file:///home/thomas/iesl/citationCRF.factorie",
@@ -33,8 +36,23 @@ object ReferencePartAnnotator {
 
     val refBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
 
-    val docAndPairIndexSeqSet = {
-      val pairs = refBIndexPairSet.toSeq.map {
+    case class DPT(doc: Document, pairIndexSeq: Seq[(Int, Int)], tokenLabelMap: Map[Int, Label])
+
+
+    val dptSeq = {
+
+      def token2LabelMap(token: Token): IntMap[Label] = {
+        if (token.stringStart + 1 == token.stringEnd) {
+          IntMap(token.stringStart -> U('t'))
+        } else {
+          val first = token.stringStart
+          val last = token.stringEnd - 1
+          IntMap((token.stringStart + 1 until last).map(_ -> I): _*) + (first -> B('t')) + (last -> L)
+        }
+      }
+
+
+      val dpts = refBIndexPairSet.toSeq.map {
         case (blockBIndex, charBIndex) =>
           val textMap = annotator.getTextMap("biblio-marker")(blockBIndex, charBIndex)
           val pairIndexSeq = textMap.toIndexedSeq.flatMap {
@@ -54,15 +72,30 @@ object ReferencePartAnnotator {
             d
           }
 
-          (doc -> pairIndexSeq)
+          val tokenLabelMap = doc.tokens.flatMap(token2LabelMap(_)).toMap
+
+          DPT(doc, pairIndexSeq, tokenLabelMap)
       }
-      TestCitationModel.process(pairs.map(_._1).filter(_.tokens.size > 1), trainer, false)
-      pairs
+
+      TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
+      dpts 
       
     }
 
-    val pairIndex2typeLabelMapList = docAndPairIndexSeqSet.flatMap {
-      case (doc, pairIndexSeq) =>
+    val pairIndex2TokenLabelMap = dptSeq.flatMap {
+      case DPT(_, pairIndexSeq, tokenLabelMap) =>
+        tokenLabelMap.map {
+          case (tokId, label) =>
+            pairIndexSeq(tokId) -> label
+        }
+    } toMap
+
+    val annoWithTokens = annotator.annotate(List("reference-token" -> 't'), Single(CharCon), (blockIndex, charIndex) => {
+      pairIndex2TokenLabelMap.get(blockIndex -> charIndex)
+    })
+
+    val pairIndex2typeLabelMapList = dptSeq.flatMap {
+      case DPT(doc, pairIndexSeq, _) =>
         doc.tokens.map(token => {
           val labelTypeStringList = token.attr[CitationLabel].categoryValue.split(":")
           val pairIndex = pairIndexSeq(token.stringStart)
@@ -108,10 +141,10 @@ object ReferencePartAnnotator {
 
     val typeStrings = List("authors", "person", "person-last", "person-first", "date", "year", "title", "venue", "journal")
 
-    typeStrings.foldLeft(annotator) {
+    typeStrings.foldLeft(annoWithTokens) {
       case (anno, typeString) =>
         val c = typeString.toCharArray()(0)
-        anno.annotate(List(typeString -> c), Single(SegmentCon("token")), (blockIndex, charIndex) => {
+        anno.annotate(List(typeString -> c), Single(SegmentCon("reference-token")), (blockIndex, charIndex) => {
           typeLabelMapMap.get(blockIndex -> charIndex).flatMap(_.get(typeString))
         })
     } 
