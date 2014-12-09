@@ -12,7 +12,6 @@ import scala.io.Source
 import org.jdom2.input.SAXBuilder
 import org.jdom2.filter.ElementFilter
 import org.jdom2.Element
-import org.jdom2.Document
 import org.jdom2.util.IteratorIterable
 
 import edu.umass.cs.iesl.paperheader.process
@@ -23,13 +22,29 @@ import edu.umass.cs.iesl.paperheader.crf.LoadTSV
 
 import annotator.Annotator 
 
+import cc.factorie.app.nlp.Document
+import cc.factorie.app.nlp.segment.DeterministicTokenizer
+import cc.factorie.app.nlp.Sentence
+
+import cc.factorie.app.nlp.Token
+
 object HeaderPartAnnotator {
   import Annotator._
 
   def addAnnotation(annotator: Annotator): Annotator =  {
 
 
-    case class HeaderItem(pairIndex: (Int, Int), token: String, x: Int, y: Int, fontSize: Int)
+    case class HeaderItem(pairIndex: (Int, Int), token: Token, x: Int, y: Int, fontSize: Int)
+
+    def token2LabelMap(token: Token): IntMap[Label] = {
+      if (token.stringStart + 1 == token.stringEnd) {
+        IntMap(token.stringStart -> U('t'))
+      } else {
+        val first = token.stringStart
+        val last = token.stringEnd - 1
+        IntMap((token.stringStart + 1 until last).map(_ -> I): _*) + (first -> B('t')) + (last -> L)
+      }
+    }
 
     val rootElement = annotator.getDom().getRootElement()
 
@@ -42,40 +57,53 @@ object HeaderPartAnnotator {
         val textMap = annotator.getTextMap("header")(blockBIndex, charBIndex)
         val elementMap = annotator.getElements("header")(blockBIndex, charBIndex)
 
-        val headerItemSeq = textMap.toIndexedSeq.flatMap {
+        val pairIndexSeq = textMap.toIndexedSeq.flatMap {
           case (_blockIndex, text) =>
             val _charIndex = if (_blockIndex == blockBIndex) charBIndex else 0
-            (0 until text.size).filter(i => {
-              val currNotWhite = "\\s".r.findFirstIn(text.charAt(i).toString) == None
-              currNotWhite && (
-                i == 0 || ("\\s".r.findFirstIn(text.charAt(i - 1).toString) != None)
-              )
-            }).map(i => {
-              val e = elementMap(_blockIndex)
-              val (xs, _, ys) = Annotator.getTransformedCoords(e, rootElement)
-              HeaderItem(
-                _blockIndex -> (_charIndex + i),
-                text.substring(i).split("\\s")(0),
-                xs(i).toInt,
-                ys(i).toInt,
-                Annotator.fontSize(e).toInt
-              )
-            })
-
+            (0 until text.size).map(i => _blockIndex -> (_charIndex + i))
         }
 
-       headerItemSeq 
+        val headerItemSeq = {
+          val text = textMap.values.mkString("")
+          val d = new Document(text)
+          DeterministicTokenizer.process(d)
+          d.tokens.map(token => {
+            val pairIndex = pairIndexSeq(token.stringStart)
+            val e = elementMap(pairIndex._1)
+            val (xs, _, ys) = Annotator.getTransformedCoords(e, rootElement)
+            HeaderItem(
+              pairIndex,
+              token,
+              xs(pairIndex._2).toInt,
+              ys(pairIndex._2).toInt,
+              Annotator.fontSize(e).toInt
+            )
+          }).toIndexedSeq
+        }
+
+        val pairIndex2TokenLabelMap = headerItemSeq.flatMap(hi => token2LabelMap(hi.token)).map {
+          case (i, label) => pairIndexSeq(i) -> label
+        } toMap
+
+        (pairIndex2TokenLabelMap, headerItemSeq)
 
     }
 
 
-    val str = headerSet.map(headerItemSeq => {
+    val pairIndex2TokenLabelMap = headerSet.flatMap(_._1).toMap
+
+    val annoWithTokens = annotator.annotate(List("header-token" -> 't'), Single(CharCon), (blockIndex, charIndex) => {
+      pairIndex2TokenLabelMap.get(blockIndex -> charIndex)
+    })
+
+    val str = (headerSet.map { case (_, headerItemSeq) => {
       "#\n" + (headerItemSeq.map {
         case HeaderItem(_, token, x, y, fontSize) =>
           token + "\t" + x + "\t" + y + "\t" + fontSize
       }).mkString("\n")
-    }).mkString("\n\n") + "\n\n#"
+    }}).mkString("\n\n") + "\n\n#"
 
+    println(str)
 
     val docs = {
       val ds = (new LoadTSV(false)).fromSource(Source.fromString(str)).toIndexedSeq
@@ -83,7 +111,7 @@ object HeaderPartAnnotator {
       ds.toIndexedSeq
     } 
 
-    val headerSeq = headerSet.toIndexedSeq
+    val headerSeq = headerSet.map(_._2).toIndexedSeq
     val indexTypeTriple2LabelList = docs.zipWithIndex.flatMap {
       case (doc, docIdx) =>
         val headerItemSeq = headerSeq(docIdx)
@@ -145,10 +173,10 @@ object HeaderPartAnnotator {
         "email"
     )
 
-    typeStringList.foldLeft(annotator) {
+    typeStringList.foldLeft(annoWithTokens) {
       case (anno, typeString) =>
         val c = typeString.toCharArray()(0)
-        anno.annotate(List(typeString -> c), Single(SegmentCon("token")), (blockIndex, charIndex) => {
+        anno.annotate(List(typeString -> c), Single(SegmentCon("header-token")), (blockIndex, charIndex) => {
           tripLabelMap.get((blockIndex, charIndex, typeString))
         })
     } 

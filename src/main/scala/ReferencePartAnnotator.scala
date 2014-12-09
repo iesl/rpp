@@ -36,7 +36,7 @@ object ReferencePartAnnotator {
 
     val refBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
 
-    case class DPT(doc: Document, pairIndexSeq: Seq[(Int, Int)], tokenLabelMap: Map[Int, Label])
+    case class DPT(doc: Document, pairIndexSeq: Seq[(Int, Int)], tokenLabelMap: Map[(Int, Int), Label])
 
 
     val dptSeq = {
@@ -72,9 +72,11 @@ object ReferencePartAnnotator {
             d
           }
 
-          val tokenLabelMap = doc.tokens.flatMap(token2LabelMap(_)).toMap
+          val pairIndex2TokenLabelMap = doc.tokens.flatMap(token2LabelMap(_)).toMap.map {
+            case (tokId, label) => pairIndexSeq(tokId) -> label
+          }
 
-          DPT(doc, pairIndexSeq, tokenLabelMap)
+          DPT(doc, pairIndexSeq, pairIndex2TokenLabelMap)
       }
 
       TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
@@ -82,13 +84,7 @@ object ReferencePartAnnotator {
       
     }
 
-    val pairIndex2TokenLabelMap = dptSeq.flatMap {
-      case DPT(_, pairIndexSeq, tokenLabelMap) =>
-        tokenLabelMap.map {
-          case (tokId, label) =>
-            pairIndexSeq(tokId) -> label
-        }
-    } toMap
+    val pairIndex2TokenLabelMap = dptSeq.flatMap(_.tokenLabelMap).toMap
 
     val annoWithTokens = annotator.annotate(List("reference-token" -> 't'), Single(CharCon), (blockIndex, charIndex) => {
       pairIndex2TokenLabelMap.get(blockIndex -> charIndex)
