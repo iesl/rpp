@@ -29,8 +29,7 @@ object HeaderPartAnnotator {
   def addAnnotation(annotator: Annotator): Annotator =  {
 
 
-
-    case class HeaderLayout(pairIndex: (Int, Int), token: String, x: Double, y: Double, fontSize: Double)
+    case class HeaderItem(pairIndex: (Int, Int), token: String, x: Int, y: Int, fontSize: Int)
 
     val rootElement = annotator.getDom().getRootElement()
 
@@ -43,7 +42,7 @@ object HeaderPartAnnotator {
         val textMap = annotator.getTextMap("header")(blockBIndex, charBIndex)
         val elementMap = annotator.getElements("header")(blockBIndex, charBIndex)
 
-        val pairIndexSeq = textMap.toIndexedSeq.flatMap {
+        val headerItemSeq = textMap.toIndexedSeq.flatMap {
           case (_blockIndex, text) =>
             val _charIndex = if (_blockIndex == blockBIndex) charBIndex else 0
             (0 until text.size).filter(i => {
@@ -54,88 +53,106 @@ object HeaderPartAnnotator {
             }).map(i => {
               val e = elementMap(_blockIndex)
               val (xs, _, ys) = Annotator.getTransformedCoords(e, rootElement)
-              val x = HeaderLayout(
+              HeaderItem(
                 _blockIndex -> (_charIndex + i),
                 text.substring(i).split("\\s")(0),
-                xs(i),
-                ys(i),
-                Annotator.fontSize(e)
+                xs(i).toInt,
+                ys(i).toInt,
+                Annotator.fontSize(e).toInt
               )
-              println("x: " + x)
-              x 
             })
 
         }
 
+       headerItemSeq 
+
     }
 
 
-    
+    val str = headerSet.map(headerItemSeq => {
+      "#\n" + (headerItemSeq.map {
+        case HeaderItem(_, token, x, y, fontSize) =>
+          token + "\t" + x + "\t" + y + "\t" + fontSize
+      }).mkString("\n")
+    }).mkString("\n\n") + "\n\n#"
 
-    annotator
-  }
 
-  def run(): Unit =  {
+    val docs = {
+      val ds = (new LoadTSV(false)).fromSource(Source.fromString(str)).toIndexedSeq
+      process.DocProcessor(ds)
+      ds.toIndexedSeq
+    } 
 
-    val str = {
-"""
-# 
-Yale	2406	4923	-1
-University	2406	4923	-1
-Department	1638	4704	172
-of	1638	4704	172
-Computer	1638	4704	172
-Science	1638	4704	172
-P.O. 	2662	4168	133
-Box	2662	4168	133
-208205	2662	4168	133
-NewHaven	2386	4032	133
+    val headerSeq = headerSet.toIndexedSeq
+    val indexTypeTriple2LabelList = docs.zipWithIndex.flatMap {
+      case (doc, docIdx) =>
+        val headerItemSeq = headerSeq(docIdx)
+        val pairIndexSeq = headerItemSeq.map(_.pairIndex)
+        val typeLabelList = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue)
 
-# 
-A	1176	6955	-1
-Systematic	1176	6955	-1
-Procedure	1176	6955	-1
-for	1176	6955	-1
-Applying	1176	6955	-1
-Fast	1176	6955	-1
-Correlation	938	6736	157
-Attacks	938	6736	157
-to	938	6736	157
-Combiners	938	6736	157
-with	938	6736	157
-Memory	938	6736	157
-M.	1446	6447	107
-Salmasizadeh	1446	6447	107
-J.	1446	6447	107
-Golic	1446	6447	107
-E.	1446	6447	107
-Dawson	1446	6447	107
-L.	1446	6447	107
-Simpson	1446	6447	107
-Information	1446	6447	107
-Security	1446	6447	107
-Research	1446	6447	107
-Centre	1446	6447	107
+        typeLabelList.toList.zipWithIndex.map {
+          case (typeLabel, lsIdx) =>
+            val (bIndex, cIndex) = pairIndexSeq(lsIdx)
+            val typeString = typeLabel.take(1)
+            val labelString = typeLabel.drop(2)
+            (bIndex, cIndex, labelString) -> (typeString match {
+              case "B" => B(typeString.toCharArray()(0))
+              case "I" => I
+              case "O" => O
+            })
+        }
+    } toList
 
-#
-"""
+    type IISTrip = (Int, Int, String)
+    type StringLabelMap = Map[String, Label]
+
+    def replaceBIWithUL(list: List[(IISTrip, Label)]): List[(IISTrip, Label)] = {
+
+      def loop(
+          nextLabelMap: StringLabelMap, 
+          reverseList: List[(IISTrip, Label)]
+      ): List[(IISTrip, Label)] = {
+        reverseList match {
+          case Nil => 
+            List()
+          case (triple, label)::xs =>
+            val typeString = triple._3
+            val _nextLabelMap = nextLabelMap + (typeString -> label) 
+            val _label = (label, nextLabelMap.get(typeString)) match {
+              case (I, Some(B(_))) => L
+              case (B(c), Some(B(_))) => U(c)
+              case _ => label
+            }
+            (triple -> _label)::loop(_nextLabelMap, xs)
+        }
+
+      }
+
+      loop(HashMap[String, Label](), list.reverse).reverse
     }
 
-    //"false" means you want to load this data as unlabeled data
-    val docs = (new LoadTSV(false)).fromSource(Source.fromString(str))
+    val tripLabelMap = replaceBIWithUL(indexTypeTriple2LabelList).toMap
 
-    // process the documents with the CRF (the annotations are stored in token.attr[BioHeaderTag])
-    process.DocProcessor(docs)
+    val typeStringList = List(
+        "institution", 
+        "address", 
+        "title", 
+        "author", 
+        "tech", 
+        "date", 
+        "note", 
+        "abstract", 
+        "email"
+    )
 
-    //print some output if you want
-    docs.take(5).foreach(doc => {
-        val tokens = doc.sections.flatMap(_.tokens)
-        tokens.take(5).foreach(token => {
-          println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}")
+    typeStringList.foldLeft(annotator) {
+      case (anno, typeString) =>
+        val c = typeString.toCharArray()(0)
+        anno.annotate(List(typeString -> c), Single(SegmentCon("token")), (blockIndex, charIndex) => {
+          tripLabelMap.get((blockIndex, charIndex, typeString))
         })
-    })  
+    } 
 
   }
-
 
 }

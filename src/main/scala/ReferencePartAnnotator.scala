@@ -61,7 +61,7 @@ object ReferencePartAnnotator {
       
     }
 
-    val pairIndex2typeLabelMapList= docAndPairIndexSeqSet.flatMap {
+    val pairIndex2typeLabelMapList = docAndPairIndexSeqSet.flatMap {
       case (doc, pairIndexSeq) =>
         doc.tokens.map(token => {
           val labelTypeStringList = token.attr[CitationLabel].categoryValue.split(":")
