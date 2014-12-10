@@ -22,8 +22,9 @@ object Main {
     val filePath = args(0)
     val builder = new SAXBuilder()
     val dom = builder.build(new File(filePath)) 
-    val annotator = HeaderPartAnnotator.addAnnotation(BodyParaRefAnnotator.addAnnotation(LineAnnotator.addAnnotation(new Annotator(dom))))
-    //val annotator = ReferencePartAnnotator.addAnnotation(BodyParaRefAnnotator.addAnnotation(LineAnnotator.addAnnotation(new Annotator(dom))))
+    //val annotator = HeaderPartAnnotator.addAnnotation(BodyParaRefAnnotator.addAnnotation(LineAnnotator.addAnnotation(new Annotator(dom))))
+    val annotator = HeaderPartAnnotator.addAnnotation(ReferencePartAnnotator.addAnnotation(BodyParaRefAnnotator.addAnnotation(LineAnnotator.addAnnotation(new Annotator(dom)))))
+    //val annotator = (ReferencePartAnnotator.addAnnotation(BodyParaRefAnnotator.addAnnotation(LineAnnotator.addAnnotation(new Annotator(dom)))))
     annotator.write("/home/thomas/out.svg")
 
   }

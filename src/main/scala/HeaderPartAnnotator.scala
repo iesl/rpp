@@ -4,6 +4,7 @@ import java.io.File
 import org.jdom2.Content
 import org.jdom2.util.IteratorIterable
 import scala.collection.immutable.Queue
+import scala.collection.immutable.HashSet
 import scala.collection.immutable.HashMap
 import scala.collection.JavaConversions.iterableAsScalaIterable 
 
@@ -107,23 +108,48 @@ object HeaderPartAnnotator {
       ds.toIndexedSeq
     } 
 
+
+    val typeStringMap = HashMap(
+        "institution" -> ("institution", 'i'), 
+        "address" -> ("address", 'a'), 
+        "title" -> ("title", 't'), 
+        "author" -> ("author", 'a'),
+        "tech" -> ("tech", 't'), 
+        "date" -> ("date", 'd'), 
+        "note" -> ("note", 'n'), 
+        "abstract" -> ("abstract", 'b'), 
+        "email" -> ("email", 'e')
+    )
+
+
     val headerSeq = headerSet.map(_._2).toIndexedSeq
+
     val indexTypeTriple2LabelList = docs.zipWithIndex.flatMap {
       case (doc, docIdx) =>
         val headerItemSeq = headerSeq(docIdx)
         val pairIndexSeq = headerItemSeq.map(_.pairIndex)
         val typeLabelList = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue)
 
-        typeLabelList.toList.zipWithIndex.map {
+        typeLabelList.toList.zipWithIndex.flatMap {
           case (typeLabel, lsIdx) =>
             val (bIndex, cIndex) = pairIndexSeq(lsIdx)
-            val typeString = typeLabel.take(1)
-            val labelString = typeLabel.drop(2)
-            (bIndex, cIndex, labelString) -> (typeString match {
-              case "B" => B(typeString.toCharArray()(0))
-              case "I" => I
-              case "O" => O
+            val labelString = typeLabel.take(1)
+            val typeString = typeLabel.drop(2)
+
+            typeStringMap.get(typeString).map(_typePair => {
+
+              val _typeString =  _typePair._1
+              val _typeChar = _typePair._2
+
+              (bIndex, cIndex, _typeString) -> (labelString match {
+                case "B" => B(_typeChar)
+                case "I" => I
+                case "O" => O
+              })
+
             })
+
+
         }
     } toList
 
@@ -157,23 +183,11 @@ object HeaderPartAnnotator {
 
     val tripLabelMap = replaceBIWithUL(indexTypeTriple2LabelList).toMap
 
-    val typeStringList = List(
-        "institution", 
-        "address", 
-        "title", 
-        "author", 
-        "tech", 
-        "date", 
-        "note", 
-        "abstract", 
-        "email"
-    )
 
-    typeStringList.foldLeft(annoWithTokens) {
-      case (anno, typeString) =>
-        val c = typeString.toCharArray()(0)
-        anno.annotate(List(typeString -> c), Single(SegmentCon("header-token")), (blockIndex, charIndex) => {
-          tripLabelMap.get((blockIndex, charIndex, typeString))
+    typeStringMap.values.foldLeft(annoWithTokens) {
+      case (anno, (annoTypeName, annoTypeAbbrev)) =>
+        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("header-token")), (blockIndex, charIndex) => {
+          tripLabelMap.get((blockIndex, charIndex, annoTypeName))
         })
     } 
 

@@ -5,6 +5,7 @@ import org.jdom2.Content
 import org.jdom2.util.IteratorIterable
 import scala.collection.immutable.Queue
 import scala.collection.immutable.HashMap
+import scala.collection.immutable.HashSet
 import scala.collection.JavaConversions.iterableAsScalaIterable 
 
 import scala.collection.immutable.IntMap
@@ -86,20 +87,48 @@ object ReferencePartAnnotator {
       pairIndex2TokenLabelMap.get(blockIndex -> charIndex)
     })
 
+    val typeStringMap = HashMap(
+        "authors" -> ("authors", 'a'), 
+        "person" -> ("person", 'p'), 
+        "person-first" -> ("first", 'f'), 
+        "person-middle" -> ("middle", 'm'), 
+        "person-last" -> ("last", 'l'), 
+        "date" -> ("date", 'd'), 
+        "year" -> ("year", 'y'), 
+        "month" -> ("month", 'm'), 
+        "title" -> ("reference-title", 't'), 
+        "venue" -> ("venue", 'v'), 
+        "journal" -> ("journal", 'j'),
+        "ref-marker" -> ("ref-marker", 'o'), 
+        "volume" -> ("volume", 'z'), 
+        "pages" -> ("pages", 'p'),
+        "organization" -> ("org", 'o'),
+        "booktitle" -> ("booktitle", 'b'),
+        "reference_id" -> ("reference_id", 'x'),
+        "address" -> ("address", 'a')
+    )
+
     val pairIndex2typeLabelMapList = dptSeq.flatMap {
       case DPT(doc, pairIndexSeq, _) =>
         doc.tokens.map(token => {
           val labelTypeStringList = token.attr[CitationLabel].categoryValue.split(":")
           val pairIndex = pairIndexSeq(token.stringStart)
-          val typeLabelMap = labelTypeStringList.filter(!_.isEmpty).map(labelTypeString => {
+          val typeLabelMap = labelTypeStringList.filter(!_.isEmpty).flatMap(labelTypeString => {
             val labelString = labelTypeString.take(1)
             val typeString = labelTypeString.drop(2)
-            val label: Label = (labelString match {
-              case "B" => B(typeString.toCharArray()(0))
-              case "I" => I
-              case "O" => O
+
+            typeStringMap.get(typeString).map(_typePair => {
+              val _typeString =  _typePair._1
+              val _typeChar = _typePair._2
+
+              val label: Label = (labelString match {
+                case "B" => B(_typeChar)
+                case "I" => I
+                case "O" => O
+              })
+              _typeString -> label
             })
-            typeString -> label
+
           }).toMap
 
           pairIndex -> typeLabelMap
@@ -131,13 +160,11 @@ object ReferencePartAnnotator {
 
     val typeLabelMapMap = replaceBIWithUL(HashMap[String, Label](), pairIndex2typeLabelMapList.toList.reverse).toMap
 
-    val typeStrings = List("authors", "person", "person-last", "person-first", "date", "year", "title", "venue", "journal")
 
-    typeStrings.foldLeft(annoWithTokens) {
-      case (anno, typeString) =>
-        val c = typeString.toCharArray()(0)
-        anno.annotate(List(typeString -> c), Single(SegmentCon("reference-token")), (blockIndex, charIndex) => {
-          typeLabelMapMap.get(blockIndex -> charIndex).flatMap(_.get(typeString))
+    typeStringMap.values.foldLeft(annoWithTokens) {
+      case (anno, (annoTypeName, annoTypeAbbrev)) =>
+        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("reference-token")), (blockIndex, charIndex) => {
+          typeLabelMapMap.get(blockIndex -> charIndex).flatMap(_.get(annoTypeName))
         })
     } 
 
