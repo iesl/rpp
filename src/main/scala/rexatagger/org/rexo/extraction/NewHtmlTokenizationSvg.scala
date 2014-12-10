@@ -797,7 +797,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
         case (blockIndex, lineIndex) =>
           val textMap = _annotator.getTextMap("line")(blockIndex._1, blockIndex._2)
 
-          val lineText = textMap.values.mkString("")
+          val lineText = textMap.values.map(_._2).mkString("")
           val isTopOrBottomLine: Boolean = (lineIndex == firstLine || lineIndex == lastLine)
           val firstTbox:Element = _annotator.getElements("line")(blockIndex._1, blockIndex._2).values.toList(0)
 //          val coords = getCoordinates(firstTbox, 0.0, 0.0)

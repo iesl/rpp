@@ -57,14 +57,10 @@ object HeaderPartAnnotator {
         val textMap = annotator.getTextMap("header")(blockBIndex, charBIndex)
         val elementMap = annotator.getElements("header")(blockBIndex, charBIndex)
 
-        val pairIndexSeq = textMap.toIndexedSeq.flatMap {
-          case (_blockIndex, text) =>
-            val _charIndex = if (_blockIndex == blockBIndex) charBIndex else 0
-            (0 until text.size).map(i => _blockIndex -> (_charIndex + i))
-        }
+        val pairIndexSeq = Annotator.mkPairIndexSeq(textMap)
 
         val headerItemSeq = {
-          val text = textMap.values.mkString("")
+          val text = textMap.values.map(_._2).mkString("")
           val d = new Document(text)
           DeterministicTokenizer.process(d)
           d.tokens.map(token => {

@@ -47,22 +47,18 @@ object ReferencePartAnnotator {
         } else {
           val first = token.stringStart
           val last = token.stringEnd - 1
-          IntMap((token.stringStart + 1 until last).map(_ -> I): _*) + (first -> B('t')) + (last -> L)
+          (IntMap((token.stringStart + 1 until last).map(_ -> I): _*) + (first -> B('t'))) + (last -> L)
         }
       }
-
 
       val dpts = refBIndexPairSet.toSeq.map {
         case (blockBIndex, charBIndex) =>
           val textMap = annotator.getTextMap("biblio-marker")(blockBIndex, charBIndex)
-          val pairIndexSeq = textMap.toIndexedSeq.flatMap {
-            case (_blockIndex, text) =>
-              val _charIndex = if (_blockIndex == blockBIndex) charBIndex else 0
-              (0 until text.size).map(i => _blockIndex -> (_charIndex + i))
-          }
+
+          val pairIndexSeq = Annotator.mkPairIndexSeq(textMap)
 
           val doc = {
-            val text = textMap.values.mkString("")
+            val text = textMap.values.map(_._2).mkString("")
             val d = new Document(text)
             DeterministicTokenizer.process(d)
             new Sentence(d.asSection, 0, d.tokens.size)
