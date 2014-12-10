@@ -15,10 +15,10 @@ import org.jdom2.util.IteratorIterable
 
 import annotator.Annotator 
 
-object LineAnnotator {
+object LineProcessor extends Processor {
   import Annotator._
 
-  def addAnnotation(annotator: Annotator): Annotator =  {
+  override def process(annotator: Annotator): Annotator =  {
 
     def isSameLine(e1: Element, e2: Element): Boolean = {
       val lineThreshold = 7.0

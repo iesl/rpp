@@ -27,6 +27,32 @@ import annotator.Annotator
 
 import Annotator._
 
+//based onScalaTaggerSvg in rexa-scalatagger
+object StructureProcessor extends Processor {
+
+  val logger = Logger(LoggerFactory.getLogger("ScalaTagger"))
+
+  override def process(annotator: Annotator): Annotator = {
+
+    val rdoc = TaggerUtil.mkRDoc(annotator)
+    val pipeline: RxPipelineSvg = TaggerUtil.buildPipeline(Map[Any, Any]())
+
+    try {
+      pipeline.execute(rdoc)
+      logger.info("writing output file")
+      val a = TaggerUtil.annotateRx(rdoc)
+      if (a == null) annotator else a
+    } catch {
+      case e: Exception => {
+        e.printStackTrace()
+        annotator
+      }
+    }
+
+  }
+
+}
+
 object TaggerUtil {
 
   def mkRDoc(annotator: Annotator) = {
@@ -166,33 +192,5 @@ object TaggerUtil {
 
     resAnnot
   }
-
-}
-
-
-//based onScalaTaggerSvg in rexa-scalatagger
-object BodyParaRefAnnotator {
-
-  val logger = Logger(LoggerFactory.getLogger("ScalaTagger"))
-
-  def addAnnotation(annotator: Annotator): Annotator = {
-
-    val rdoc = TaggerUtil.mkRDoc(annotator)
-    val pipeline: RxPipelineSvg = TaggerUtil.buildPipeline(Map[Any, Any]())
-
-    try {
-      pipeline.execute(rdoc)
-      logger.info("writing output file")
-      val a = TaggerUtil.annotateRx(rdoc)
-      if (a == null) annotator else a
-    } catch {
-      case e: Exception => {
-        e.printStackTrace()
-        annotator
-      }
-    }
-
-  }
-
 
 }

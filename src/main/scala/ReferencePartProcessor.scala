@@ -24,16 +24,16 @@ import cc.factorie.app.nlp.Sentence
 import cc.factorie.app.nlp.Token
 
 
-object ReferencePartAnnotator {
+object ReferencePartProcessor extends Processor {
   import Annotator._
 
-  def addAnnotation(annotator: Annotator): Annotator =  {
+  override def process(annotator: Annotator): Annotator =  {
 
+    val modelUri = "file://" + getClass.getResource("/citationCRF.factorie").getPath()
+    val lexiconUrlPrefix = "file:///home/thomas/iesl/bibie/src/main/resources/lexicons"
+    //val lexiconUrlPrefix = TestCitationModel.getClass.getClassLoader().getResource("/lexicons").getPath();
 
-    val trainer = TestCitationModel.loadModel(
-      "file:///home/thomas/iesl/citationCRF.factorie",
-      "file:///home/thomas/iesl/bibie/src/main/resources/lexicons"
-    )
+    val trainer = TestCitationModel.loadModel(modelUri, lexiconUrlPrefix)
 
     val refBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
 

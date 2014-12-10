@@ -19,12 +19,17 @@ object Main {
   import Annotator._
 
   def main(args: Array[String]): Unit = {
-    val filePath = args(0)
+
+    val filePath = "1301.4293.svg" 
+
     val builder = new SAXBuilder()
     val dom = builder.build(new File(filePath)) 
-    //val annotator = HeaderPartAnnotator.addAnnotation(BodyParaRefAnnotator.addAnnotation(LineAnnotator.addAnnotation(new Annotator(dom))))
-    val annotator = HeaderPartAnnotator.addAnnotation(ReferencePartAnnotator.addAnnotation(BodyParaRefAnnotator.addAnnotation(LineAnnotator.addAnnotation(new Annotator(dom)))))
-    //val annotator = (ReferencePartAnnotator.addAnnotation(BodyParaRefAnnotator.addAnnotation(LineAnnotator.addAnnotation(new Annotator(dom)))))
+
+    val l = List(LineProcessor, StructureProcessor, ReferencePartProcessor, HeaderPartProcessor)
+    val annotator = l.foldLeft(new Annotator(dom)) {
+      case (annoAcc, pro) => pro.process(annoAcc)
+    } 
+
     annotator.write("/home/thomas/out.svg")
 
   }

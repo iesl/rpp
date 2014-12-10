@@ -15,7 +15,7 @@ import org.jdom2.filter.ElementFilter
 import org.jdom2.Element
 import org.jdom2.util.IteratorIterable
 
-import edu.umass.cs.iesl.paperheader.process
+import edu.umass.cs.iesl.paperheader
 import edu.umass.cs.iesl.paperheader.crf
 
 import edu.umass.cs.iesl.paperheader.crf.BioHeaderTag
@@ -29,11 +29,10 @@ import cc.factorie.app.nlp.Sentence
 
 import cc.factorie.app.nlp.Token
 
-object HeaderPartAnnotator {
+object HeaderPartProcessor extends Processor {
   import Annotator._
 
-  def addAnnotation(annotator: Annotator): Annotator =  {
-
+  override def process(annotator: Annotator): Annotator =  {
 
     case class HeaderItem(pairIndex: (Int, Int), token: Token, x: Int, y: Int, fontSize: Int)
 
@@ -104,7 +103,7 @@ object HeaderPartAnnotator {
 
     val docs = {
       val ds = (new LoadTSV(false)).fromSource(Source.fromString(str)).toIndexedSeq
-      process.DocProcessor(ds)
+      paperheader.process.DocProcessor(ds)
       ds.toIndexedSeq
     } 
 
