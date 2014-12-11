@@ -50,6 +50,7 @@ object HeaderPartProcessor extends Processor {
 
     //create index from (section idx) -> (bIndex, cIndex)
     val headerBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("header")))
+    val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range(SegmentCon("header"), SegmentCon("line")))
 
     val headerSet = headerBIndexPairSet.map {
 
@@ -57,14 +58,30 @@ object HeaderPartProcessor extends Processor {
         val textMap = annotator.getTextMap("header")(blockBIndex, charBIndex)
         val elementMap = annotator.getElements("header")(blockBIndex, charBIndex)
 
-        val pairIndexSeq = Annotator.mkPairIndexSeq(textMap)
+        val indexPairMap = Annotator.mkPairIndexSeq(textMap).foldLeft(IntMap[(Int,Int)]()) {
+          case (mapAcc, indexPair) =>
+            val key = if (mapAcc.isEmpty) 0 else mapAcc.lastKey + 1
+            mapAcc + (if (lineBIndexPairSet.contains(indexPair)) {
+              (key + 1) -> indexPair
+            } else {
+              key -> indexPair
+            })
+        }
 
         val headerItemSeq = {
-          val text = textMap.values.map(_._2).mkString("")
+          val text = textMap.foldLeft("") {
+            case (strAcc, (blockIndex, (charIndex, text))) =>
+              if (lineBIndexPairSet.contains(blockIndex -> charIndex)) {
+                strAcc + "\n" + text
+              } else {
+                strAcc + text
+              }
+
+          }
           val d = new Document(text)
           DeterministicTokenizer.process(d)
           d.tokens.map(token => {
-            val pairIndex = pairIndexSeq(token.stringStart)
+            val pairIndex = indexPairMap(token.stringStart)
             val e = elementMap(pairIndex._1)
             val (xs, _, ys) = Annotator.getTransformedCoords(e, rootElement)
             HeaderItem(
@@ -78,7 +95,7 @@ object HeaderPartProcessor extends Processor {
         }
 
         val pairIndex2TokenLabelMap = headerItemSeq.flatMap(hi => token2LabelMap(hi.token)).map {
-          case (i, label) => pairIndexSeq(i) -> label
+          case (i, label) => indexPairMap(i) -> label
         } toMap
 
         (pairIndex2TokenLabelMap, headerItemSeq)
@@ -99,7 +116,6 @@ object HeaderPartProcessor extends Processor {
       }).mkString("\n")
     }}).mkString("\n\n") + "\n\n#"
 
-    println(str)
 
     val docs = {
       val ds = (new LoadTSV(false)).fromSource(Source.fromString(str)).toIndexedSeq
@@ -126,12 +142,12 @@ object HeaderPartProcessor extends Processor {
     val indexTypeTriple2LabelList = docs.zipWithIndex.flatMap {
       case (doc, docIdx) =>
         val headerItemSeq = headerSeq(docIdx)
-        val pairIndexSeq = headerItemSeq.map(_.pairIndex)
+        val indexPairMap = headerItemSeq.map(_.pairIndex)
         val typeLabelList = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue)
 
         typeLabelList.toList.zipWithIndex.flatMap {
           case (typeLabel, lsIdx) =>
-            val (bIndex, cIndex) = pairIndexSeq(lsIdx)
+            val (bIndex, cIndex) = indexPairMap(lsIdx)
             val labelString = typeLabel.take(1)
             val typeString = typeLabel.drop(2)
 

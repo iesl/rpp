@@ -36,7 +36,9 @@ object ReferencePartProcessor extends Processor {
 
     val refBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
 
-    case class DPT(doc: Document, pairIndexSeq: Seq[(Int, Int)], tokenLabelMap: Map[(Int, Int), Label])
+    val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range(SegmentCon("biblio-marker"), SegmentCon("line")))
+
+    case class DPT(doc: Document, indexPairMap: IntMap[(Int, Int)], tokenLabelMap: Map[(Int, Int), Label])
 
 
     val dptSeq = {
@@ -55,10 +57,27 @@ object ReferencePartProcessor extends Processor {
         case (blockBIndex, charBIndex) =>
           val textMap = annotator.getTextMap("biblio-marker")(blockBIndex, charBIndex)
 
-          val pairIndexSeq = Annotator.mkPairIndexSeq(textMap)
+          val indexPairMap = Annotator.mkPairIndexSeq(textMap).foldLeft(IntMap[(Int,Int)]()) {
+            case (mapAcc, indexPair) =>
+              val key = if (mapAcc.isEmpty) 0 else mapAcc.lastKey + 1
+              mapAcc + (if (lineBIndexPairSet.contains(indexPair)) {
+                (key + 1) -> indexPair
+              } else {
+                key -> indexPair
+              })
+          }
 
           val doc = {
-            val text = textMap.values.map(_._2).mkString("")
+            val text = textMap.foldLeft("") {
+              case (strAcc, (blockIndex, (charIndex, text))) =>
+                if (lineBIndexPairSet.contains(blockIndex -> charIndex)) {
+                  strAcc + "\n" + text
+                } else {
+                  strAcc + text
+                }
+
+            }
+
             val d = new Document(text)
             DeterministicTokenizer.process(d)
             new Sentence(d.asSection, 0, d.tokens.size)
@@ -69,10 +88,10 @@ object ReferencePartProcessor extends Processor {
           }
 
           val pairIndex2TokenLabelMap = doc.tokens.flatMap(token2LabelMap(_)).toMap.map {
-            case (tokId, label) => pairIndexSeq(tokId) -> label
+            case (tokId, label) => indexPairMap(tokId) -> label
           }
 
-          DPT(doc, pairIndexSeq, pairIndex2TokenLabelMap)
+          DPT(doc, indexPairMap, pairIndex2TokenLabelMap)
       }
 
       TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
@@ -108,10 +127,10 @@ object ReferencePartProcessor extends Processor {
     )
 
     val pairIndex2typeLabelMapList = dptSeq.flatMap {
-      case DPT(doc, pairIndexSeq, _) =>
+      case DPT(doc, indexPairMap, _) =>
         doc.tokens.map(token => {
           val labelTypeStringList = token.attr[CitationLabel].categoryValue.split(":")
-          val pairIndex = pairIndexSeq(token.stringStart)
+          val pairIndex = indexPairMap(token.stringStart)
           val typeLabelMap = labelTypeStringList.filter(!_.isEmpty).flatMap(labelTypeString => {
             val labelString = labelTypeString.take(1)
             val typeString = labelTypeString.drop(2)
