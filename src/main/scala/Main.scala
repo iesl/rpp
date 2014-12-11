@@ -16,11 +16,10 @@ import org.jdom2.util.IteratorIterable
 import annotator.Annotator 
 
 object Main {
-  import Annotator._
 
   def main(args: Array[String]): Unit = {
 
-    val filePath = "1301.4293.svg" 
+    val filePath = "../iesl-pdf-to-text/svgdump/1301.4293.svg" 
 
     val builder = new SAXBuilder()
     val dom = builder.build(new File(filePath)) 
@@ -31,6 +30,49 @@ object Main {
     } 
 
     annotator.write("/home/thomas/out.svg")
+
+    //find all the lines
+    println
+    println("lines")
+    val lines = annotator.getTextByAnnotationType("line")
+    lines.foreach(println(_))
+
+    //find all the references ("biblio-marker")
+    println
+    println("biblios")
+    val biblios = annotator.getTextByAnnotationType("biblio-marker")
+    biblios.foreach(println(_))
+
+    //find all the lines that are references ("biblio-marker"),
+    //which is allowed because biblio-markers are constrained by lines
+    println
+    println("biblio lines")
+    val blines = annotator.getFilteredTextByAnnotationType("biblio-marker","line")
+    blines.foreach(println(_))
+
+
+    //get other data by using more primitive functions.
+    //functions (in order from low to high level abstractions)
+    //on Annotator instance
+    //annotator.getSegment
+    //annotator.getRange
+    //annotator.getElementsInRange
+    //annotator.getTextMapInRange
+    //annotator.getTextMap
+    //annotator.getAnnotatableIndexPairSet
+
+    //on Annotator object
+    //Annotator.fontSize
+    //Annotator.y
+    //Annotator.xs
+    //Annotator.endX
+    //Annotator.commonAncestor
+    //Annotator.getTransformedCoords
+    //Annotator.mkPairIndexSeq
+
+    //read the Annotator source in xml-annotator
+    //see example uses in LineProcessor and ReferencePartProcessor
+    //send me questions at tlogan@cs.umass.edu
 
   }
 

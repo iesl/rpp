@@ -1,6 +1,5 @@
 package org.rexo.extraction
 
-import rpp.LineAnnotator
 import annotator.Annotator
 import Annotator._
 import org.jdom2.Document
