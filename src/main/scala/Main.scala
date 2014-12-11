@@ -19,7 +19,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 
-    val filePath = "../iesl-pdf-to-text/svgdump/1301.4293.svg" 
+    val filePath = args(0) 
 
     val builder = new SAXBuilder()
     val dom = builder.build(new File(filePath)) 
@@ -29,7 +29,7 @@ object Main {
       case (annoAcc, pro) => pro.process(annoAcc)
     } 
 
-    annotator.write("/home/thomas/out.svg")
+    annotator.write("out.svg")
 
     //find all the lines
     println
