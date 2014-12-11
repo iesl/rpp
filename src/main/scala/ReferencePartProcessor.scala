@@ -30,8 +30,7 @@ object ReferencePartProcessor extends Processor {
   override def process(annotator: Annotator): Annotator =  {
 
     val modelUri = "file://" + getClass.getResource("/citationCRF.factorie").getPath()
-    val lexiconUrlPrefix = "file:///home/thomas/iesl/bibie/src/main/resources/lexicons"
-    //val lexiconUrlPrefix = TestCitationModel.getClass.getClassLoader().getResource("/lexicons").getPath();
+    val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
 
     val trainer = TestCitationModel.loadModel(modelUri, lexiconUrlPrefix)
 
