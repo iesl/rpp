@@ -152,9 +152,9 @@ object ReferencePartProcessor extends Processor {
           case (indexPair, typeLabelMap)::xs =>
             val _nextLabelMap = nextLabelMap ++ typeLabelMap
             val _typeLabelMap = typeLabelMap.map { case (typeString, label) => 
-              (label, nextLabelMap.get(typeString)) match {
-                case (I, Some(B(_))) => (typeString -> L)
-                case (B(c), Some(B(_))) => (typeString -> U(c))
+              (label, nextLabelMap(typeString)) match {
+                case (I, B(_)) => (typeString -> L)
+                case (B(c), B(_)) => (typeString -> U(c))
                 case _ => (typeString -> label)
               }
             }
@@ -162,7 +162,11 @@ object ReferencePartProcessor extends Processor {
         }
       }
 
-      loop(HashMap[String, Label](), list.reverse).reverse
+      val m =  typePairMap.values.map {
+        case (typeString, typeChar) => typeString -> B(typeChar)
+      } toMap
+
+      loop(m, list.reverse).reverse
 
     }
 

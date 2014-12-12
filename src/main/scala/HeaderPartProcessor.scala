@@ -96,7 +96,7 @@ object HeaderPartProcessor extends Processor {
     val str = (headerSet.map { case (_, headerItemSeq) => {
       "#\n" + (headerItemSeq.map {
         case HeaderItem(_, token, x, y, fontSize) =>
-          token + "\t" + x + "\t" + y + "\t" + fontSize
+          token.string + "\t" + x + "\t" + y + "\t" + fontSize
       }).mkString("\n")
     }}).mkString("\n\n") + "\n\n#"
 
@@ -110,7 +110,7 @@ object HeaderPartProcessor extends Processor {
 
     val typePairMap = HashMap(
         "institution" -> ("institution", 'i'), 
-        "address" -> ("address", 'a'), 
+        "address" -> ("h-address", 'a'), 
         "title" -> ("title", 't'), 
         "author" -> ("author", 'a'),
         "tech" -> ("tech", 't'), 
@@ -167,9 +167,9 @@ object HeaderPartProcessor extends Processor {
           case (triple, label)::xs =>
             val typeString = triple._3
             val _nextLabelMap = nextLabelMap + (typeString -> label) 
-            val _label = (label, nextLabelMap.get(typeString)) match {
-              case (I, Some(B(_))) => L
-              case (B(typeChar), Some(B(_))) => U(typeChar)
+            val _label = (label, nextLabelMap(typeString)) match {
+              case (I, B(_)) => L
+              case (B(typeChar), B(_)) => U(typeChar)
               case _ => label
             }
             (triple -> _label)::loop(_nextLabelMap, xs)
@@ -177,11 +177,14 @@ object HeaderPartProcessor extends Processor {
 
       }
 
-      loop(HashMap[String, Label](), list.reverse).reverse
+      val m =  typePairMap.values.map {
+        case (typeString, typeChar) => typeString -> B(typeChar)
+      } toMap
+
+      loop(m, list.reverse).reverse
     }
 
     val tripLabelMap = replaceBIWithUL(indexTypeTriple2LabelList).toMap
-
 
     typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>
