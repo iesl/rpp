@@ -35,40 +35,37 @@ object Main {
     println
     println("lines")
     val lines = annotator.getTextByAnnotationType("line")
-    lines.foreach(println(_))
+    lines.zipWithIndex.foreach(p => println(p._2 + ": " + p._1))
 
     //find all the references ("biblio-marker")
     println
     println("biblios")
     val biblios = annotator.getTextByAnnotationType("biblio-marker")
-    biblios.foreach(println(_))
+    biblios.zipWithIndex.foreach(p => println(p._2 + ": " + p._1))
+
+    //if you don't want the lines within each biblio/refernece glued together, you can add line breaks 
+    println
+    println("biblios with line breaks")
+    import Annotator._
+    val biblioBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
+    val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range(SegmentCon("biblio-marker"), SegmentCon("line")))
+    val biblios2 = biblioBIndexPairSet.map {
+      case (blockBIndex, charBIndex) =>
+          val textMap = annotator.getTextMap("biblio-marker")(blockBIndex, charBIndex)
+          val indexPairMap = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet) 
+          val text = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet)
+          text
+    }
+
+    biblios2.zipWithIndex.foreach(p => println(p._2 + ": " + p._1))
 
     //find all the lines that are references ("biblio-marker"),
     //which is allowed because biblio-markers are constrained by lines
     println
     println("biblio lines")
     val blines = annotator.getFilteredTextByAnnotationType("biblio-marker","line")
-    blines.foreach(println(_))
+    blines.zipWithIndex.foreach(p => println(p._2 + ": " + p._1))
 
-
-    //get other data by using more primitive functions.
-    //functions (in order from low to high level abstractions)
-    //on Annotator instance
-    //annotator.getSegment
-    //annotator.getRange
-    //annotator.getElementsInRange
-    //annotator.getTextMapInRange
-    //annotator.getTextMap
-    //annotator.getAnnotatableIndexPairSet
-
-    //on Annotator object
-    //Annotator.fontSize
-    //Annotator.y
-    //Annotator.xs
-    //Annotator.endX
-    //Annotator.commonAncestor
-    //Annotator.getTransformedCoords
-    //Annotator.mkPairIndexSeq
 
     //read the Annotator source in xml-annotator
     //see example uses in LineProcessor and ReferencePartProcessor
