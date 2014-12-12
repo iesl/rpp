@@ -15,10 +15,10 @@ lib_managed
 # VIM
 *.sw?
 
-#pdf svg extractor
-svgdump
-
-#svg output dirs
-*.d
+#svgs
+*.svg
 
 *~
+
+#crf model
+*.factorie
