@@ -90,24 +90,24 @@ object ReferencePartProcessor extends Processor {
     })
 
     val typePairMap = HashMap(
-        "authors" -> ("authors", 'a'), 
-        "person" -> ("person", 'p'), 
-        "person-first" -> ("first", 'f'), 
-        "person-middle" -> ("middle", 'm'), 
-        "person-last" -> ("last", 'l'), 
-        "date" -> ("date", 'd'), 
-        "year" -> ("year", 'y'), 
-        "month" -> ("month", 'm'), 
-        "title" -> ("reference-title", 't'), 
-        "venue" -> ("venue", 'v'), 
-        "journal" -> ("journal", 'j'),
+        "authors" -> ("ref-authors", 'a'), 
+        "person" -> ("ref-person", 'p'), 
+        "person-first" -> ("ref-first", 'f'), 
+        "person-middle" -> ("ref-middle", 'm'), 
+        "person-last" -> ("ref-last", 'l'), 
+        "date" -> ("ref-date", 'd'), 
+        "year" -> ("ref-year", 'y'), 
+        "month" -> ("ref-month", 'm'), 
+        "title" -> ("ref-title", 't'), 
+        "venue" -> ("ref-venue", 'v'), 
+        "journal" -> ("ref-journal", 'j'),
         "ref-marker" -> ("ref-marker", 'o'), 
-        "volume" -> ("volume", 'z'), 
-        "pages" -> ("pages", 'p'),
-        "organization" -> ("org", 'o'),
-        "booktitle" -> ("booktitle", 'b'),
+        "volume" -> ("ref-volume", 'z'), 
+        "pages" -> ("ref-pages", 'p'),
+        "organization" -> ("ref-organization", 'o'),
+        "booktitle" -> ("ref-booktitle", 'b'),
         "reference_id" -> ("reference_id", 'x'),
-        "address" -> ("address", 'a')
+        "address" -> ("ref-address", 'a')
     )
 
     val indexPair2typeLabelMapList = dptSeq.toList.flatMap {
