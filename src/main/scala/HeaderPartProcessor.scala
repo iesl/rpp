@@ -58,26 +58,10 @@ object HeaderPartProcessor extends Processor {
         val textMap = annotator.getTextMap("header")(blockBIndex, charBIndex)
         val elementMap = annotator.getElements("header")(blockBIndex, charBIndex)
 
-        val indexPairMap = Annotator.mkPairIndexSeq(textMap).foldLeft(IntMap[(Int,Int)]()) {
-          case (mapAcc, indexPair) =>
-            val key = if (mapAcc.isEmpty) 0 else mapAcc.lastKey + 1
-            mapAcc + (if (lineBIndexPairSet.contains(indexPair)) {
-              (key + 1) -> indexPair
-            } else {
-              key -> indexPair
-            })
-        }
+        val indexPairMap = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet) 
 
         val headerItemSeq = {
-          val text = textMap.foldLeft("") {
-            case (strAcc, (blockIndex, (charIndex, text))) =>
-              if (lineBIndexPairSet.contains(blockIndex -> charIndex)) {
-                strAcc + "\n" + text
-              } else {
-                strAcc + text
-              }
-
-          }
+          val text = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet)
           val d = new Document(text)
           DeterministicTokenizer.process(d)
           d.tokens.map(token => {
