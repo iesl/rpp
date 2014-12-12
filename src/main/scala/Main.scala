@@ -49,7 +49,7 @@ object Main {
     import Annotator._
     val biblioBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
     val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range(SegmentCon("biblio-marker"), SegmentCon("line")))
-    val biblios2 = biblioBIndexPairSet.map {
+    val biblios2 = biblioBIndexPairSet.toList.map {
       case (blockBIndex, charBIndex) =>
           val textMap = annotator.getTextMap("biblio-marker")(blockBIndex, charBIndex)
           val indexPairMap = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet) 
