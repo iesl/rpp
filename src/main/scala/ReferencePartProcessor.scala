@@ -71,11 +71,11 @@ object ReferencePartProcessor extends Processor {
             d
           }
 
-          val pairIndex2TokenLabelMap = doc.tokens.flatMap(token2LabelMap(_)).toMap.map {
+          val indexPair2TokenLabelMap = doc.tokens.flatMap(token2LabelMap(_)).toMap.map {
             case (tokId, label) => indexPairMap(tokId) -> label
           }
 
-          DPT(doc, indexPairMap, pairIndex2TokenLabelMap)
+          DPT(doc, indexPairMap, indexPair2TokenLabelMap)
       }
 
       TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
@@ -83,13 +83,13 @@ object ReferencePartProcessor extends Processor {
       
     }
 
-    val pairIndex2TokenLabelMap = dptSeq.flatMap(_.tokenLabelMap).toMap
+    val indexPair2TokenLabelMap = dptSeq.flatMap(_.tokenLabelMap).toMap
 
     val annoWithTokens = annotator.annotate(List("reference-token" -> 't'), Single(CharCon), (blockIndex, charIndex) => {
-      pairIndex2TokenLabelMap.get(blockIndex -> charIndex)
+      indexPair2TokenLabelMap.get(blockIndex -> charIndex)
     })
 
-    val typeStringMap = HashMap(
+    val typePairMap = HashMap(
         "authors" -> ("authors", 'a'), 
         "person" -> ("person", 'p'), 
         "person-first" -> ("first", 'f'), 
@@ -110,60 +110,65 @@ object ReferencePartProcessor extends Processor {
         "address" -> ("address", 'a')
     )
 
-    val pairIndex2typeLabelMapList = dptSeq.flatMap {
+    val indexPair2typeLabelMapList = dptSeq.toList.flatMap {
       case DPT(doc, indexPairMap, _) =>
         doc.tokens.map(token => {
           val labelTypeStringList = token.attr[CitationLabel].categoryValue.split(":")
-          val pairIndex = indexPairMap(token.stringStart)
+          val indexPair = indexPairMap(token.stringStart)
           val typeLabelMap = labelTypeStringList.filter(!_.isEmpty).flatMap(labelTypeString => {
             val labelString = labelTypeString.take(1)
-            val typeString = labelTypeString.drop(2)
+            val typeKey = labelTypeString.drop(2)
 
-            typeStringMap.get(typeString).map(_typePair => {
-              val _typeString =  _typePair._1
-              val _typeChar = _typePair._2
+            typePairMap.get(typeKey).map(typePair => {
+              val typeString =  typePair._1
+              val typeChar = typePair._2
 
               val label: Label = (labelString match {
-                case "B" => B(_typeChar)
+                case "B" => B(typeChar)
                 case "I" => I
                 case "O" => O
               })
-              _typeString -> label
+              typeString -> label
             })
 
           }).toMap
 
-          pairIndex -> typeLabelMap
+          indexPair -> typeLabelMap
         })
     } 
 
     type IntPair = (Int, Int)
     type StringLabelMap = Map[String, Label]
-    def replaceBIWithUL(
-        nextLabelMap: StringLabelMap, 
-        reverseList: List[(IntPair, StringLabelMap)]
-    ): List[(IntPair, StringLabelMap)] = {
-      reverseList match {
-        case Nil => 
-          List()
-        case (pairIndex, typeLabelMap)::xs =>
-          val _nextLabelMap = nextLabelMap ++ typeLabelMap
-          val _typeLabelMap = typeLabelMap.map { case (string, label) => 
-            (label, nextLabelMap.get(string)) match {
-              case (I, Some(B(_))) => (string -> L)
-              case (B(c), Some(B(_))) => (string -> U(c))
-              case _ => (string -> label)
+
+    def replaceBIWithUL(list: List[(IntPair, StringLabelMap)]): List[(IntPair, StringLabelMap)] = {
+
+      def loop(
+          nextLabelMap: StringLabelMap, 
+          reverseList: List[(IntPair, StringLabelMap)]
+      ): List[(IntPair, StringLabelMap)] = {
+        reverseList match {
+          case Nil => 
+            List()
+          case (indexPair, typeLabelMap)::xs =>
+            val _nextLabelMap = nextLabelMap ++ typeLabelMap
+            val _typeLabelMap = typeLabelMap.map { case (typeString, label) => 
+              (label, nextLabelMap.get(typeString)) match {
+                case (I, Some(B(_))) => (typeString -> L)
+                case (B(c), Some(B(_))) => (typeString -> U(c))
+                case _ => (typeString -> label)
+              }
             }
-          }
-          (pairIndex -> _typeLabelMap)::replaceBIWithUL(_nextLabelMap, xs)
+            (indexPair -> _typeLabelMap)::loop(_nextLabelMap, xs)
+        }
       }
+
+      loop(HashMap[String, Label](), list.reverse).reverse
 
     }
 
-    val typeLabelMapMap = replaceBIWithUL(HashMap[String, Label](), pairIndex2typeLabelMapList.toList.reverse).toMap
+    val typeLabelMapMap = replaceBIWithUL(indexPair2typeLabelMapList).toMap
 
-
-    typeStringMap.values.foldLeft(annoWithTokens) {
+    typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>
         anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("reference-token")), (blockIndex, charIndex) => {
           typeLabelMapMap.get(blockIndex -> charIndex).flatMap(_.get(annoTypeName))

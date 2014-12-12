@@ -34,7 +34,7 @@ object HeaderPartProcessor extends Processor {
 
   override def process(annotator: Annotator): Annotator =  {
 
-    case class HeaderItem(pairIndex: (Int, Int), token: Token, x: Int, y: Int, fontSize: Int)
+    case class HeaderItem(indexPair: (Int, Int), token: Token, x: Int, y: Int, fontSize: Int)
 
     def token2LabelMap(token: Token): IntMap[Label] = {
       if (token.stringStart + 1 == token.stringEnd) {
@@ -65,32 +65,32 @@ object HeaderPartProcessor extends Processor {
           val d = new Document(text)
           DeterministicTokenizer.process(d)
           d.tokens.map(token => {
-            val pairIndex = indexPairMap(token.stringStart)
-            val e = elementMap(pairIndex._1)
+            val indexPair = indexPairMap(token.stringStart)
+            val e = elementMap(indexPair._1)
             val (xs, _, ys) = Annotator.getTransformedCoords(e, rootElement)
             HeaderItem(
-              pairIndex,
+              indexPair,
               token,
-              xs(pairIndex._2).toInt,
-              ys(pairIndex._2).toInt,
+              xs(indexPair._2).toInt,
+              ys(indexPair._2).toInt,
               Annotator.fontSize(e).toInt
             )
           }).toIndexedSeq
         }
 
-        val pairIndex2TokenLabelMap = headerItemSeq.flatMap(hi => token2LabelMap(hi.token)).map {
+        val indexPair2TokenLabelMap = headerItemSeq.flatMap(hi => token2LabelMap(hi.token)).map {
           case (i, label) => indexPairMap(i) -> label
         } toMap
 
-        (pairIndex2TokenLabelMap, headerItemSeq)
+        (indexPair2TokenLabelMap, headerItemSeq)
 
     }
 
 
-    val pairIndex2TokenLabelMap = headerSet.flatMap(_._1).toMap
+    val indexPair2TokenLabelMap = headerSet.flatMap(_._1).toMap
 
     val annoWithTokens = annotator.annotate(List("header-token" -> 't'), Single(CharCon), (blockIndex, charIndex) => {
-      pairIndex2TokenLabelMap.get(blockIndex -> charIndex)
+      indexPair2TokenLabelMap.get(blockIndex -> charIndex)
     })
 
     val str = (headerSet.map { case (_, headerItemSeq) => {
@@ -108,7 +108,7 @@ object HeaderPartProcessor extends Processor {
     } 
 
 
-    val typeStringMap = HashMap(
+    val typePairMap = HashMap(
         "institution" -> ("institution", 'i'), 
         "address" -> ("address", 'a'), 
         "title" -> ("title", 't'), 
@@ -126,22 +126,22 @@ object HeaderPartProcessor extends Processor {
     val indexTypeTriple2LabelList = docs.zipWithIndex.flatMap {
       case (doc, docIdx) =>
         val headerItemSeq = headerSeq(docIdx)
-        val indexPairMap = headerItemSeq.map(_.pairIndex)
+        val indexPairMap = headerItemSeq.map(_.indexPair)
         val typeLabelList = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue)
 
         typeLabelList.toList.zipWithIndex.flatMap {
           case (typeLabel, lsIdx) =>
             val (bIndex, cIndex) = indexPairMap(lsIdx)
             val labelString = typeLabel.take(1)
-            val typeString = typeLabel.drop(2)
+            val typeKey = typeLabel.drop(2)
 
-            typeStringMap.get(typeString).map(_typePair => {
+            typePairMap.get(typeKey).map(typePair => {
 
-              val _typeString =  _typePair._1
-              val _typeChar = _typePair._2
+              val typeString =  typePair._1
+              val typeChar = typePair._2
 
-              (bIndex, cIndex, _typeString) -> (labelString match {
-                case "B" => B(_typeChar)
+              (bIndex, cIndex, typeString) -> (labelString match {
+                case "B" => B(typeChar)
                 case "I" => I
                 case "O" => O
               })
@@ -169,7 +169,7 @@ object HeaderPartProcessor extends Processor {
             val _nextLabelMap = nextLabelMap + (typeString -> label) 
             val _label = (label, nextLabelMap.get(typeString)) match {
               case (I, Some(B(_))) => L
-              case (B(c), Some(B(_))) => U(c)
+              case (B(typeChar), Some(B(_))) => U(typeChar)
               case _ => label
             }
             (triple -> _label)::loop(_nextLabelMap, xs)
@@ -183,7 +183,7 @@ object HeaderPartProcessor extends Processor {
     val tripLabelMap = replaceBIWithUL(indexTypeTriple2LabelList).toMap
 
 
-    typeStringMap.values.foldLeft(annoWithTokens) {
+    typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>
         anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("header-token")), (blockIndex, charIndex) => {
           tripLabelMap.get((blockIndex, charIndex, annoTypeName))
