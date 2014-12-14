@@ -319,6 +319,9 @@ class LineInfo2TokenSequenceV2 extends Pipe with Serializable {
     var i: Int = 0
     while (i < lineInfos.length) {
       {
+        ///////////////////////////////
+        println(lineInfos(i).llx + "----" + lineInfos(i).lly + ": " + lineInfos(i).text)
+        ///////////////////////////////
         if (lineInfos(i).presentFeatures.contains("firstReferenceLine")) {
           firstLine = lineInfos(i)
         }

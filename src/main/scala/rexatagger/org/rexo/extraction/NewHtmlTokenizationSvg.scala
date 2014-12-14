@@ -2,7 +2,7 @@ package org.rexo.extraction
 
 import annotator.Annotator
 import Annotator._
-import org.jdom2.Document
+import org.jdom2.{Parent, Document, Element}
 import org.rexo.util.EnglishDictionary
 import scala.collection.mutable
 
@@ -19,7 +19,6 @@ import org.jdom2.filter.Filters
 import org.rexo.span.CompositeSpan
 import org.rexo.extra.extract.StringSpan
 import org.rexo.extra.utils.CharSequenceLexer
-import org.jdom2.Element
 import scala.collection.JavaConverters._
 
 /**
@@ -27,6 +26,17 @@ import scala.collection.JavaConverters._
  */
 object NewHtmlTokenizationSvg {
 
+  def getPageNumber(elem:Element, doc:Document):Int =
+  {
+    if(elem.getParent!= doc.getRootElement)
+    {
+      return getPageNumber(elem.getParent.asInstanceOf[Element], doc)
+    }
+    else
+    {
+      return doc.getRootElement.getChildren().indexOf(elem)
+    }
+  }
   var lastBracketId = 0;
   private def isPaginationText(counts: Map[String, Int], s: String, isTopOrBottomLine: Boolean,
                                llx: Double, lly: Double, fontnumber: String /*fontnumber: Int*/): Boolean = {
@@ -170,25 +180,338 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
   /**
    *
-   * @param root
+   * @param x
    */
   private def tokenizePages(/*root: Element*/ x:Annotator) {
 
-    var i = 1;
-    tokenizeLines(x, i)
+//    var i = 1;
+    tokenizeLines(x)
   }
 
   /**
    *
    * @param page
    */
-  private def tokenizeLines(page:Annotator, pageNum:Int) {
+  private def tokenizeLines(page:Annotator) {
+
+
+
+    val parentElement = page.getDom().getRootElement
+
+
+
+    println("number of pages: " + parentElement.getChildren.size())
+
+    val lineBIndexPairSet = page.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+
+    val grpByPage:List[Tuple3[Int,Int,IntMap[Element]]] =
+    lineBIndexPairSet.toList.zipWithIndex.map {
+      case (blockCharIndex, charIndex) =>
+        val elements = page.getElements("line")(blockCharIndex._1, blockCharIndex._2)
+        val currentPage = NewHtmlTokenizationSvg.getPageNumber(elements.get(blockCharIndex._1).get, page.getDom()) + 1
+//        println("current page number: " + )
+//        if(currentPage == pageNum){
+//          Map(charIndex -> elements)
+//        }
+        //Map(currentPage -> Map(charIndex -> elements))
+        (currentPage, charIndex, elements)
+
+//        val currentPage =
+    }
+
+
+//    print(grpByPage)
+
+    val grpBy:Map[Int,List[Tuple3[Int,Int,IntMap[Element]]]] = grpByPage.groupBy(_._1)
+
+    val grpBy2 = grpBy.map(x=>
+        Map(x._1->x._2.filter(y=> y._1==x._1).groupBy(_._2))
+    ).flatten.toMap
+
+    val groupedByLineContent:Map[Int, Map[Int, IntMap[Element]]] = grpBy2.map(x=>
+      Map(x._1 -> x._2.map(x2=>
+        Map(x2._1->x2._2.filter(x3=> (x3._1 == x._1 && x3._2 == x2._1))(0)._3)
+      ).flatten.toMap)
+    ).flatten.toMap
+
+    for( //this for iterates over pages
+      currentPage <- groupedByLineContent.keys.toList.sorted
+    ){
+      println("processing page: " + currentPage)
+      val lines:Set[Int] = groupedByLineContent.get(currentPage).get.keySet
+
+      val keysIterator:Iterator[Int] = groupedByLineContent.get(currentPage).get.keysIterator
+
+      val sortedLines:List[Int] = keysIterator.toList.sorted
+
+      var firstTokenOnPage: Boolean = true
+
+      val lastLine:Int  = lines.max
+      val firstLine:Int = lines.min
+
+      for(
+        currentLine <- sortedLines
+      ) {
+        val line: IntMap[Element] = groupedByLineContent.get(currentPage).get.get(currentLine).get
+
+        val lineCompositeSpan: CompositeSpan = CompositeSpan.createSpan(_constructionInfo._docText)
+
+        val tboxList:List[(Int,Element)] = line.toList
+        _constructionInfo.globalLineNum += 1
+        val lineStartOfs: Int = _constructionInfo.textofs
+        val firstTbox: Element = line.get(line.firstKey).get
+
+  //      val coords = getCoordinates(firstTbox, 0.0, 0.0)
+  //      var llx:Double = coords._1
+  //      var lly:Double = coords._2
+        val coords2 = Annotator.getTransformedCoords(firstTbox, getTopPageAncestor(firstTbox, page.getDom()))
+        var llx = coords2._1(0)
+        var lly = getYCoordinate(firstTbox, page.getDom()) //= coords2._3(0)
+
+  //      var llx:Double = getLlxV2(firstTbox)
+  //      var lly:Double = getLlyV2(firstTbox)
+        val fontFamily: String = getFontFamily(firstTbox)
+
+        val isTopOrBottomLine: Boolean = (currentLine == firstLine || currentLine == lastLine)
+
+
+        val lineText: String = groupedByLineContent.get(currentPage).get.get(currentLine).get.map(x => x._2.getValue
+        ).mkString("")
+
+
+  //      println("the line text is: " + lineText)
+        if (NewHtmlTokenizationSvg.isPaginationText(_constructionInfo._headerFooterLineCounts,
+          lineText.toString, isTopOrBottomLine, llx, lly, fontFamily)) {
+          _constructionInfo._docText.append(lineText)
+          _constructionInfo.textofs += lineText.length
+          val paginationToken: StringSpan = new StringSpan(_constructionInfo._docText, lineStartOfs, _constructionInfo.textofs)
+          paginationToken.setNumericProperty("isHeaderFooterLine", 1.0)
+          var tboxI: Iterator[_] = tboxList.iterator
+          var locUrx: Double = -1
+          var locUry: Double = -1
+          var locLlx: Double = -1
+          var locLly: Double = -1
+
+          while (tboxI.hasNext) {
+            val tbox: (Int,Element) = tboxI.next.asInstanceOf[(Int,Element)]
+
+  //          val coords = getCoordinates(tbox._2, 0.0, 0.0)
+  //          val curLlx:Double = coords._1
+  //          val curLly:Double = coords._2
+            val coords2 = Annotator.getTransformedCoords(tbox._2, getTopPageAncestor(tbox._2, page.getDom()))
+            val curLlx = coords2._1(0)
+            val curLly = getYCoordinate(tbox._2, page.getDom()) //:Double = //coords2._3(0)
+
+  //          val curLlx = getLlxV2(tbox._2)
+  //          val curLly = getLlyV2(tbox._2)
+
+            val curUry = getFontSize(tbox._2) + curLly
+            //TODO: see if it is possible to get width of the span, if not try to get approx value
+            val curUrx = curLlx //+ getWidth(tbox._2).toInt
+
+            if (locUrx == -1 || curUrx  > locUrx) {
+              locUrx = curUrx
+            }
+            if (locUry == -1 || curUry <  locUry) {
+              locUry = curUry
+            }
+            if (locLlx == -1 || curLlx  < locLlx) {
+              locLlx = curLlx
+            }
+            if (locLly == -1 || curLly  < locLly) {
+              locLly = curLly
+            }
+          }
+          paginationToken.setProperty("llx", locLlx.toDouble)
+          paginationToken.setProperty("lly", locLly.toDouble)
+          paginationToken.setProperty("urx", locUrx.toDouble)
+          paginationToken.setProperty("ury", locUry.toDouble)
+          paginationToken.setProperty("pageNum", currentPage.toDouble) //pageNum.toDouble)
+          paginationToken.setProperty("divElement", tboxList.iterator.next().asInstanceOf[(Int,Element)])
+
+          _lineSpans.+=(paginationToken.asInstanceOf[Span])
+        }
+        else
+        {
+          var tboxI: Iterator[_] = tboxList.iterator
+          tboxI = tboxList.iterator
+          var firstTokenInLine: Boolean = true
+          while (tboxI.hasNext) {
+            val tbox: (Int, Element) = tboxI.next.asInstanceOf[(Int, Element)] //asInstanceOf[Element]
+
+  //          val coords = getCoordinates(tbox._2, 0.0, 0.0)
+  //          val curLlx:Double = coords._1
+  //          val curLly:Double = coords._2
+            val coords2 = Annotator.getTransformedCoords(tbox._2, getTopPageAncestor(tbox._2, page.getDom()))
+            val curLlx = coords2._1(0)
+            val curLly = getYCoordinate(tbox._2, page.getDom()) //:Double = coords2._3(0)
+
+  //          val curLlx = getLlxV2(tbox._2)
+  //          val curLly = getLlyV2(tbox._2)
+
+            val curUry = getFontSize(tbox._2)/*.toInt*/ + curLly
+            //TODO: ask Thomas if is it possible to get the width of a particular span
+            val curUrx = coords2._2 //curLlx //+ getWidth(tbox._2).toInt
+
+            llx = curLlx
+            lly = curLly
+            val urx: Double = curUrx
+            val ury: Double = curUry
+
+
+            _constructionInfo.fontSize = getFontSize(tbox._2)
+            _constructionInfo.fontName = getFontFamily(tbox._2)
+            var boxText: String = tbox._2.getText
+
+
+            _constructionInfo._docText.append(boxText)
+            var lexer: CharSequenceLexer = null
+            lexer = CharSequenceLexer.apply(boxText, NewHtmlTokenizationSvg.LEXER_PATTERN)
+
+            var firstTokenInBox: Boolean = true
+            while (lexer.hasNext) {
+              lexer.next
+              val spanStart: Int = lexer.getStartOffset + _constructionInfo.textofs
+              val spanEnd: Int = lexer.getEndOffset + _constructionInfo.textofs
+              val token: StringSpan = new StringSpan(_constructionInfo._docText, spanStart, spanEnd)
+              val ttext: String = token.getText
+
+              val twsMatcher: Matcher = trailingWS.matcher(ttext)
+              if (twsMatcher.find) {
+                val twsLen: Int = twsMatcher.group.length
+                token.setText(ttext.substring(0, ttext.length - twsLen))
+                if (twsLen > 1) {
+                  token.setNumericProperty("trailing-ws-1", twsLen - 1)
+                }
+              }
+              else {
+                token.setNumericProperty("trailing-ws-1", -1)
+              }
+              lineCompositeSpan.appendSpan(token)
+              if (firstTokenInBox) {
+                token.setNumericProperty("firstInTextBox", 1)
+                firstTokenInBox = false
+              }
+              var termCombined: Boolean = false
+              if (firstTokenInLine && _constructionInfo._hyphToken != null) {
+                token.setNumericProperty("split-rhs", 1)
+                _constructionInfo._wrappedSpans.+= (Array[StringSpan](_constructionInfo._preHyphToken, _constructionInfo._hyphToken, token)) //.add(Array[StringSpan](_constructionInfo._preHyphToken, _constructionInfo._hyphToken, token))
+                _constructionInfo._hyphToken = null
+                _constructionInfo._preHyphToken = null
+                termCombined = true
+              }
+              token.setNumericProperty("lineNum", _constructionInfo.globalLineNum)
+              if (_constructionInfo.fontSize >= _constructionInfo._largestFontSize - 1 && _constructionInfo.fontSize > _constructionInfo._normalFontSize + 1) {
+                token.setNumericProperty("largestfont", 1)
+              }
+              else if (_constructionInfo.fontSize > _constructionInfo._normalFontSize + 1) {
+                token.setNumericProperty("largefont", 1)
+              }
+              else if (_constructionInfo.fontSize < _constructionInfo._normalFontSize - 1) {
+                token.setNumericProperty("smallfont", 1)
+              }
+              if (_constructionInfo.fontSize != _constructionInfo.lastFontSize) {
+                token.setNumericProperty("newfontsize", 1)
+              }
+              if (_constructionInfo.fontName ne _constructionInfo.lastFontName) {
+                token.setNumericProperty("newfontname", 1)
+              }
+
+              token.setNumericProperty("llx", llx)
+              token.setNumericProperty("lly", lly)
+              token.setNumericProperty("urx", urx)
+              token.setNumericProperty("ury", ury)
+              token.setProperty("divElement", tbox)
+
+              token.setProperty("startOffset", lexer.getStartOffset)
+              token.setProperty("endOffset", lexer.getEndOffset)
+
+              token.setProperty("fontname", _constructionInfo.fontName)
+              if (firstTokenOnPage) {
+                token.setNumericProperty("newpage", 1)
+                firstTokenOnPage = false
+              }
+              if (firstTokenInLine) {
+                token.setNumericProperty("newline", 1)
+                firstTokenInLine = false
+              }
+              token.setNumericProperty("pageNum", currentPage) // pageNum)
+
+              _constructionInfo.lastFontSize = _constructionInfo.fontSize
+              _constructionInfo.lastFontName = _constructionInfo.fontName
+              val tokenText: String = token.getText
+              val lineEndp: Boolean = !lexer.hasNext && !tboxI.hasNext
+              if (lineEndp && (tokenText.trim == "-")) {
+                if (size > 1) {
+                  val lastToken: StringSpan = this.get(this.size - 1)./*asInstanceOf[Option[Any]].get.*/asInstanceOf[StringSpan]
+                  lastToken.setNumericProperty("split-lhs", 1)
+                  token.setNumericProperty("split-hyphen", 1)
+                  _constructionInfo._preHyphToken = lastToken
+                  _constructionInfo._hyphToken = token
+                }
+              }
+              else {
+                this.add(token)
+                if (!termCombined) {
+                  _constructionInfo._localDict.add(token.getText.toLowerCase)
+                }
+              }
+              if (lineEndp && termCombined) {
+                val phantomToken: StringSpan = new StringSpan(_constructionInfo._docText, spanStart, spanEnd)
+                if (firstTokenOnPage) {
+                  phantomToken.setNumericProperty("newpage", 1)
+                  firstTokenOnPage = false
+                }
+                phantomToken.setNumericProperty("newline", 1)
+                phantomToken.setNumericProperty("llx", llx)
+                phantomToken.setNumericProperty("lly", lly)
+                phantomToken.setNumericProperty("phantom", 1)
+                this.add(phantomToken)
+              }
+            }
+            _constructionInfo.textofs += boxText.length
+          }
+          _lineSpans.+=(lineCompositeSpan.asInstanceOf[Span]) //.add(lineCompositeSpan)
+
+        }//end of else
+      }//here the main for for lines ends
+    }
+
+
+  } //tokenizeLines ends here
+
+
+  /**
+   *
+   * @param page
+   */
+  private def tokenizeLinesOld(page:Annotator, pageNum:Int) {
+
+    def getParent(elem:Element, doc:Document):Int =
+    {
+      if(elem.getParent!= doc.getRootElement)
+      {
+        return getParent(elem.getParent.asInstanceOf[Element], doc)
+      }
+      else
+      {
+        return doc.getRootElement.getChildren().indexOf(elem)
+      }
+    }
+
+    val parentElement = page.getDom().getRootElement
+
+
+
+    println("number of pages: " + parentElement.getChildren.size())
 
     val lineBIndexPairSet = page.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
 
     val groupedByLineContent:Map[Int, IntMap[Element]] = lineBIndexPairSet.toList.zipWithIndex.map {
       case (blockCharIndex, charIndex) =>
         val elements = page.getElements("line")(blockCharIndex._1, blockCharIndex._2)
+        println("current page number: " + getParent(elements.get(blockCharIndex._1).get, page.getDom()))
+        //        val currentPage =
         Map(charIndex -> elements)
     }.flatten.toMap
 
@@ -216,15 +539,15 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
       val lineStartOfs: Int = _constructionInfo.textofs
       val firstTbox: Element = line.get(line.firstKey).get
 
-//      val coords = getCoordinates(firstTbox, 0.0, 0.0)
-//      var llx:Double = coords._1
-//      var lly:Double = coords._2
+      //      val coords = getCoordinates(firstTbox, 0.0, 0.0)
+      //      var llx:Double = coords._1
+      //      var lly:Double = coords._2
       val coords2 = Annotator.getTransformedCoords(firstTbox, getTopAncestor(firstTbox))
       var llx = coords2._1(0)
       var lly = coords2._3(0)
 
-//      var llx:Double = getLlxV2(firstTbox)
-//      var lly:Double = getLlyV2(firstTbox)
+      //      var llx:Double = getLlxV2(firstTbox)
+      //      var lly:Double = getLlyV2(firstTbox)
       val fontFamily: String = getFontFamily(firstTbox)
 
       val isTopOrBottomLine: Boolean = (currentLine == firstLine || currentLine == lastLine)
@@ -234,7 +557,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
       ).mkString("")
 
 
-//      println("the line text is: " + lineText)
+      //      println("the line text is: " + lineText)
       if (NewHtmlTokenizationSvg.isPaginationText(_constructionInfo._headerFooterLineCounts,
         lineText.toString, isTopOrBottomLine, llx, lly, fontFamily)) {
         _constructionInfo._docText.append(lineText)
@@ -250,15 +573,15 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
         while (tboxI.hasNext) {
           val tbox: (Int,Element) = tboxI.next.asInstanceOf[(Int,Element)]
 
-//          val coords = getCoordinates(tbox._2, 0.0, 0.0)
-//          val curLlx:Double = coords._1
-//          val curLly:Double = coords._2
+          //          val coords = getCoordinates(tbox._2, 0.0, 0.0)
+          //          val curLlx:Double = coords._1
+          //          val curLly:Double = coords._2
           val coords2 = Annotator.getTransformedCoords(tbox._2, getTopAncestor(tbox._2))
           val curLlx = coords2._1(0)
           val curLly = coords2._3(0)
 
-//          val curLlx = getLlxV2(tbox._2)
-//          val curLly = getLlyV2(tbox._2)
+          //          val curLlx = getLlxV2(tbox._2)
+          //          val curLly = getLlyV2(tbox._2)
 
           val curUry = getFontSize(tbox._2) + curLly
           //TODO: see if it is possible to get width of the span, if not try to get approx value
@@ -294,15 +617,15 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
         while (tboxI.hasNext) {
           val tbox: (Int, Element) = tboxI.next.asInstanceOf[(Int, Element)] //asInstanceOf[Element]
 
-//          val coords = getCoordinates(tbox._2, 0.0, 0.0)
-//          val curLlx:Double = coords._1
-//          val curLly:Double = coords._2
+          //          val coords = getCoordinates(tbox._2, 0.0, 0.0)
+          //          val curLlx:Double = coords._1
+          //          val curLly:Double = coords._2
           val coords2 = Annotator.getTransformedCoords(tbox._2, getTopAncestor(tbox._2))
           val curLlx = coords2._1(0)
           val curLly = coords2._3(0)
 
-//          val curLlx = getLlxV2(tbox._2)
-//          val curLly = getLlyV2(tbox._2)
+          //          val curLlx = getLlxV2(tbox._2)
+          //          val curLly = getLlyV2(tbox._2)
 
           val curUry = getFontSize(tbox._2)/*.toInt*/ + curLly
           //TODO: ask Thomas if is it possible to get the width of a particular span
@@ -432,7 +755,9 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
     }
 
 
-  }
+  } //tokenizeLines ends here
+
+
 
   private def deHyphenateDocument(globalDict: EnglishDictionary) {
     val termI: Iterator[_] = _constructionInfo._wrappedSpans.iterator
@@ -786,6 +1111,71 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
       return node
     }
   }
+
+  def getYCoordinate(node:Element, doc:Document):Double =
+  {
+    val coords2 = Annotator.getTransformedCoords(node, getTopPageAncestorV2(node,doc))
+    val topPageElem = getTopPageElement(node,doc)
+    val transfMatVector = getTransformationMatrixVectorV2(topPageElem)
+    val pageNumber = NewHtmlTokenizationSvg.getPageNumber(node, doc) + 1
+
+//    var previousPage = null;
+    var previousOffset = 0;
+
+    if(pageNumber>1)
+    {
+      val transfMatPrevVector = getTransformationMatrixVectorV2(doc.getRootElement.getChildren.get(pageNumber-2))
+      previousOffset = transfMatPrevVector(5).toInt
+    }
+
+    val currPageHeight = transfMatVector(5)  - previousOffset
+
+    if(transfMatVector(3).toInt == -1) {
+      return (currPageHeight + coords2._3(0) * (-1))
+    }
+    else
+    {
+      return coords2._3(0)
+    }
+  }
+
+  def getTopPageElement(node:Element, doc:Document): Element =
+  {
+    if(node.getParent!=doc.getRootElement)
+    {
+      return getTopPageElement(node.getParentElement, doc)
+    }
+    else
+    {
+      return node
+    }
+  }
+
+  def getTopPageAncestor(node:Element, doc:Document): Element =
+  {
+    if(node.getParentElement!=null)
+    {
+      return getTopAncestor(node.getParentElement)
+    }
+    else
+    {
+      return node
+    }
+  }
+
+  def getTopPageAncestorV2(node:Element, doc:Document): Element =
+  {
+    //TODO: top, but within the page
+    if(node.getParent.getParent!=doc.getRootElement)
+    {
+      return getTopPageAncestorV2(node.getParentElement, doc)
+    }
+    else
+    {
+      return node
+    }
+  }
+
   private def initHeaderFooterLineCounts(): Map[String, Int] = {
 
     val lines = {
@@ -801,9 +1191,9 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
           val firstTbox:Element = _annotator.getElements("line")(blockIndex._1, blockIndex._2).values.toList(0)
 //          val coords = getCoordinates(firstTbox, 0.0, 0.0)
 
-          val coords2 = Annotator.getTransformedCoords(firstTbox, getTopAncestor(firstTbox))
+          val coords2 = Annotator.getTransformedCoords(firstTbox, getTopPageAncestor(firstTbox,_annotator.getDom()))
           val llx = coords2._1(0)
-          val lly = coords2._3(0)
+          val lly = getYCoordinate(firstTbox, _annotator.getDom()) //coords2._3(0)
 
 //          val llx:Double = coords._1
 //          val lly:Double = coords._2
