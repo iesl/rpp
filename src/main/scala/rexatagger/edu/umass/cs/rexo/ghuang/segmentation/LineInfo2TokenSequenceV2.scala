@@ -320,7 +320,7 @@ class LineInfo2TokenSequenceV2 extends Pipe with Serializable {
     while (i < lineInfos.length) {
       {
         ///////////////////////////////
-        println(lineInfos(i).llx + "----" + lineInfos(i).lly + ": " + lineInfos(i).text)
+//        println(lineInfos(i).llx + "----" + lineInfos(i).lly + ": " + lineInfos(i).text)
         ///////////////////////////////
         if (lineInfos(i).presentFeatures.contains("firstReferenceLine")) {
           firstLine = lineInfos(i)
