@@ -172,6 +172,12 @@ object LayoutUtils {
   }
 
   def isActiveFeature(span: Span, property: String): Boolean = {
+    //kzaporojets added 12/13
+    if(span==null)
+    {
+      return false
+    }
+    //end kzaporojets added 12/13
     try {
       if (span.isInstanceOf[CompositeSpan]) {
         if ((span.asInstanceOf[CompositeSpan]).getFeatureValue(property) == 1.0) {

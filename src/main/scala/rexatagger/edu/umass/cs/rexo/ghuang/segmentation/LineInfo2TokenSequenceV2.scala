@@ -594,6 +594,20 @@ class LineInfo2TokenSequenceV2 extends Pipe with Serializable {
           ignor.setIgnoreY(lineInfos(i - 1).lly)
           ignor.setIgnorePage(lineInfos(i).page)
         }
+
+        if (ignor.getIgnoreType !=  IgnoreType.IGNORE_ALL_POSTERIOR && i > 0 &&
+          lineInfos(i).page == lineInfos(i - 1).page && lineInfos(i).lly < lineInfos(i - 1).ury &&
+          lineInfos(i).llx < lineInfos(i - 1).llx &&
+          !lineInfos(i - 1).presentFeatures.contains("sameLine") &&
+          !(ignor.getIgnoreType  == IgnoreType.IGNORE_UNLESS_Y_SMALLER &&
+            ignor.getIgnoreY  > lineInfos(i - 1).lly)) {
+
+          ignor.setIgnoreType(IgnoreType.IGNORE_UNLESS_Y_SMALLER)
+          ignor.setIgnoreY(lineInfos(i - 1).lly)
+          ignor.setIgnorePage(lineInfos(i).page)
+        }
+
+
         if (ignor.getIgnoreType  == IgnoreType.CLEAN && lineInfos(i).presentFeatures.contains("bibliography")) {
           ignor.setIgnoreType(IgnoreType.IGNORE)
         }
