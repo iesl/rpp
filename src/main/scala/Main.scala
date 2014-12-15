@@ -24,7 +24,7 @@ object Main {
     val builder = new SAXBuilder()
     val dom = builder.build(new File(filePath)) 
 
-    val l = List(LineProcessor, StructureProcessor, ReferencePartProcessor/*, HeaderPartProcessor*/)
+    val l = List(LineProcessor, StructureProcessor, ReferencePartProcessor, HeaderPartProcessor)
     val annotator = l.foldLeft(new Annotator(dom)) {
       case (annoAcc, pro) => pro.process(annoAcc)
     } 
