@@ -1155,7 +1155,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   {
     if(node.getParentElement!=null)
     {
-      return getTopAncestor(node.getParentElement)
+      return getTopPageAncestor(node.getParentElement, doc)
     }
     else
     {
@@ -1191,7 +1191,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
           val firstTbox:Element = _annotator.getElements("line")(blockIndex._1, blockIndex._2).values.toList(0)
 //          val coords = getCoordinates(firstTbox, 0.0, 0.0)
 
-          val coords2 = Annotator.getTransformedCoords(firstTbox, getTopPageAncestor(firstTbox,_annotator.getDom()))
+          val coords2 = Annotator.getTransformedCoords(firstTbox, _annotator.getDom().getRootElement)//getTopPageAncestor(firstTbox,_annotator.getDom()))
           val llx = coords2._1(0)
           val lly = getYCoordinate(firstTbox, _annotator.getDom()) //coords2._3(0)
 
