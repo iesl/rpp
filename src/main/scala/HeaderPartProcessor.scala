@@ -100,7 +100,6 @@ object HeaderPartProcessor extends Processor {
       }).mkString("\n")
     }}).mkString("\n\n") + "\n\n#"
 
-
     val docs = {
       val ds = (new LoadTSV(false)).fromSource(Source.fromString(str)).toIndexedSeq
       paperheader.process.DocProcessor(ds)
@@ -109,15 +108,15 @@ object HeaderPartProcessor extends Processor {
 
 
     val typePairMap = HashMap(
-        "institution" -> ("institution", 'i'), 
-        "address" -> ("h-address", 'a'), 
-        "title" -> ("title", 't'), 
-        "author" -> ("author", 'a'),
-        "tech" -> ("tech", 't'), 
-        "date" -> ("date", 'd'), 
-        "note" -> ("note", 'n'), 
+        "institution" -> ("header-institution", 'i'), 
+        "address" -> ("header-address", 'a'), 
+        "title" -> ("header-title", 't'), 
+        "author" -> ("header-author", 'a'),
+        "tech" -> ("header-tech", 't'), 
+        "date" -> ("header-date", 'd'), 
+        "note" -> ("header-note", 'n'), 
         "abstract" -> ("abstract", 'b'), 
-        "email" -> ("email", 'e')
+        "email" -> ("header-email", 'e')
     )
 
 
