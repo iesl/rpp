@@ -180,14 +180,12 @@ object TaggerUtil {
     val resSlidingMap = resSliding.toMap
 
     val resAnnot = { 
-      val x = annotator
-      x.annotate(List(annotation -> annoLetter), Single(SegmentCon("line")), (blockIndex, charIndex) => {
-        if(resSlidingMap.contains(blockIndex + "_" + (1))){
-          resSlidingMap(blockIndex + "_" + (1))
-        } else {
-          None
-        }
-      })
+      val table = resSlidingMap.flatMap {
+        case (blockIndexStr, labelOp) =>
+          val blockIndex = blockIndexStr.dropRight(2).toInt
+          labelOp.map(l => (blockIndex, 0) -> l)
+      }
+      annotator.annotate(List(annotation -> annoLetter), Single(SegmentCon("line")), table)
     }
 
     resAnnot

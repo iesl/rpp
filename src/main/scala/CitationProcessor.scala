@@ -70,9 +70,7 @@ object CitationProcessor extends Processor {
       }
     }).toMap
 
-    annotator.annotate(List("citation" -> 'c'), Single(CharCon), (blockIndex, charIndex) => {
-      table.get(blockIndex -> charIndex)
-    })
+    annotator.annotate(List("citation" -> 'c'), Single(CharCon), table)
 
   }
 

@@ -83,10 +83,15 @@ object LineProcessor extends Processor {
       }
     })
 
+    val table = labelMapSeq.zipWithIndex.flatMap {
+      case (labelMap, blockIndex) =>
+        labelMap.map {
+          case (charIndex, label) =>
+            (blockIndex, charIndex) -> label
+        }
+    } toMap
 
-    annotator.annotate(List("line" -> 'l'), Single(CharCon), (blockIndex, charIndex) => {
-      labelMapSeq(blockIndex).get(charIndex)
-    })
+    annotator.annotate(List("line" -> 'l'), Single(CharCon), table)
 
   }
 

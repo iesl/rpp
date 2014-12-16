@@ -89,9 +89,7 @@ object HeaderPartProcessor extends Processor {
 
     val indexPair2TokenLabelMap = headerSet.flatMap(_._1).toMap
 
-    val annoWithTokens = annotator.annotate(List("header-token" -> 't'), Single(CharCon), (blockIndex, charIndex) => {
-      indexPair2TokenLabelMap.get(blockIndex -> charIndex)
-    })
+    val annoWithTokens = annotator.annotate(List("header-token" -> 't'), Single(CharCon), indexPair2TokenLabelMap)
 
     val str = (headerSet.map { case (_, headerItemSeq) => {
       "#\n" + (headerItemSeq.map {
@@ -187,9 +185,16 @@ object HeaderPartProcessor extends Processor {
 
     typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>
-        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("header-token")), (blockIndex, charIndex) => {
-          tripLabelMap.get((blockIndex, charIndex, annoTypeName))
-        })
+
+        val  table = tripLabelMap.filter(p => {
+          val key = p._1
+          annoTypeName == key._3
+        }).map {
+          case ((blockIndex, charIndex, _), label) =>
+            (blockIndex, charIndex) -> label
+        }
+
+        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("header-token")), table) 
     } 
 
   }

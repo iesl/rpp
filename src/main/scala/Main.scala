@@ -24,7 +24,7 @@ object Main {
     val builder = new SAXBuilder()
     val dom = builder.build(new File(filePath)) 
 
-    val l = List(LineProcessor, StructureProcessor, ReferencePartProcessor, CitationProcessor, HeaderPartProcessor)
+    val l = List(LineProcessor, StructureProcessor, ReferencePartProcessor, CitationProcessor, CitationReferenceLinkProcessor, HeaderPartProcessor)
     val annotator = l.foldLeft(new Annotator(dom)) {
       case (annoAcc, pro) => pro.process(annoAcc)
     } 
@@ -82,7 +82,7 @@ object Main {
         val annotations = bIndexPairSet.toList.map {
           case (blockBIndex, charBIndex) =>
               val textMap = annotator.getTextMap(annoTypeString)(blockBIndex, charBIndex)
-              Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet).trim()
+              Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet, ' ').trim()
         }
         annotations.zipWithIndex.foreach(p => println(p._2 + ": " + p._1))
       })

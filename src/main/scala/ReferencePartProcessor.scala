@@ -85,9 +85,7 @@ object ReferencePartProcessor extends Processor {
 
     val indexPair2TokenLabelMap = dptSeq.flatMap(_.tokenLabelMap).toMap
 
-    val annoWithTokens = annotator.annotate(List("reference-token" -> 't'), Single(CharCon), (blockIndex, charIndex) => {
-      indexPair2TokenLabelMap.get(blockIndex -> charIndex)
-    })
+    val annoWithTokens = annotator.annotate(List("reference-token" -> 't'), Single(CharCon), indexPair2TokenLabelMap)
 
     val typePairMap = HashMap(
         "authors" -> ("ref-authors", 'a'), 
@@ -174,9 +172,15 @@ object ReferencePartProcessor extends Processor {
 
     typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>
-        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("reference-token")), (blockIndex, charIndex) => {
-          typeLabelMapMap.get(blockIndex -> charIndex).flatMap(_.get(annoTypeName))
+
+        val table = typeLabelMapMap.filter(p => {
+          val typeLabelMap = p._2
+          typeLabelMap.contains(annoTypeName)
+        }).mapValues(typeLabelMap => {
+          typeLabelMap(annoTypeName)
         })
+
+        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("reference-token")), table)
     } 
 
   }

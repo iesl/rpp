@@ -32,9 +32,10 @@ object MetaDataSvgAnnotator {
                               labelNames:Map[String,String]):Annotator =
   {
     val resAnnot = { 
-      val x = annotator 
-      x.annotate(List(annoData._2._1 -> annoData._2._2), Single(SegmentCon("line")), (blockIndex, charIndex) => {
-
+      val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+      val table = lineBIndexPairSet.flatMap(indexPair => {
+        val blockIndex = indexPair._1
+        val charIndex = indexPair._2
         val elements = annotator.getElements("line")(blockIndex, charIndex)
 
         val annotatorPage =  NewHtmlTokenizationSvg.getPageNumber(elements.get(blockIndex).get, annotator.getDom()) + 1
@@ -44,24 +45,24 @@ object MetaDataSvgAnnotator {
 //          if(valLabel.contains("-inside"))
           if(valLabel.contains(labelNames.get("inside").get))
           {
-            Some(I)
+            Some(indexPair -> I)
           }
 //          else if (valLabel.contains("-begin"))
           else if (valLabel.contains(labelNames.get("begin").get))
           {
-            Some(B(annoData._2._2))
+            Some(indexPair -> B(annoData._2._2))
           }
           else if (valLabel.contains("last"))
           {
-            Some(L)
+            Some(indexPair -> L)
           }
           else if (valLabel.contains("unique"))
           {
-            Some(U(annoData._2._2))
+            Some(indexPair -> U(annoData._2._2))
           }
           else if (valLabel.contains("other"))
           {
-            Some(O)
+            Some(indexPair -> O)
           }
           else {
             throw new Exception("Error in svg annotator, no associated label found")
@@ -71,7 +72,8 @@ object MetaDataSvgAnnotator {
         {
           None
         }
-      })
+      }).toMap
+      annotator.annotate(List(annoData._2._1 -> annoData._2._2), Single(SegmentCon("line")), table)
     }
     return resAnnot
   }
