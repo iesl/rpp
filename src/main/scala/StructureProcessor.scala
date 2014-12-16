@@ -182,7 +182,7 @@ object TaggerUtil {
     val resAnnot = { 
       val table = resSlidingMap.flatMap {
         case (blockIndexStr, labelOp) =>
-          val blockIndex = blockIndexStr.dropRight(2).toInt
+          val blockIndex = blockIndexStr.take(blockIndexStr.indexOf('_')).toInt
           labelOp.map(l => (blockIndex, 0) -> l)
       }
       annotator.annotate(List(annotation -> annoLetter), Single(SegmentCon("line")), table)
