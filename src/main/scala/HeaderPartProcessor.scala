@@ -152,6 +152,28 @@ object HeaderPartProcessor extends Processor {
     type IISTrip = (Int, Int, String)
     type StringLabelMap = Map[String, Label]
 
+    def replaceIWithB(list: List[(IISTrip, Label)]): List[(IISTrip, Label)] = {
+      val name2Char = typePairMap.values.toMap
+      def loop(
+          prevTypeString: String, 
+          lst: List[(IISTrip, Label)]
+      ): List[(IISTrip, Label)] = lst match {
+
+        case Nil => List()
+        case x::xs => 
+          val (xTypeString, xLabel) = x match { case ((_, _, typeString), label) => (typeString, label) }
+          if (xLabel == I && xTypeString != prevTypeString) {
+            val c = name2Char(xTypeString)
+            (x._1 -> B(c))::loop(xTypeString, xs)
+          } else {
+            x::loop(xTypeString, xs)
+          }
+      
+      }
+      loop("", list)
+    }
+
+
     def replaceBIWithUL(list: List[(IISTrip, Label)]): List[(IISTrip, Label)] = {
 
       def loop(
@@ -181,7 +203,7 @@ object HeaderPartProcessor extends Processor {
       loop(m, list.reverse).reverse
     }
 
-    val tripLabelMap = replaceBIWithUL(indexTypeTriple2LabelList).toMap
+    val tripLabelMap = replaceBIWithUL(replaceIWithB(indexTypeTriple2LabelList)).toMap
 
     typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>
