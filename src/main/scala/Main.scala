@@ -50,7 +50,7 @@ object Main {
       println("biblios with line breaks")
       import Annotator._
       val biblioBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
-      val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range(SegmentCon("biblio-marker"), SegmentCon("line")))
+      val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range("biblio-marker", SegmentCon("line")))
       val biblios2 = biblioBIndexPairSet.toList.map {
         case (blockBIndex, charBIndex) =>
             val textMap = annotator.getTextMap("biblio-marker")(blockBIndex, charBIndex)
@@ -60,7 +60,6 @@ object Main {
       biblios2.zipWithIndex.foreach(p => println(p._2 + ": " + p._1))
     }
 
-
     { //find all the lines that are references ("biblio-marker"),
       //which is allowed because biblio-markers are constrained by lines
       println
@@ -68,7 +67,6 @@ object Main {
       val blines = annotator.getFilteredTextByAnnotationType("biblio-marker","line")
       blines.zipWithIndex.foreach(p => println(p._2 + ": " + p._1))
     }
-
 
     { //check the annotations for every type
       import Annotator._
@@ -86,6 +84,18 @@ object Main {
         }
         annotations.zipWithIndex.foreach(p => println(p._2 + ": " + p._1))
       })
+    }
+
+    { //see all the annotations types that exists
+
+      println("")
+      println("annotation types: ")
+
+      annotator.annotationInfoMap.map {
+        case (annoTypeString, annotationInfo) =>
+          println(annoTypeString)
+      }
+
     }
 
 

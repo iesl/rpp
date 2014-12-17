@@ -36,7 +36,7 @@ object ReferencePartProcessor extends Processor {
 
     val refBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
 
-    val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range(SegmentCon("biblio-marker"), SegmentCon("line")))
+    val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range("biblio-marker", SegmentCon("line")))
 
     case class DPT(doc: Document, indexPairMap: IntMap[(Int, Int)], tokenLabelMap: Map[(Int, Int), Label])
 
