@@ -32,12 +32,12 @@ object CitationProcessor extends Processor {
 
     import Annotator._
 
-    val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+    val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
 
     val lastNameList = annotator.getTextByAnnotationType("ref-last").distinct
 
     val pairList = List("header", "body").flatMap(annoTypeStr => {
-      val bIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon(annoTypeStr)))
+      val bIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(annoTypeStr)))
       bIndexPairSet.toList.map {
         case (blockBIndex, charBIndex) =>
           val textMap = annotator.getTextMap(annoTypeStr)(blockBIndex, charBIndex)

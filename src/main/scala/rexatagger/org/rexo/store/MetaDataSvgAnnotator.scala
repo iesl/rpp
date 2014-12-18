@@ -32,7 +32,7 @@ object MetaDataSvgAnnotator {
                               labelNames:Map[String,String]):Annotator =
   {
     val resAnnot = { 
-      val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+      val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
       val table = lineBIndexPairSet.flatMap(indexPair => {
         val blockIndex = indexPair._1
         val charIndex = indexPair._2
@@ -222,7 +222,7 @@ object MetaDataSvgAnnotator {
 
       val blockIdxToRawType:List[Tuple2[String, String]] = {
 
-        val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+        val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
         lineBIndexPairSet.toList.map {
           case (blockIndex, charIndex) =>
             val elements = annotator.getElements("line")(blockIndex, charIndex)
@@ -271,7 +271,7 @@ object MetaDataSvgAnnotator {
 
       val blockIdxToRawType:List[Tuple2[String, String]] = {
 
-        val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+        val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
         lineBIndexPairSet.toList.map {
           case (blockIndex, charIndex) =>
             val elements = annotator.getElements("line")(blockIndex, charIndex)

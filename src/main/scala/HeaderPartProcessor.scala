@@ -49,8 +49,8 @@ object HeaderPartProcessor extends Processor {
     val rootElement = annotator.getDom().getRootElement()
 
     //create index from (section idx) -> (bIndex, cIndex)
-    val headerBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("header")))
-    val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range("header", SegmentCon("line")))
+    val headerBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("header")))
+    val lineBIndexPairSet = annotator.getBIndexPairSet(Range("header", SegmentCon("line")))
 
     val headerSet = headerBIndexPairSet.map {
 

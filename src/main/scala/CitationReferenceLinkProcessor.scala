@@ -30,7 +30,7 @@ object CitationReferenceLinkProcessor extends Processor {
 
   override def process(annotator: Annotator): Annotator =  {
 
-    val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+    val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
 
 
     def findMatches(text: String): List[Match] = {
@@ -64,7 +64,7 @@ object CitationReferenceLinkProcessor extends Processor {
     }
 
     val List(citationList, referenceList) = List("citation", "ref-marker").map(annoTypeStr => {
-      val bIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon(annoTypeStr)))
+      val bIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(annoTypeStr)))
       bIndexPairSet.toList.map {
         case (blockBIndex, charBIndex) =>
           val textMap = annotator.getTextMap(annoTypeStr)(blockBIndex, charBIndex)

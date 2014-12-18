@@ -49,8 +49,8 @@ object Main {
       println
       println("biblios with line breaks")
       import Annotator._
-      val biblioBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
-      val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range("biblio-marker", SegmentCon("line")))
+      val biblioBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("biblio-marker")))
+      val lineBIndexPairSet = annotator.getBIndexPairSet(Range("biblio-marker", SegmentCon("line")))
       val biblios2 = biblioBIndexPairSet.toList.map {
         case (blockBIndex, charBIndex) =>
             val textMap = annotator.getTextMap("biblio-marker")(blockBIndex, charBIndex)
@@ -70,13 +70,13 @@ object Main {
 
     { //check the annotations for every type
       import Annotator._
-      val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+      val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
       annotator.annotationInfoMap.keys.map(annoTypeString => {
 
         println
         println(annoTypeString)
 
-        val bIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon(annoTypeString)))
+        val bIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(annoTypeString)))
         val annotations = bIndexPairSet.toList.map {
           case (blockBIndex, charBIndex) =>
               val textMap = annotator.getTextMap(annoTypeString)(blockBIndex, charBIndex)

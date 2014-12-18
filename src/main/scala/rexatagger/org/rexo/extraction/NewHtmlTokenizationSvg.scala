@@ -202,7 +202,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
     println("number of pages: " + parentElement.getChildren.size())
 
-    val lineBIndexPairSet = page.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+    val lineBIndexPairSet = page.getBIndexPairSet(Single(SegmentCon("line")))
 
     val grpByPage:List[Tuple3[Int,Int,IntMap[Element]]] =
     lineBIndexPairSet.toList.zipWithIndex.map {
@@ -505,7 +505,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
     println("number of pages: " + parentElement.getChildren.size())
 
-    val lineBIndexPairSet = page.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+    val lineBIndexPairSet = page.getBIndexPairSet(Single(SegmentCon("line")))
 
     val groupedByLineContent:Map[Int, IntMap[Element]] = lineBIndexPairSet.toList.zipWithIndex.map {
       case (blockCharIndex, charIndex) =>
@@ -785,7 +785,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
   private def findFontNames(): List[String] = {
     val fonts = {
-      val lineBIndexPairSet = _annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+      val lineBIndexPairSet = _annotator.getBIndexPairSet(Single(SegmentCon("line")))
       val fonts: Set[String] = lineBIndexPairSet.map {
         case (blockIndex, charIndex) =>
           val elements = _annotator.getElements("line")(blockIndex, charIndex)
@@ -1026,7 +1026,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
     val sizes = {
 
-      val lineBIndexPairSet = _annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+      val lineBIndexPairSet = _annotator.getBIndexPairSet(Single(SegmentCon("line")))
 
       val sizes = lineBIndexPairSet.toList.map {
         case (blockIndex, charIndex) =>
@@ -1081,7 +1081,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   private def findLargestFontSize(): Double = {
 
     val sizes = {
-      val lineBIndexPairSet = _annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")))
+      val lineBIndexPairSet = _annotator.getBIndexPairSet(Single(SegmentCon("line")))
 
       val sizes2 = lineBIndexPairSet.map {
         case (blockIndex, charIndex) =>
@@ -1179,7 +1179,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   private def initHeaderFooterLineCounts(): Map[String, Int] = {
 
     val lines = {
-      val lineBIndexPairSet = _annotator.getAnnotatableIndexPairSet(Single(SegmentCon("line")));
+      val lineBIndexPairSet = _annotator.getBIndexPairSet(Single(SegmentCon("line")));
       val lastLine:Int  = lineBIndexPairSet.size
       val firstLine:Int = 1
       val res = lineBIndexPairSet.toList.zipWithIndex.map {

@@ -34,9 +34,9 @@ object ReferencePartProcessor extends Processor {
 
     val trainer = TestCitationModel.loadModel(modelUri, lexiconUrlPrefix)
 
-    val refBIndexPairSet = annotator.getAnnotatableIndexPairSet(Single(SegmentCon("biblio-marker")))
+    val refBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("biblio-marker")))
 
-    val lineBIndexPairSet = annotator.getAnnotatableIndexPairSet(Range("biblio-marker", SegmentCon("line")))
+    val lineBIndexPairSet = annotator.getBIndexPairSet(Range("biblio-marker", SegmentCon("line")))
 
     case class DPT(doc: Document, indexPairMap: IntMap[(Int, Int)], tokenLabelMap: Map[(Int, Int), Label])
 
