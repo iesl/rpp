@@ -67,7 +67,7 @@ object HeaderPartProcessor extends Processor {
           d.tokens.map(token => {
             val indexPair = indexPairMap(token.stringStart)
             val e = elementMap(indexPair._1)
-            val (xs, _, ys) = Annotator.getTransformedCoords(e, rootElement)
+            val PositionGroup(xs, _, ys) = Annotator.getTransformedCoords(e, rootElement)
             HeaderItem(
               indexPair,
               token,

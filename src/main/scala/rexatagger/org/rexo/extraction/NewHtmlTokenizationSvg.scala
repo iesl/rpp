@@ -265,7 +265,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   //      var llx:Double = coords._1
   //      var lly:Double = coords._2
         val coords2 = Annotator.getTransformedCoords(firstTbox, getTopPageAncestor(firstTbox, page.getDom()))
-        var llx = coords2._1(0)
+        var llx = coords2.xs(0)
         var lly = getYCoordinate(firstTbox, page.getDom()) //= coords2._3(0)
 
   //      var llx:Double = getLlxV2(firstTbox)
@@ -299,7 +299,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   //          val curLlx:Double = coords._1
   //          val curLly:Double = coords._2
             val coords2 = Annotator.getTransformedCoords(tbox._2, getTopPageAncestor(tbox._2, page.getDom()))
-            val curLlx = coords2._1(0)
+            val curLlx = coords2.xs(0)
             val curLly = getYCoordinate(tbox._2, page.getDom()) //:Double = //coords2._3(0)
 
   //          val curLlx = getLlxV2(tbox._2)
@@ -343,7 +343,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   //          val curLlx:Double = coords._1
   //          val curLly:Double = coords._2
             val coords2 = Annotator.getTransformedCoords(tbox._2, getTopPageAncestor(tbox._2, page.getDom()))
-            val curLlx = coords2._1(0)
+            val curLlx = coords2.xs(0)
             val curLly = getYCoordinate(tbox._2, page.getDom()) //:Double = coords2._3(0)
 
   //          val curLlx = getLlxV2(tbox._2)
@@ -351,7 +351,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
             val curUry = getFontSize(tbox._2)/*.toInt*/ + curLly
             //TODO: ask Thomas if is it possible to get the width of a particular span
-            val curUrx = coords2._2 //curLlx //+ getWidth(tbox._2).toInt
+            val curUrx = coords2.endX //curLlx //+ getWidth(tbox._2).toInt
 
             llx = curLlx
             lly = curLly
@@ -543,8 +543,8 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
       //      var llx:Double = coords._1
       //      var lly:Double = coords._2
       val coords2 = Annotator.getTransformedCoords(firstTbox, getTopAncestor(firstTbox))
-      var llx = coords2._1(0)
-      var lly = coords2._3(0)
+      var llx = coords2.xs(0)
+      var lly = coords2.ys(0)
 
       //      var llx:Double = getLlxV2(firstTbox)
       //      var lly:Double = getLlyV2(firstTbox)
@@ -577,8 +577,8 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
           //          val curLlx:Double = coords._1
           //          val curLly:Double = coords._2
           val coords2 = Annotator.getTransformedCoords(tbox._2, getTopAncestor(tbox._2))
-          val curLlx = coords2._1(0)
-          val curLly = coords2._3(0)
+          val curLlx = coords2.xs(0)
+          val curLly = coords2.ys(0)
 
           //          val curLlx = getLlxV2(tbox._2)
           //          val curLly = getLlyV2(tbox._2)
@@ -621,15 +621,15 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
           //          val curLlx:Double = coords._1
           //          val curLly:Double = coords._2
           val coords2 = Annotator.getTransformedCoords(tbox._2, getTopAncestor(tbox._2))
-          val curLlx = coords2._1(0)
-          val curLly = coords2._3(0)
+          val curLlx = coords2.xs(0)
+          val curLly = coords2.ys(0)
 
           //          val curLlx = getLlxV2(tbox._2)
           //          val curLly = getLlyV2(tbox._2)
 
           val curUry = getFontSize(tbox._2)/*.toInt*/ + curLly
           //TODO: ask Thomas if is it possible to get the width of a particular span
-          val curUrx = coords2._2 //curLlx //+ getWidth(tbox._2).toInt
+          val curUrx = coords2.endX //curLlx //+ getWidth(tbox._2).toInt
 
           llx = curLlx
           lly = curLly
@@ -1131,11 +1131,11 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
     val currPageHeight = transfMatVector(5)  - previousOffset
 
     if(transfMatVector(3).toInt == -1) {
-      return (currPageHeight + coords2._3(0) * (-1))
+      return (currPageHeight + coords2.ys(0) * (-1))
     }
     else
     {
-      return coords2._3(0)
+      return coords2.ys(0)
     }
   }
 
@@ -1192,7 +1192,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 //          val coords = getCoordinates(firstTbox, 0.0, 0.0)
 
           val coords2 = Annotator.getTransformedCoords(firstTbox, _annotator.getDom().getRootElement)//getTopPageAncestor(firstTbox,_annotator.getDom()))
-          val llx = coords2._1(0)
+          val llx = coords2.xs(0)
           val lly = getYCoordinate(firstTbox, _annotator.getDom()) //coords2._3(0)
 
 //          val llx:Double = coords._1
