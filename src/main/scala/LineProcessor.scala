@@ -18,6 +18,11 @@ import annotator.Annotator
 object LineProcessor extends Processor {
   import Annotator._
 
+
+  //annotation types
+  val lineString = "line"
+  val lineChar = 'l'
+
   override def process(annotator: Annotator): Annotator =  {
 
     def isSameLine(e1: Element, e2: Element): Boolean = {
@@ -46,7 +51,7 @@ object LineProcessor extends Processor {
       (
         ((1 until e.getText().size).foldLeft(IntMap[Label]())((annoMap, i) => {
           annoMap + (i -> I)
-        }) + (0 -> B('l')) ),
+        }) + (0 -> B(lineChar)) ),
         ( (0 until eeLast).foldLeft(IntMap[Label]())((annoMap, i) => {
           annoMap + (i -> I) 
         }) + (eeLast -> L) )
@@ -59,11 +64,11 @@ object LineProcessor extends Processor {
           val lastIndex = e.getText().size - 1
           IndexedSeq(
             if (lastIndex == 0) {
-              IntMap(0 -> U('l')) 
+              IntMap(0 -> U(lineChar)) 
             } else {
               (1 until lastIndex).foldLeft(IntMap[Label]())((annoMap, i) => {
                 annoMap + (i -> I)
-              }) + (lastIndex -> L) + (0 -> B('l'))
+              }) + (lastIndex -> L) + (0 -> B(lineChar))
             }
           )
         case e::ee::Nil => 
@@ -91,7 +96,7 @@ object LineProcessor extends Processor {
         }
     } toMap
 
-    annotator.annotate(List("line" -> 'l'), Single(CharCon), table)
+    annotator.annotate(List(lineString -> lineChar), Single(CharCon), table)
 
   }
 

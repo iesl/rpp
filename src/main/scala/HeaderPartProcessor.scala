@@ -32,6 +32,16 @@ import cc.factorie.app.nlp.Token
 object HeaderPartProcessor extends Processor {
   import Annotator._
 
+  val headerInstitution = "header-institution"
+  val headerADdress = "header-address" 
+  val headerTitle = "header-title" 
+  val headerAuthor = "header-author"
+  val headerTech = "header-tech" 
+  val headerDate = "header-date" 
+  val headerNote = "header-note" 
+  val headerAbstract = "abstract" 
+  val headerEmail = "header-email"
+
   override def process(annotator: Annotator): Annotator =  {
 
     case class HeaderItem(indexPair: (Int, Int), token: Token, x: Int, y: Int, fontSize: Int)

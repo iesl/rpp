@@ -27,16 +27,101 @@ import cc.factorie.app.nlp.Token
 object ReferencePartProcessor extends Processor {
   import Annotator._
 
+  //annotation types
+
+  val referenceTokenString = "reference-token"
+  val referenceTokenChar = 't' 
+
+  val refAuthorsString = "ref-authors"
+  val refAuthorsChar = 'a' 
+
+  val refPersonString = "ref-person"
+  val refPersonChar = 'p' 
+
+  val refFirstString = "ref-first"
+  val refFirstChar = 'f' 
+
+  val refMiddleString = "ref-middle"
+  val refMiddleChar = 'm' 
+
+  val refLastString = "ref-last"
+  val refLastChar = 'l'
+
+  val refDateString = "ref-date"
+  val refDateChar = 'd' 
+
+  val refYearString = "ref-year"
+  val refYearChar = 'y' 
+
+  val refMonthString = "ref-month"
+  val refMonthChar = 'm' 
+
+  val refTitleString = "ref-title"
+  val refTitleChar = 't'
+  
+  val refVenueString = "ref-venue"
+  val refVenueChar = 'v'
+
+  val refJournalString = "ref-journal"
+  val refJournalChar = 'j'
+
+  val refMarkerString = "ref-marker"
+  val refMarkerChar = 'm'
+
+  val refVolumeString = "ref-volume"
+  val refVolumeChar = 'v' 
+
+  val refPagesString = "ref-pages"
+  val refPagesChar = 'p'
+
+  val refOrganizationString = "ref-organization"
+  val refOrganizationChar = 'o'
+
+  val refBooktitleString = "ref-booktitle"
+  val refBooktitleChar = 't' 
+
+  val referenceIdString = "reference_id"
+  val referenceIdChar = 'i'
+
+  val refAddressString = "ref-address"
+  val refAddressChar = 'r'
+
+
+
   override def process(annotator: Annotator): Annotator =  {
+
+    val typePairMap = HashMap(
+        "authors" -> (refAuthorsString, refAuthorsChar), 
+        "person" -> (refPersonString, refPersonChar), 
+        "person-first" -> (refFirstString, refFirstChar), 
+        "person-middle" -> (refMiddleString, refMiddleChar), 
+        "person-last" -> (refLastString, refLastChar), 
+        "date" -> (refDateString, refDateChar), 
+        "year" -> (refYearString, refYearChar), 
+        "month" -> (refMonthString, refMonthChar), 
+        "title" -> (refTitleString, refTitleChar), 
+        "venue" -> (refVenueString, refVenueChar), 
+        "journal" -> (refJournalString, refJournalChar),
+        "ref-marker" -> (refMarkerString, refMarkerChar), 
+        "volume" -> (refVolumeString, refVolumeChar), 
+        "pages" -> (refPagesString, refPagesChar),
+        "organization" -> (refOrganizationString, refOrganizationChar),
+        "booktitle" -> (refBooktitleString, refBooktitleChar),
+        "reference_id" -> (referenceIdString, referenceIdChar),
+        "address" -> (refAddressString, refAddressChar)
+    )
+
+    val lineString = LineProcessor.lineString
+    val biblioMarkerString = StructureProcessor.biblioMarkerString
 
     val modelUri = "file://" + getClass.getResource("/citationCRF.factorie").getPath()
     val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
 
     val trainer = TestCitationModel.loadModel(modelUri, lexiconUrlPrefix)
 
-    val refBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("biblio-marker")))
+    val refBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(biblioMarkerString)))
 
-    val lineBIndexPairSet = annotator.getBIndexPairSet(Range("biblio-marker", SegmentCon("line")))
+    val lineBIndexPairSet = annotator.getBIndexPairSet(Range(biblioMarkerString, SegmentCon(lineString)))
 
     case class DPT(doc: Document, indexPairMap: IntMap[(Int, Int)], tokenLabelMap: Map[(Int, Int), Label])
 
@@ -45,17 +130,17 @@ object ReferencePartProcessor extends Processor {
 
       def token2LabelMap(token: Token): IntMap[Label] = {
         if (token.stringStart + 1 == token.stringEnd) {
-          IntMap(token.stringStart -> U('t'))
+          IntMap(token.stringStart -> U(referenceTokenChar))
         } else {
           val first = token.stringStart
           val last = token.stringEnd - 1
-          (IntMap((token.stringStart + 1 until last).map(_ -> I): _*) + (first -> B('t'))) + (last -> L)
+          (IntMap((token.stringStart + 1 until last).map(_ -> I): _*) + (first -> B(referenceTokenChar))) + (last -> L)
         }
       }
 
       val dpts = refBIndexPairSet.toSeq.map {
         case (blockBIndex, charBIndex) =>
-          val textMap = annotator.getTextMap("biblio-marker")(blockBIndex, charBIndex)
+          val textMap = annotator.getTextMap(biblioMarkerString)(blockBIndex, charBIndex)
           val indexPairMap = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet) 
 
           val doc = {
@@ -85,28 +170,7 @@ object ReferencePartProcessor extends Processor {
 
     val indexPair2TokenLabelMap = dptSeq.flatMap(_.tokenLabelMap).toMap
 
-    val annoWithTokens = annotator.annotate(List("reference-token" -> 't'), Single(CharCon), indexPair2TokenLabelMap)
-
-    val typePairMap = HashMap(
-        "authors" -> ("ref-authors", 'a'), 
-        "person" -> ("ref-person", 'p'), 
-        "person-first" -> ("ref-first", 'f'), 
-        "person-middle" -> ("ref-middle", 'm'), 
-        "person-last" -> ("ref-last", 'l'), 
-        "date" -> ("ref-date", 'd'), 
-        "year" -> ("ref-year", 'y'), 
-        "month" -> ("ref-month", 'm'), 
-        "title" -> ("ref-title", 't'), 
-        "venue" -> ("ref-venue", 'v'), 
-        "journal" -> ("ref-journal", 'j'),
-        "ref-marker" -> ("ref-marker", 'o'), 
-        "volume" -> ("ref-volume", 'z'), 
-        "pages" -> ("ref-pages", 'p'),
-        "organization" -> ("ref-organization", 'o'),
-        "booktitle" -> ("ref-booktitle", 'b'),
-        "reference_id" -> ("reference_id", 'x'),
-        "address" -> ("ref-address", 'a')
-    )
+    val annoWithTokens = annotator.annotate(List(referenceTokenString -> referenceTokenChar), Single(CharCon), indexPair2TokenLabelMap)
 
     val indexPair2typeLabelMapList = dptSeq.toList.flatMap {
       case DPT(doc, indexPairMap, _) =>
@@ -180,7 +244,7 @@ object ReferencePartProcessor extends Processor {
           typeLabelMap(annoTypeName)
         })
 
-        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("reference-token")), table)
+        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon(referenceTokenString)), table)
     } 
 
   }

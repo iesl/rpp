@@ -30,13 +30,18 @@ object CitationReferenceLinkProcessor extends Processor {
 
   override def process(annotator: Annotator): Annotator =  {
 
-    val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
+    val lineString = LineProcessor.lineString
+    val refLastString = ReferencePartProcessor.refLastString
+    val refMarkerString = ReferencePartProcessor.refMarkerString
+    val citationString = CitationProcessor.citationString
+
+    val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(lineString)))
 
 
     def findMatches(text: String): List[Match] = {
       val numberStr = """[0-9]+"""
       val alphaNumericStr = """[a-zA-Z]{2,}[0-9]+"""
-      val lastNameStr = annotator.getTextByAnnotationType("ref-last").distinct.mkString("|")
+      val lastNameStr = annotator.getTextByAnnotationType(refLastString).distinct.mkString("|")
 
       val bestMatchList = {
 
@@ -63,7 +68,7 @@ object CitationReferenceLinkProcessor extends Processor {
 
     }
 
-    val List(citationList, referenceList) = List("citation", "ref-marker").map(annoTypeStr => {
+    val List(citationList, referenceList) = List(citationString, refMarkerString).map(annoTypeStr => {
       val bIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(annoTypeStr)))
       bIndexPairSet.toList.map {
         case (blockBIndex, charBIndex) =>
@@ -83,7 +88,7 @@ object CitationReferenceLinkProcessor extends Processor {
       case (citText, citStrSet, citBIndexPair) =>
         citStrSet.filter(s => refBIndexMap.contains(s)).map(s => {
           val refBIndexPair = refBIndexMap(s)
-          HashMap("citation" -> citBIndexPair, "ref-marker" -> refBIndexPair)
+          HashMap(citationString -> citBIndexPair, refMarkerString -> refBIndexPair)
         })
     }
 

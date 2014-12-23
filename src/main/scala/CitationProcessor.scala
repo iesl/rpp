@@ -28,15 +28,25 @@ import cc.factorie.app.nlp.Token
 object CitationProcessor extends Processor {
   import Annotator._
 
+
+  //annotation types
+  val citationString = "citation"
+  val citationChar = 'c' 
+
   override def process(annotator: Annotator): Annotator =  {
 
-    import Annotator._
+    val lineString = LineProcessor.lineString
+    val refLastString = ReferencePartProcessor.refLastString 
+    val refMarkerString = ReferencePartProcessor.refMarkerString
+    val headerString = StructureProcessor.headerString
+    val bodyString = StructureProcessor.bodyString
 
-    val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
 
-    val lastNameList = annotator.getTextByAnnotationType("ref-last").distinct
+    val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(lineString)))
 
-    val pairList = List("header", "body").flatMap(annoTypeStr => {
+    val lastNameList = annotator.getTextByAnnotationType(refLastString).distinct
+
+    val pairList = List(headerString, bodyString).flatMap(annoTypeStr => {
       val bIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(annoTypeStr)))
       bIndexPairSet.toList.map {
         case (blockBIndex, charBIndex) =>
@@ -58,24 +68,29 @@ object CitationProcessor extends Processor {
       }
     }
 
-    val matches = findCitations(text, lastNameList)
+
+    val refMarkerCount = annotator.getBIndexPairSet(Single(SegmentCon(refMarkerString))).size
+
+    val matches = findCitations(refMarkerCount, text, lastNameList)
 
     val table = matches.flatMap(m => {
       if (m.start + 1 == m.end) {
-        List(indexPairMap(m.start) -> U('c'))
+        List(indexPairMap(m.start) -> U(citationChar))
       } else {
-        (indexPairMap(m.start) -> B('c')) +: ((m.start + 1) until (m.end - 1)).filter(i => indexPairMap.contains(i)).map(i => {
-          (indexPairMap(i) -> I)
-        }) :+ (indexPairMap(m.end - 1) -> L)
+        (indexPairMap(m.start) -> B(citationChar)) +: {
+          ((m.start + 1) until (m.end - 1)).filter(i => indexPairMap.contains(i)).map(i => {
+            (indexPairMap(i) -> I)
+          }) :+ (indexPairMap(m.end - 1) -> L)
+        }
       }
     }).toMap
 
-    annotator.annotate(List("citation" -> 'c'), Single(CharCon), table)
+    annotator.annotate(List(citationString -> citationChar), Single(CharCon), table)
 
   }
 
 
-  def findCitations(text: String, lastNameList: List[String]) = {
+  def findCitations(refMarkerCount: Int, text: String, lastNameList: List[String]) = {
 
     val numberStr = """[0-9]{1,3}"""
     val alphaNumericStr = """[a-zA-Z]{2,}[0-9]+"""
@@ -92,11 +107,17 @@ object CitationProcessor extends Processor {
 
       val matchList =  List(numBrackRegex, numParenRegex, alphaNumBrackRegex, alphaNumParenRegex, authorRegex).map(regex => {
         regex.findAllMatchIn(text).toList
+      }).filter(ms => {
+        val ratio = ms.size * 100 / refMarkerCount
+        val diff = ms.size - refMarkerCount
+        diff >= -10 && ratio < 300
       })
+
 
       def loop(list: List[List[Match]]): List[Match] = list match {
         case x::Nil => x
         case x1::(x2::xs) => 
+
           if (x1.length > x2.length) {
             loop(x1::xs) 
           } else {

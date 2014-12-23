@@ -30,17 +30,36 @@ import Annotator._
 //based onScalaTaggerSvg in rexa-scalatagger
 object StructureProcessor extends Processor {
 
-  val logger = Logger(LoggerFactory.getLogger("ScalaTagger"))
+  //annotation types
+  val referenceString = "reference"
+  val referenceChar = 'r'
+  val bodyString = "body"
+  val bodyChar = 'b'
+  val sectionMarkerString = "section-marker"
+  val sectionMarkerChar = 's' 
+  val paragraphString = "paragraph"
+  val paragraphChar = 'p'
+  val headerString = "header"
+  val headerChar = 'h' 
+  val biblioMarkerString = "biblio-marker"
+  val biblioMarkerChar = 'b' 
+  val figureMarkerString = "figure-marker"
+  val figureMarkerChar = 'f' 
+  val tableMarkerString = "table-marker"
+  val tableMarkerChar = 't' 
+
+
+  private val logger = Logger(LoggerFactory.getLogger("ScalaTagger"))
 
   override def process(annotator: Annotator): Annotator = {
 
-    val rdoc = TaggerUtil.mkRDoc(annotator)
-    val pipeline: RxPipelineSvg = TaggerUtil.buildPipeline(Map[Any, Any]())
+    val rdoc = mkRDoc(annotator)
+    val pipeline: RxPipelineSvg = buildPipeline(Map[Any, Any]())
 
     try {
       pipeline.execute(rdoc)
       logger.info("writing output file")
-      val a = TaggerUtil.annotateRx(rdoc)
+      val a = annotateRx(rdoc)
       if (a == null) annotator else a
     } catch {
       case e: Exception => {
@@ -51,11 +70,8 @@ object StructureProcessor extends Processor {
 
   }
 
-}
 
-object TaggerUtil {
-
-  def mkRDoc(annotator: Annotator) = {
+  private def mkRDoc(annotator: Annotator) = {
     val dataDir:String = null
     val DICT_FILE:String = getClass.getResource("/words.txt").getPath
 
@@ -67,7 +83,7 @@ object TaggerUtil {
     rdoc
   }
 
-  def buildPipeline(argumentMap: Map[Any, Any]): RxPipelineSvg = {
+  private def buildPipeline(argumentMap: Map[Any, Any]): RxPipelineSvg = {
     val pipeline: RxPipelineSvg = new RxPipelineSvg
     val logp: Boolean = argumentMap.get("enable.log") != null
     pipeline.getScope("session").put("log.boolean", logp)
@@ -80,8 +96,7 @@ object TaggerUtil {
 
     pipeline
   }
-
-  def annotateRx(rdoc: RxDocumentSvg): Annotator = {
+private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
     val tokenization: NewHtmlTokenizationSvg = rdoc.getTokenization
     val segmentations: collection.mutable.Map[Any, Any] = rdoc.getScope("document").get("segmentation").getOrElse(null).asInstanceOf[collection.mutable.Map[Any, Any]]
     if (tokenization == null) {
@@ -95,9 +110,9 @@ object TaggerUtil {
       val bodyLabels:Sequence = segmentations.get("bodyLabels").get.asInstanceOf[Sequence]
       val referenceLabels:Sequence = segmentations.get("referenceLabels").get.asInstanceOf[Sequence]
 
-      val annoReference:Annotator = annotateV2("reference",'r', referencesTokenization, rdoc.getTokenization._annotator)
-      val annoRefAndHeader:Annotator = annotateV2("header",'h', headerTokenization, annoReference)
-      val annoRefHeadBody:Annotator = annotateV2("body",'b', bodyTokenization, annoRefAndHeader)
+      val annoReference:Annotator = annotateV2(referenceString, referenceChar, referencesTokenization, rdoc.getTokenization._annotator)
+      val annoRefAndHeader:Annotator = annotateV2(headerString, headerChar, headerTokenization, annoReference)
+      val annoRefHeadBody:Annotator = annotateV2(bodyString, bodyChar, bodyTokenization, annoRefAndHeader)
       val annotatedBody = MetaDataSvgAnnotator.annotateBody(bodyTokenization, bodyLabels, annoRefHeadBody)
       val annotatedReference = MetaDataSvgAnnotator.annotateReferences(referencesTokenization, referenceLabels, annotatedBody)
       annotatedReference
@@ -152,12 +167,14 @@ object TaggerUtil {
     trimEnd(trimStart(lineSpans))
   }
 
-  def annotateV2(
+  private def annotateV2(
       annotation: String, 
       annoLetter: Char, 
       segmentation: NewHtmlTokenizationSvg,
       annotator: Annotator
   ): Annotator = {
+
+    val lineString = LineProcessor.lineString
     val origLineSpans = segmentation.getLineSpans
     val lineSpans = trimLineSpans(origLineSpans)
 
@@ -185,7 +202,7 @@ object TaggerUtil {
           val blockIndex = blockIndexStr.take(blockIndexStr.indexOf('_')).toInt
           labelOp.map(l => (blockIndex, 0) -> l)
       }
-      annotator.annotate(List(annotation -> annoLetter), Single(SegmentCon("line")), table)
+      annotator.annotate(List(annotation -> annoLetter), Single(SegmentCon(lineString)), table)
     }
 
     resAnnot

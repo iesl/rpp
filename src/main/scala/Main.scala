@@ -24,7 +24,14 @@ object Main {
     val builder = new SAXBuilder()
     val dom = builder.build(new File(filePath)) 
 
-    val l = List(LineProcessor, StructureProcessor, ReferencePartProcessor, CitationProcessor, CitationReferenceLinkProcessor, HeaderPartProcessor)
+    val l = List(
+        LineProcessor, 
+        StructureProcessor, 
+        ReferencePartProcessor, 
+        CitationProcessor, 
+        CitationReferenceLinkProcessor, 
+        HeaderPartProcessor
+    )
     val annotator = l.foldLeft(new Annotator(dom)) {
       case (annoAcc, pro) => pro.process(annoAcc)
     } 
@@ -85,6 +92,7 @@ object Main {
         annotations.zipWithIndex.foreach(p => println(p._2 + ": " + p._1))
       })
     }
+
 
     { //see all the annotations types that exists
 
