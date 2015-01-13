@@ -88,7 +88,13 @@ object CitationReferenceLinkProcessor extends Processor {
       case (citText, citStrSet, citBIndexPair) =>
         citStrSet.filter(s => refBIndexMap.contains(s)).map(s => {
           val refBIndexPair = refBIndexMap(s)
-          HashMap(citationString -> citBIndexPair, refMarkerString -> refBIndexPair)
+          Annotator.AnnotationLink(
+            "citation-reference-link", 
+            HashMap(
+              "cit" -> (citationString, citBIndexPair._1, citBIndexPair._2), 
+              "ref" -> (refMarkerString, refBIndexPair._1, refBIndexPair._2)
+            )
+          )
         })
     }
 

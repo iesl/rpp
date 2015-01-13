@@ -32,7 +32,7 @@ object Main {
         CitationReferenceLinkProcessor, 
         HeaderPartProcessor
     )
-    val annotator = l.foldLeft(new Annotator(dom)) {
+    val annotator = l.foldLeft(Annotator(dom)) {
       case (annoAcc, pro) => pro.process(annoAcc)
     } 
 
