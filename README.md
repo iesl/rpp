@@ -3,13 +3,44 @@ RPP
 
 Research Paper Processor
 
-Data files
-----------
-
-RPP depends on libraries that need access to FACTORIE's lexicon files. To provide these to the program, it is currently necessary to provide a url (resolved by `java.net.URL`) using a java system property. If your lexicon file is located at `/Users/bob/data/lexicons`, you would provide
-
+Build and run Main from command line
+------------------------------------
 ```bash
-  java -Dcc.factorie.app.nlp.lexicon.Lexicon="file:///Users/bob/data/lexicons"
+  run.sh file:///lexicons/uri file:///reference/crf/model/uri \
+    input/pdf/file/path output/svg/file/path
 ```
 
-to your java command.
+Manage with SBT
+----------------
+```scala
+  libraryDependencies += "edu.umass.cs.iesl.rpp" % "rpp" % "0.1-SNAPSHOT"
+```
+
+Use from Scala 
+--------------
+```scala
+  import org.jdom2.input.SAXBuilder
+  val builder = new SAXBuilder()
+  val dom = builder.build(new File(/*input pdf path*/)) 
+
+  val l = List(
+      LineProcessor, 
+      StructureProcessor, 
+      ReferencePartProcessor("file:///your/reference/crf/model/uri"), 
+      CitationProcessor, 
+      CitationReferenceLinkProcessor, 
+      HeaderPartProcessor /* 
+      * Depends on FACTORIE's lexicon files.
+      * The files can be loaded from cli when you run your java/scala program: 
+      * java -Dcc.factorie.app.nlp.lexicon.Lexicon="file:///your/lexicons/uri"
+      * or
+      * sbt -Dcc.factorie.app.nlp.lexicon.Lexicon="file:///your/lexicons/uri"
+      */
+  )
+
+  val annotator = l.foldLeft(Annotator(dom)) {
+    case (annoAcc, pro) => pro.process(annoAcc)
+  } 
+```
+
+See Main.scala for more details
