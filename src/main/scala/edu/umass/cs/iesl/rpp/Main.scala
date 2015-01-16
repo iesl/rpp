@@ -10,7 +10,8 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 
-    val filePath = args(0) 
+    val referenceModelUri = args(0) 
+    val filePath = args(1) 
 
     val builder = new SAXBuilder()
     val dom = builder.build(new File(filePath)) 
@@ -18,7 +19,7 @@ object Main {
     val l = List(
         LineProcessor, 
         StructureProcessor, 
-        ReferencePartProcessor, 
+        ReferencePartProcessor(referenceModelUri), 
         CitationProcessor, 
         CitationReferenceLinkProcessor, 
         HeaderPartProcessor
@@ -96,7 +97,6 @@ object Main {
       }
 
     }
-
 
     //read the Annotator source in xml-annotator
     //see example uses in LineProcessor and ReferencePartProcessor

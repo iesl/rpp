@@ -810,7 +810,10 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   private def getFontSize(div:Element):Double =
   {
     val rawValue:String = div.getAttribute("font-size").getValue
-    return rawValue.substring(0,rawValue.indexOf("px")).toDouble
+    val pxIdx = rawValue.indexOf("px")
+    if (pxIdx >= 0) {
+      rawValue.substring(0, pxIdx).toDouble
+    } else rawValue.toDouble
   }
 
   private def getCoordLlx(element:Element):Double =
@@ -1031,7 +1034,9 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
           elements.map { x =>
             val currVal = x._2.getAttribute("font-size").getValue
 
-            currVal.substring(0, currVal.indexOf("px"))
+            if (currVal.indexOf("px") >= 0) {
+              currVal.substring(0, currVal.indexOf("px"))
+            } else currVal
           }
       }.flatten
       sizes
@@ -1085,7 +1090,9 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
           val elements = _annotator.getElements("line")(blockIndex, charIndex)
           elements.map{x=>
             val currVal = x._2.getAttribute("font-size").getValue
-            currVal.substring(0,currVal.indexOf("px"))
+            if (currVal.indexOf("px") >= 0) {
+              currVal.substring(0, currVal.indexOf("px"))
+            } else currVal
           }
       }.flatten
       sizes2

@@ -13,12 +13,9 @@ import cc.factorie.app.nlp.Sentence
 
 import cc.factorie.app.nlp.Token
 
-
-object ReferencePartProcessor extends Processor {
-  import Annotator._
+object ReferencePartProcessor {
 
   //annotation types
-
   val referenceTokenString = "reference-token"
   val referenceTokenChar = 't' 
 
@@ -76,7 +73,17 @@ object ReferencePartProcessor extends Processor {
   val refAddressString = "ref-address"
   val refAddressChar = 'r'
 
+  def apply(modelUri: String): ReferencePartProcessor = {
+    new ReferencePartProcessor(modelUri)
+  }
 
+
+}
+
+
+class ReferencePartProcessor(modelUri: String) extends Processor {
+  import Annotator._
+  import ReferencePartProcessor._
 
   override def process(annotator: Annotator): Annotator =  {
 
@@ -104,7 +111,6 @@ object ReferencePartProcessor extends Processor {
     val lineString = LineProcessor.lineString
     val biblioMarkerString = StructureProcessor.biblioMarkerString
 
-    val modelUri = "file://" + getClass.getResource("/citationCRF.factorie").getPath()
     val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
 
     val trainer = TestCitationModel.loadModel(modelUri, lexiconUrlPrefix)
