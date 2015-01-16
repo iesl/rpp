@@ -11,10 +11,11 @@ object Main {
   def main(args: Array[String]): Unit = {
 
     val referenceModelUri = args(0) 
-    val filePath = args(1) 
+    val inFilePath = args(1) 
+    val outFilePath = args(2)
 
     val builder = new SAXBuilder()
-    val dom = builder.build(new File(filePath)) 
+    val dom = builder.build(new File(inFilePath)) 
 
     val l = List(
         LineProcessor, 
@@ -28,7 +29,7 @@ object Main {
       case (annoAcc, pro) => pro.process(annoAcc)
     } 
 
-    annotator.write("out.svg")
+    annotator.write(outFilePath)
 
     { //find all the lines
       println
