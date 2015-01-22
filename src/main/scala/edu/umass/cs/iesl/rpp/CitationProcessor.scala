@@ -89,7 +89,7 @@ object CitationProcessor extends Processor {
       val matchList =  List(numBrackRegex, numParenRegex, alphaNumBrackRegex, alphaNumParenRegex, authorRegex).map(regex => {
         regex.findAllMatchIn(text).toList
       }).filter(ms => {
-        val ratio = ms.size * 100 / refMarkerCount
+        val ratio = if (refMarkerCount > 0) ms.size * 100 / refMarkerCount else ms.size
         val diff = ms.size - refMarkerCount
         diff >= -10 && ratio < 300
       })
