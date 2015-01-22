@@ -8,8 +8,7 @@ scalaVersion := "2.11.4"
 
 resolvers ++= Seq(
   "IESL Public Snapshots" at "https://dev-iesl.cs.umass.edu/nexus/content/repositories/public-snapshots",
-  "IESL Public Releases" at "http://dev-iesl.cs.umass.edu/nexus/content/groups/public",
-  Resolver.mavenLocal
+  "IESL Public Releases" at "http://dev-iesl.cs.umass.edu/nexus/content/groups/public"
 )
 
 libraryDependencies ++= Seq(
