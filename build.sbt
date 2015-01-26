@@ -13,6 +13,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.jdom" % "jdom2" % "2.0.5",
+  "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "cc.factorie" % "factorie_2.11" % "1.1",
   "dom4j" % "dom4j" % "1.6.1",
