@@ -1,0 +1,2069 @@
+Synthesis, Structures, Polymorphism, and Magnetic Properties of
+
+Transition Metal Thiocyanato Coordination Compounds
+
+Susanne Wöhlert,†Tomče Runčevski,§Robert E. Dinnebier,§Stefan G. Ebbinghaus,‡
+
+and Christian Näther*,†
+
+†Institut für Anorganische Chemie, Christian-Albrechts-Universität zu Kiel, Max-Eyth-Straße 2, 24118 Kiel, Germany
+
+§Max-Planck Institute for Solid State Research, Heisenbergstraße 1, 70569 Stuttgart, Germany
+
+‡Martin-Luther-Universität Halle-Wittenberg, Institut für Chemie, Kurt-Mothes-Straße 2, 06120 Halle/Saale, Germany
+
+*SSupporting Information
+
+ABSTRACT: Reaction of manganese, iron, and nickel thiocyanate with 4-
+
+ethylpyridine leads to the formation of single crystals of compounds with
+
+composition M(NCS)2(L)4(1), M(NCS)2(L)2(H2O)2(2-Mn), and M-
+
+(NCS) 2(L)2(3) with M = Mn, Fe, and Ni and L = 4-ethylpyridine. For most
+
+compounds, diﬀerent polymorphic modiﬁcations are observed, and their
+
+transition behavior and thermodynamic stability was investigated. Additionally,
+
+compounds of composition M(NCS)2(L)2(M = Mn or Ni) were prepared from
+
+solution and by thermal decomposition of compounds 1 and 2, which lead to
+
+diﬀerent stable and metastable modiﬁcations. The crystal structures of most
+
+compounds were determined by single crystal X-ray diﬀraction and some of them
+
+by Rietveld reﬁnements. Compounds 1 and 2 consist of octahedrally coordinated
+
+discrete complexes with terminal N-bonded thiocyanato anions. In compounds 3,
+
+the metal cations are linked by pairs of μ-1,3-bridging thiocyanato anions into
+
+chains. Surprisingly, thermal decomposition of Ni(NCS)2(4-ethylpyridine)4leads to the formation of a new compound of
+
+composition Ni(NCS) 2(4-ethylpyridine) (4-Ni). Magnetic measurements reveal that 3-Mn/II and 3-Mn/III show
+
+antiferromagnetic ordering at TN= 21.5 and 23.9 K and that 4-Ni is a metamagnet with a critical ﬁeld of 1.4 kOe at 2 K.
+
+All other compounds show Curie or Curie−Weiss behavior with no magnetic anomalies.
+
+■INTRODUCTION
+
+Recently, investigations on new synthetic routes for novel
+
+coordination compounds, inorganic−organic hybrid materials,
+
+and metal−organic frameworks with desired physical properties
+
+stand at the frontiers of inorganic chemistry research.1−9For
+
+that purpose, diﬀerent strategies for a rational design of speciﬁc
+
+structures need to be developed, and structure−property
+
+relationships need to be investigated in detail. 10−20Besides
+
+the chemical synthesis itself, a major issue is governing the
+
+formation of a desired polymorph (or isomer), since poly-
+
+morphism is a usual feature of coordination compounds.21−32
+
+In this context, special attention should be paid to the phase
+
+transition within diﬀerent polymorphs, the way in which they
+
+can be crystallized in pure form, and their relative stability, that
+
+is to ﬁnd the thermodynamically stable forms.23−27
+
+Concerning the physical properties of coordination com-
+
+pounds, materials showing cooperative magnetic phenomena
+
+are of special interest. Those phenomena can emerge when
+
+paramagnetic transition metal atoms are linked by neutral or
+
+anionic ligands, which can mediate magnetic exchange
+
+interactions.33−42Within the scope of our ongoing inves-
+
+tigations on the magnetic properties of coordination com-
+
+pounds based on transition metal thio- and selenocyanates, we
+
+synthesized a number of diﬀerent materials. Some of them,
+
+ together with selected examples from the literature are given in
+
+the reference list.43−58However, the preparation of such
+
+compounds in which the metal cations are linked by bridging
+
+anionic ligands is sometimes diﬃcult to achieve if the synthesis
+
+is performed in solution. Therefore, we have developed an
+
+alternative, solid-state route based on thermal decomposition of
+
+suitable precursors. 59−61It should be noted that preparation of
+
+coordination compounds by solid state methods is not
+
+uncommon and diﬀerent methods were reported.62−68Given
+
+that our aim is building up a thio- and selenocyanate bonded
+
+network of metal cations, we decided to start with complexes
+
+where the metal cations are octahedrally coordinated by four
+
+neutral N-donor coligands and two terminal N-bonded thio- or
+
+selenocyanato anions. Upon heating, the coligands are removed
+
+in a stepwise fashion, and in most cases, the octahedral
+
+coordination is retained during ligand removal, which enforces
+
+the formation of desired samples in which the metal cations are
+
+linked by μ-1,3-bridging anionic ligands. The new materials are
+
+obtained in quantitative yield, in most cases as single phases
+
+and sometimes as polymorphic modiﬁcations. 23,26,27,61As
+
+Received: January 8, 2014
+
+Revised: February 12, 2014
+
+Published: March 5, 2014
+
+Article
+
+pubs.acs.org/crystal
+
+© 2014 American Chemical Society1902dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−1913
+
+expected, most of them exhibit cooperative magnetic
+
+phenomena, including metamagnetic behavior.69−75Within
+
+this project, for example, 1D-linked samples of composition
+
+M(NCS) 2(pyridine)2(M = Mn, Fe, Co, or Ni) were
+
+investigated. The Mn compound was shown to be an
+
+antiferromagnet, while the Fe and Ni analogues are
+
+metamagnets, and for the Co containing sample, a slow
+
+relaxation of the magnetization was observed.75,76To
+
+determine whether this interesting magnetic behavior is
+
+retained on ligand exchange, we prepared Co(NCS) 2(4-
+
+ethylpyridine) 2. This material exhibits a very similar structure
+
+to that of Co(NCS)2(pyridine)2but is a metamagnet that
+
+shows metamagnetism and slow relaxations below and above
+
+the critical ﬁeld. 77Motivated by this ﬁnding and in order to
+
+study the inﬂuence of the metal cation, we focused on 4-
+
+ethylpyridine as ligand. To the best of our knowledge only
+
+Ni(NCS) 2(4-ethylpyridine)4existing in two polymorphs (1-
+
+Ni/I and 1-Ni/II) is reported in the literature.78Additionally,
+
+some solvates of Ni(NCS) 2(4-ethylpyridine)4are also
+
+reported. 78
+
+Accordingly, various materials crystallizing in diﬀerent
+
+polymorphic modiﬁcations were prepared and structurally
+
+characterized by single crystal X-ray diﬀraction and by Rietveld
+
+reﬁnements (Table 1). Interestingly, we obtained an unusual
+
+ligand-deﬁcient compound of composition [Ni(NCS)2(4-ethyl-
+
+pyridine)] n(4-Ni), which shows metamagnetic behavior.
+
+■EXPERIMENTAL SECTION
+
+Materials and General Methods. All chemicals and solvents
+
+were used without further puriﬁcation. NiCl2·6H2O, FeSO4·7H2O,
+
+KNCS, MnSO 4·2H2O, Ba(NCS)2·3H2O, and 4-ethylpyridine were
+
+obtained from Alfa Aesar. Mn(NCS) 2was prepared by a reaction of
+
+equimolar amounts of MnSO 4·2H2O and Ba(NCS)2·3H2O in water.
+
+The resulting precipitate of BaSO 4was ﬁltered oﬀ, and the ﬁltrate was
+
+evaporated to complete dryness resulting in a white residue of
+
+Mn(NCS) 2. The desired complexes (see Results and Discussion) were
+
+prepared by stirring diﬀerent molar ratios of the reactants for 3 days.
+
+The residues obtained were ﬁltered oﬀ, washed with water and diethyl
+
+ether, and dried in vacuum.
+
+ Elemental Analysis. All synthesized samples were investigated by
+
+CHNS analysis using a EURO EA elemental analyzer (EURO
+
+VECTOR Instruments).
+
+X-ray Powder Diﬀraction (XRPD). The measurements were
+
+performed using (1) a PANalytical X’Pert Pro MPD reﬂection
+
+diﬀractometer with Cu Kα radiation equipped with a PIXcel
+
+semiconductor detector and (2) a Stoe transmission powder
+
+diﬀraction system (STADI-P) with Cu Kα radiation that is equipped
+
+with a linear position-sensitive detector. The data collection of the
+
+patterns used for Rietveld reﬁnement was performed on high-
+
+resolution powder diﬀractometer Bruker D8 Advance with Ge(111)-
+
+Johanson-type monochromator and VÅNTEC-1 position sensitive
+
+detector in Debye−Scherrer geometry.
+
+Rietveld Reﬁnements. The Rietveld reﬁnements were performed
+
+using the program suite TOPAS 4.2, and selected crystallographic data
+
+are listed in Table 2.79The following overall parameters were
+
+subjected to reﬁnement: phase scale factor, background coeﬃcients
+
+(Chebyshev polynomials of order smaller than 10), unit cell
+
+parameters, zero-error shift, and parameters for the strain contribution.
+
+The displacement factors were treated isotropically. Despite the use of
+
+capillaries in Debye−Scherrer geometry, a small amount of the
+
+preferred orientation was detected and was adequately described by
+
+the use of symmetry-adapted spherical harmonics. The metal cations
+
+were allowed to move freely, while for the ligands rigid bodies were
+
+created and their x, y, z fractional positions, together with bond
+
+distances, angles, and torsions were reﬁned.
+
+IR Spectroscopy. IR spectroscopy was performed using an ATI
+
+Mattson Genesis series FTIR spectrometer.
+
+Diﬀerential Thermal Analysis and Thermogravimetry (DTA-
+
+TG). The measurements were performed in nitrogen atmosphere
+
+(purity 5.0) in Al 2O3crucibles using a NETZSCH STA-409CD
+
+thermobalance. The instrument was calibrated using standard
+
+reference materials. All measurements were performed with a heating
+
+rate of 4 K min −1and a low rate of 75 mL min−1.
+
+Diﬀerential Scanning Calorimetry. The DSC experiments were
+
+performed using a DSC 1 star system with STARe Excellence software
+
+from Mettler-Toledo AG.
+
+Magnetic Measurements. All magnetic measurements were
+
+performed using a Quantum Design PPMS (Physical Property
+
+Measurement System), equipped with a 9 T magnet. The data were
+
+corrected for core diamagnetism.
+
+ Table 1. Compounds Investigated in This Worka
+
+compound space group
+
+M(NCS)2(L)4(L = 4-ethylpyridine)
+
+Ni(NCS) 2(4-ethylpyridine)4(1-Ni/I) P1̅
+
+Ni(NCS) 2(4-ethylpyridine)4(1-Ni/II) P1̅
+
+Mn(NCS) 2(4-ethylpyridine)4(1-Mn/II) P1̅
+
+Mn(NCS) 2(4-ethylpyridine)4(1-Mn/III) P21/c
+
+Mn(NCS) 2(4-ethylpyridine)4(1-Mn/IV) P1̅
+
+Fe(NCS) 2(4-ethylpyridine)4(1-Fe/I) P1̅
+
+Fe(NCS) 2(4-ethylpyridine)4(1-Fe/II) P1̅
+
+Mn(NCS) 2(4-ethylpyridine)2(H2O)2(2-Mn) P21/c
+
+M(NCS) 2(L)2
+
+Ni(NCS)2(4-ethylpyridine)2(3-Ni/I) P1̅
+
+Ni(NCS) 2(4-ethylpyridine)2(3-Ni/II) Cc
+
+Mn(NCS) 2(4-ethylpyridine)2(3-Mn/II) Cc
+
+Mn(NCS) 2(4-ethylpyridine)2(3-Mn/III) P21/c
+
+Fe(NCS) 2(4-ethylpyridine)2(3-Fe/II) Cc
+
+M(NCS)2(L)
+
+Ni(NCS) 2(4-ethylpyridine) (4-Ni)
+
+aIdentical roman numerals correspond to isotypic modiﬁcations; thus
+
+some numbers are missing. The crystal structure of 4-Ni remains
+
+unknown.
+
+Table 2. Details on the Rietveld Reﬁnement for Compounds
+
+3-Mn/II and 3-Fe/II
+
+3-Mn/II 3-Fe/II
+
+formula C 16H18MnN4S2C16H18FeN4S2
+
+MW, g·mol−1385.40 386.32
+
+cryst syst monoclinic monoclinic
+
+space group Cc Cc
+
+a, Å 11.488(4) 11.365(7)
+
+b, Å 39.84(2) 39.80(3)
+
+c, Å 9.366(3) 9.276(6)
+
+α, deg 90 90
+
+β, deg 114.70(3) 115.09(5)
+
+γ, deg 90 90
+
+V,Å 33895.3(9) 3799.9(9)
+
+T, K 293 293
+
+Z 44
+
+D calc,mg·m31.252 1.287
+
+θ max, deg 50 50
+
+R Bragg0.024 17 0.027 95
+
+R exp0.029 56 0.011 89
+
+R wp0.0210 0.025 56
+
+R p0.024 91 0.019 04
+
+GOF 1.086 2.150
+
+Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131903
+
+Table 3. Selected Crystal Data and Details on the Structure Determination from Single Crystal Data for the Investigated Compounds
+
+1-Mn/III 1-Mn/IV 1-Fe/I 1-Fe/II 2-Mn 3-Ni/I 3-Ni/II 3-Mn/III
+
+formula C
+
+ 30
+
+H36MnN
+
+6S2
+
+C30H36MnN
+
+6S2
+
+C30H36FeN
+
+6S2
+
+C30H36FeN
+
+6S2
+
+C16H22MnN
+
+4O2S2
+
+C16H18N4NiS
+
+2
+
+C16H18N4NiS
+
+2
+
+C16H18MnN
+
+4S2
+
+MW, g
+
+·mol
+
+−1
+
+599.71 599.71 600.92 600.62 421.44 389.17 389.17 385.40
+
+cryst syst monoclinic triclinic triclinic triclinic monoclinic triclinic monoclinic monoclinicspace group
+
+ P
+
+21/cP
+
+1̅ P
+
+1̅ P
+
+1̅ P
+
+21/cP
+
+1̅ Cc P
+
+21/c
+
+a, Å 9.8148(3) 11.8301(5) 10.1658(8) 10.3881(4) 11.0253(7) 8.9684(6) 11.1707(8) 5.7737(4)b, Å 16.9806(7) 16.4075(8) 17.0109(12) 16.3106(7) 12.8112(7) 10.6770(7) 39.5124(19) 18.3907(10)c, Å 20.0807(6) 18.6847(8) 19.4946(12) 20.1423(8) 7.6416(5) 10.9560(7) 9.1330(7) 8.5647(6)α, deg 90 72.304(3) 85.379(8) 91.552(3) 90 67.460(5) 90 90β, deg 99.849(2) 75.684(4) 84.001(8) 90.799(3) 107.476(7) 67.360(5) 115.200(8) 96.165(8)γ, deg 90 77.015(4) 73.599(8) 102.835(3) 90 83.940(5) 90 90V,Å
+
+ 3
+
+3297.3(2) 3303.6(3) 3211.7(4) 3325.6(2) 1029.54(11) 893.21(10) 3647.5(4) 904.16(10)
+
+T, K 293 293 200 293 200 200 200 200Z 44 442 282D
+
+ calc
+
+,mg
+
+·m3
+
+1.208 1.206 1.242 1.200 1.359 1.447 1.417 1.419
+
+μ,mm
+
+ −
+
+1
+
+0.554 0.553 0.628 0.606 0.860 1.323 1.296 0.964
+
+θ
+
+ max
+
+, deg 25.00 25.00 25.00 26.00 27.49 28.00 28.02 27.50
+
+reﬂns collected 37 729 26 915 20 297 32 009 7560 9813 20 354 9339
+
+unique re
+
+ﬂns 5758 11 523 11 011 12 925 2350 4281 8521 2043
+
+R int
+
+0.0503 0.0248 0.0529 0.0639 0.0283 0.0454 0.0391 0.0614
+
+min/max. transm 0.8067/0.9343 0.5318/0.8459 0.7762/0.8776 0.5959/0.8285 0.7714/0.8779 0.7872/0.8988reﬂns [
+
+F
+
+ 0
+
+>4
+
+σ(F0)] 4509 7819 7764 7999 1963 2603 7390 1726
+
+params 355 733 711 726 118 211 415 106R
+
+ 1
+
+[F0>4
+
+σ(F0)] 0.0663 0.0605 0.0434 0.0777 0.0426 0.0516 0.0383 0.0303
+
+wR
+
+ 2
+
+0.1656 0.1692 0.1188 0.2237 0.1174 0.1351 0.1043 0.0779
+
+GOF 1.128 1.046 0.981 1.061 1.040 1.040 1.037 1.032Δρ
+
+ max/min
+
+,e
+
+·Å−3
+
+0.257/
+
+−0.201 0.349/
+
+−0.275 0.624/
+
+−0.468 0.466/
+
+−0.323 0.582/
+
+−0.465 0.493/
+
+−0.810 0.538/
+
+−0.720 0.295/
+
+−0.497
+
+Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131904
+
+Single-Crystal Structure Analysis. Data collection was carried
+
+out using a two imaging plate diﬀraction system from Stoe (IPDS-1 for
+
+1-Fe/I, 2-Mn, 3-Ni/II, and 3-Mn/III and IPDS-2 for 1-Mn/III, 1-
+
+Mn/IV, 1-Fe/II, and 3-Ni/I) using Mo Kα radiation. For some
+
+compounds, a numerical absorption correction was performed (see
+
+Table 3). The structures were solved with direct methods using
+
+SHELXS-97, and structure reﬁnements were performed against F2
+
+using SHELXL-97.80Numerical absorption corrections were applied
+
+using X-RED and X-SHAPE of the program package X-Area.
+
+Hydrogen atoms were reﬁned with anisotropic displacement
+
+parameters. All hydrogen atoms were positioned with idealized
+
+geometry and were reﬁned isotropically with Uiso(H) = 1.2Ueq(C)
+
+(1.5 for methyl H atoms) using a riding model. The water H atoms in
+
+compound 2-Mn were located in a diﬀerence Fourier map, their bond
+
+lengths were set to ideal values, and ﬁnally they were reﬁned using a
+
+riding model with U iso(H) = 1.5Ueq(O). In 1-Mn/IV, 1-Fe/I, 1-Fe/II,
+
+2-Mn, 3-Ni/I, and 3-Ni/II, some C atoms of the ethyl groups are
+
+disordered and were reﬁned using a split model. Compound 3-Ni/II is
+
+racemically twinned, and therefore, a twin reﬁnement was performed
+
+(BASF parameter = 0.58(2)). Platon does not suggest higher
+
+symmetry, and all other attempts to transform the structure in the
+
+centrosymmetric space goup fail. Details of the structure determi-
+
+nation are given in Table 3.
+
+CCDC 986328 (1-Mn/III), CCDC 986329 (1-Mn/IV), CCDC
+
+986327 (1-Fe/I), CCDC 986326 (1-Fe/II), CCDC 986330 (2-Mn),
+
+CCDC 986332 (3-Ni/I), CCDC 986333 (3-Ni/II), CCDC 986335
+
+(3-Mn/II), CCDC 986331 (3-Mn/III), and CCDC 986334 (3-Fe/II)
+
+contain the supplementary crystallographic data for this paper. These
+
+data can be obtained free charge from the Cambridge Crystallographic
+
+Data Centre via http://www.ccdc.cam.ac.uk/data_request/cif.
+
+■RESULTS AND DISCUSSION
+
+Synthetic Investigations in Solution. In the classical,
+
+solution based synthesis, diﬀerent molar ratios of M(NCS)2(M
+
+= Ni, Mn, or Fe) were reacted with 4-ethylpyridine in water
+
+(Table 4), and the residues obtained were investigated by
+
+XRPD, elemental analysis, and IR spectroscopy. The procedure
+
+was repeated using methanol, ethanol, and acetonitrile, and the
+
+results are given in the Supporting Information, Table S1.
+
+In the cases using coligand rich solution (1:4 and 1:2 ratios),
+
+compounds of composition M(NCS) 2(4-ethylpyridine)4were
+
+obtained. The XRPD patterns show that the crystal structures
+
+of the Ni and Fe complexes (1-Ni/II and 1-Fe/II) are isotypic
+
+to the reported polymorphic modiﬁcation 1-Ni/II. 78The Mn
+
+complex, however, gave a diﬀerent pattern indicating that a
+
+further modiﬁcation (1-Mn/III) is formed. For all of these
+
+complexes, the value of the asymmetric CN stretching vibration
+
+indicated that the thiocyanato anions are terminally N-bonded
+
+to the metal cations [ν as(CN) = 2066 cm−1for 1-Ni/II, 2044
+
+cm −1for 1-Mn/III,2047cm−1for 1-Fe/II (Supporting
+
+Information, Figure S1)]. The Fe cation did not form any
+
+complex with the coligand when the ratio of M(NCS)2and 4-
+
+ethylpyridine was 1:1, 2:1, and 4:1. In contrast, the Ni cation
+
+reacted in each of the three ratios, giving a complex of
+
+composition Ni(NCS) 2(4-ethylpyridine)2(3-Ni/II) with μ-1,3
+
+bridging anionic ligands [ν as(CN) = 2112 cm−1(Supporting
+
+ Information, Figure S1)]. The Mn cation, in solutions where
+
+the Mn(NCS)2and 4-ethylpyridine ratios were 1:1 and 2:1,
+
+formed a aqua complex of a composition Mn(NCS)2(4-
+
+ethylpyridine) 2(H2O)2(2-Mn) with terminal N-bonded
+
+anionic ligands [ν as(CN) = 2085 cm−1(Supporting Informa-
+
+tion, Figure S1)]. With increasing concentration of the metal
+
+salt (4:1 ratio), a 4-ethylpyridine-deﬁcient compound with
+
+bridging anionic ligands of composition Mn(NCS)2(4-ethyl-
+
+pyridine) 2was obtained in the polymorphic modiﬁcation III
+
+(3-Mn/III)[νas(CN) = 2091 cm−1(Supporting Information,
+
+Figure S1)]. In the other solvents, no further crystalline phases
+
+were obtained but in, for example, acetonitrile the aqua
+
+complex 2-Mn cannot be obtained because of the low water
+
+content in the solutions (Supporting Information, Table S1).
+
+In further crystallization experiments, single crystals of the
+
+coligand rich complexes (1-Fe/I, 1-FeII, 1-Mn/III, and 1-Mn/
+
+IV), the aqua complex (2-Mn), and the 4-ethylpyridine-
+
+deﬁcient compounds (3-Ni/I, 3-Ni/II, and 3-Mn/III) were
+
+obtained.
+
+In order to prove the phase purity of the complexes, their
+
+XRPD patterns (1-Ni/II, 1-Mn/III, 1-Mn/IV, 1-FeII, 2-Mn, 3-
+
+Ni/I, 3-Ni/II, and 3-Mn/III) were collected and compared
+
+with patterns simulated from the single crystal structures
+
+(Supporting Information, Figure S2). It was proven that all
+
+modiﬁcations were obtained as single phases, except 1-Mn/III,
+
+which crystallized in a mixture with 1-Mn/IV, which was not
+
+detected in the IR measurements.
+
+Crystal Structure of the Compounds of Composition
+
+M(NCS) 2(4-ethylpyridine)4. For the complexes of composi-
+
+tion M(NCS) 2(4-ethylpyridine)4, four diﬀerent crystal struc-
+
+tures were observed. Forms I and II of Fe(NCS)2(4-
+
+ethylpyridine) 4crystallize in the triclinic space group P1̅ and
+
+are isotypic to 1-Ni/I and 1-Ni/II, which were reported several
+
+years ago. 78The asymmetric unit in both modiﬁcations consists
+
+of two crystallographically independent iron(II) cations, four
+
+thiocyanato anions, and eight neutral coligands, all of them
+
+situated on a general position (Supporting Information, Figure
+
+S3−S4).
+
+The Mn compounds crystallize in two diﬀerent crystal
+
+structures, III and IV. Form 1-Mn/III crystallizes in the
+
+monoclinic space group P21/c, where the asymmetric unit
+
+consists of two crystallographically independent manganese(II)
+
+cations located on centers of inversion, two thiocyanato anions,
+
+and four 4-ethylpyridine ligands that occupy general positions
+
+(Supporting Information, Figure S5). Form 1-Mn/IV crystal-
+
+lizes in space group P1̅, with four formula units in the unit cell
+
+and three crystallographically independent Mn(II) cations, two
+
+of them located on centers of inversion (Supporting
+
+Information, Figure S6). In all compounds, the metal cations
+
+are coordinated by two N-bonded thiocyanato anions and four
+
+4-ethylpyridine ligands building slightly distorted octahedra
+
+(Figure 1, left).
+
+The M−N distances range from 2.085(2) to 2.346(3) Å and
+
+are comparable to those in similar compounds (Supporting
+
+Information, Table S2−S5). The diﬀerences in the crystal
+
+structures are predominantly found in the arrangement of the
+
+discrete complexes in the crystal structure (Supporting
+
+Information, Figures S7−S8).
+
+Crystal Structure of Mn(NCS)2(4-ethylpyridi-
+
+ne) 2(H2O)2. Compound 2-Mn crystallizes in the monoclinic
+
+space group P21/c with two formula units in the unit cell. The
+
+asymmetric unit consists of one manganese(II) cation, which is
+
+located on a center of inversion, one thiocyanato anion, one 4-
+
+Table 4. Crystalline Phases Obtained after 3 Days Stirring of
+
+M(NCS)2(M = Ni, Mn, and Fe) with 4-Ethylpyridine in
+
+Water at Room-Temperature
+
+M 1:4 1:2 1:1 2:1 4:1
+
+Ni 1-Ni/II 1-Ni/II 3-Ni/II 3-Ni/II 3-Ni/II
+
+Mn 1-Mn/III 1-Mn/III 2-Mn 2-Mn 3-Mn/III
+
+Fe 1-Fe/II 1-Fe/II Fe(NCS)2Fe(NCS)2Fe(NCS)2
+
+Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131905
+
+ethylpyridine ligand, and one water molecule, located on a
+
+general position (Supporting Information, Figure S9). In the
+
+crystal structure, discrete complexes are found in which the Mn
+
+cations are coordinated by two N-bonded thiocyanato anions,
+
+two 4-ethylpyridine ligands, and two water molecules within a
+
+slightly distorted octahedral geometry. The Mn−N and Mn−O
+
+distances range from 2.189(2) to 2.2626(19) Å, and the angles
+
+are 84.93(8)°, 95.07(8)°, and 180° (Supporting Information,
+
+Table S6). In the crystal structure, the discrete complexes are
+
+connected by intermolecular OH···S hydrogen bonding with
+
+H···S distances of 2.525 and 2.515 Å (Supporting Information,
+
+Figure S10).
+
+Crystal Structures of the Compounds of Composition
+
+M(NCS)2(4-ethylpyridine)2. Compound 3-Ni/I crystallizes in
+
+the triclinic space group P1̅ with two formula units in the unit
+
+cell. The asymmetric unit consists of two crystallographically
+
+independent nickel(II) cations located on centers of inversion,
+
+two thiocyanato anions, and two 4-ethylpyridine ligands located
+
+on a general position (Supporting Information, Figure S11).
+
+Polymorph 3-Ni/II crystallizes in the monoclinic space group
+
+Cc with eight formula units in the unit cell. The asymmetric
+
+unit consists of two crystallographically independent nickel(II)
+
+cations, four thiocyanato anions, and four 4-ethylpyridine
+
+ligands all situated on a general position (Supporting
+
+Information, Figure S12). Signiﬁcant diﬀerences between the
+
+two Ni modiﬁcations are found in the packing of the chains. In
+
+3-Ni/I, they are arranged in layers, whereas in 3-Ni/II, a typical
+
+sandwich-herringbone arrangement is found, similar to that in
+
+3-Mn/III (Supporting Information, Figure S13).
+
+Compound 3-Mn/III crystallizes in the monoclinic space
+
+group P2 1/c with two formula units in the unit cell. The
+
+asymmetric unit consists of one manganese(II) cation located
+
+on a center of inversion, one thiocyanato anion, and one 4-
+
+ethylpyridine ligand on general positions (Supporting In-
+
+formation, Figure S14). In the crystal structure, each metal(II)
+
+cation is coordinated by two N-bonded and two S-bonded
+
+thiocyanato anions, as well as two trans-coordinated 4-
+
+ethylpyridine ligands in a slightly distorted octahedral geometry
+
+(Figure 2).
+
+The M−N and M−S distances ranges from 2.033(3) to
+
+2.7381(4) Å with angles around the metal(II) cations between
+
+ 85.33(12)° and 94.80(12)° and between 178.3(2)° and 180°
+
+(Supporting Information, Table S7−S9). Each metal(II) cation
+
+is linked by pairs of μ-1,3-bridging thiocyanato anions into
+
+chains (Figure 2). The metal−metal separation within these
+
+chains amounts to 5.5861(4) Å for 3-Ni/I, 5.5738(11) Å for 3-
+
+Ni/II, and 5.7737(4) Å for 3-Mn/III. The shortest interchain
+
+distances are 10.5105(9) Å in 3-Ni/I, 8.5959(13) Å in 3-Ni/II,
+
+and 8.5647(6) Å in 3-Mn/III.
+
+Investigations on the Stability of the 1:4 Modiﬁca-
+
+tions. In order to determine which of the two Mn
+
+modiﬁcations is thermodynamically more stable in room
+
+temperature conditions, solvent mediated conversion experi-
+
+ments were performed. Saturated solutions of a mixture of 1-
+
+Mn/III and 1-Mn/IV with additional crystalline powder were
+
+stirred for a prolonged time, and afterward the residue was
+
+investigated by XRPD (Figure 3). After 5 days, form IV
+
+disappeared, clearly proving that form III is thermodynamically
+
+more stable and strongly indicating that 1-Mn/IV is obtained
+
+by kinetic control in the solution based synthesis (Table 1).
+
+For the previously published polymorphs I and II of Ni, no
+
+solvent mediated conversion experiments were performed
+
+because in our polymorph screening experiments using
+
+diﬀerent solvents only 1-Ni/II was obtained, indicating that
+
+Figure 1. Coordination around the metal cation in the crystal
+
+structures of 1-Mn/III (left) and 2-Mn (right). Color code: orange =
+
+metal; blue = nitrogen; yellow = sulfur; red = oxygen; gray = carbon;
+
+white = hydrogen. ORTEP plots of all compounds can be found in the
+
+Supporting Information, Figures S3−S6 and S9.
+
+Figure 2. Fragment of one chain in the crystal structure of 3-Ni/I.
+
+Color code: orange = metal; blue = nitrogen; yellow = sulfur; gray =
+
+carbon; white = hydrogen). ORTEP plots of all 1:2 compounds can be
+
+found in the Supporting Information, Figures S11−S13.
+
+Figure 3. Calculated powder patterns of 1-Mn/IV (A) and 1-Mn/III
+
+(D), together with the experimental X-ray powder pattern of the
+
+mixture of 1-Mn/III and 1-Mn/IV (B) and the pattern obtained after
+
+stirring this mixture for 5 days in water (C).
+
+Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131906
+
+this polymorph is the thermodynamically more stable form at
+
+room temperature. As previously mentioned, only a few crystals
+
+of 1-Fe/I were accidently obtained in a mixture with 1-Fe/II.
+
+On storage, these crystals transformed rapidly into 1-Fe/II,
+
+proving that (as for Ni) form II is also the thermodynamically
+
+stable form at room temperature.
+
+Thermoanalytical Investigations. The thermal properties
+
+of the 1:4 compounds 1 and of 2-Mn were investigated by
+
+simultaneous diﬀerential thermoanalysis and thermogravimetry
+
+(DTA-TG), diﬀerential scanning calorimetry (DSC), and
+
+temperature-dependent X-ray powder diﬀraction (HT-XRPD).
+
+On heating to 300 °C, compounds 1-Ni/II, 1-Mn/III, 1-Fe/
+
+II, and 2-Mn exhibited several mass reductions in the TG
+
+curve, accompanied by endothermic events in the DTA curves
+
+(Figure 4 and Supporting Information, Figure S15). For
+
+compounds 1, the experimental mass loss during the ﬁrst TG
+
+step is in a good agreement with the calculated mass loss for the
+
+removal of half of the 4-ethylpyridine ligands, whereas in the
+
+second step only one of the ligands is lost (Table 5). The
+
+experimental mass change of Δmexp= 14.6% in the ﬁrst step of
+
+2-Mn is in agreement with the loss of two water molecules, and
+
+in the second step, half of the 4-ethylpyridine ligands evaporate.
+
+On further heating, the remaining ligands are removed, leading
+
+to the formation of the metal(II) thiocyanates, which
+
+subsequently decompose. Based on these observations, it can
+
+be assumed that all of them decompose into compounds of
+
+composition M(NCS) 2(4-ethylpyridine)2in the ﬁrst step.
+
+These might transform into 1:1 compounds of composition
+
+M(NCS) 2(4-ethylpyridine) during the second step.
+
+ To verify the composition of these intermediates, the TG
+
+measurements were stopped after the ﬁrst weight loss step, and
+
+the residues were investigated by XRPD, elemental analysis,
+
+and IR spectroscopy. IR spectroscopy indicates that the metal
+
+cations are linked by μ-1,3-bridging thiocyanato anions
+
+(Supporting Information, Figure S16).
+
+XRPD measurements reveal that the residues obtained in the
+
+ﬁrst heating step of 1-Ni/II, 1-Mn/III, and 1-Fe/II are isotypic
+
+and correspond to the structure of 3-Ni/II, a compound
+
+already obtained in solution (Figure 5, top).
+
+Interestingly, in the case of Fe, a new compound of
+
+composition Fe(NCS)2(4-ethylpyridine)2(3-Fe/II) was ob-
+
+tained, for which there is no evident access using solution-based
+
+synthesis methods. Similarly, the thermal decompositions of 1-
+
+Mn/III leads to the formation of the corresponding polymorph
+
+II (3-Mn/II), which also was not obtained during the solution-
+
+based synthesis. The crystal structures of these forms were
+
+obtained by the Rietveld method (Table 2 and Supporting
+
+Information, Figure S17−S18).
+
+However, the experimental X-ray powder pattern of the
+
+residue obtained in the ﬁrst TG step of the aqua complex 2-Mn
+
+shows that a mixture of modiﬁcation II and III of Mn-
+
+(NCS) 2(4-ethylpyridine)2has formed (Figure 5, bottom).
+
+According to a two-phase Rietveld reﬁnement, 3-Mn/II and
+
+3-Mn/III have formed in ratio 26.4:73.6 (Supporting
+
+Information, Figure S19).
+
+The residues obtained in the second TG step of 1-Mn/III, 1-
+
+Fe/II, and 2-Mn gave amorphous XRPD patterns. The residue
+
+obtained by thermal decomposition of 1-Ni/II, however, was of
+
+good crystallinity. Moreover, no reﬂections of the 1:2
+
+compound and of Ni(NCS)2are present, and the elemental
+
+analysis is in agreement with that calculated for the
+
+composition Ni(NCS) 2(4-ethylpyridine) (4-Ni, Figure 6).
+
+This is further supported by the fact that diﬀerent batches of
+
+this compound show identical XRPD patterns (Supporting
+
+Information, Figure S20). Unfortunately all attempts to index
+
+this pattern failed, and we cannot exclude that small amounts of
+
+a second phase are present. However, the magnetic measure-
+
+ments gave no hints of contaminations. However, in the IR
+
+Figure 4. TG curves of 1-Ni/II, 1-Mn/III, and 1-Fe/II (left) and DTG, TG, and DTA curves of 2-Mn (right). Heating rate = 4 °C/min; Δm = mass
+
+loss [%], TP= peak temperature [°C].
+
+Table 5. Experimental and Calculated Mass Loss for 1-Ni/II,
+
+1-Mn/III, 1-Fe/II, and 2-Mn
+
+1-Ni/II 1-Mn/III 1-Fe/II 2-Mn
+
+Δm exp(1st step) 35.0 33.8 33.9 14.6
+
+Δm calc35.4 35.6 35.6 8.50
+
+Δm exp(2nd step) 17.4 15.0 18.1 27.6
+
+Δm calc17.7 17.8 17.8 25.5
+
+Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131907
+
+spectrum of this compound, the νas(CN) stretching vibration is
+
+observed at 2139 and 2117 cm −1(Supporting Information,
+
+Figure S20). These values are in agreement with the presence
+
+of μ-1,1,3-bridging thiocyanato anions and indicates that a
+
+more condensed 1D network has formed, which should be
+
+similar to that in [Cd(NCS) 2(4-ethylpyridine)]n(νas(CN) =
+
+2124 and 2107 cm −1) and [Cd(NCS)2(pyridine)]n(νas(CN) =
+
+2120 and 2105 cm −1) reported recently (Supporting
+
+Information, Figure S21).81
+
+To investigate the thermal properties of compounds 1 in
+
+greater detail and to check for polymorphic transformations not
+
+detected by the DTA investigations, DSC and temperature
+
+dependent XRPD measurements were performed.
+
+The DSC curve of 1-Mn/III is characterized by several
+
+endothermic events, observed up to 250 °C (Figure 7). There
+
+is one additional less intense signal at about 93 °C, not visible
+
+in the DTA curves. The XRPD investigations clearly prove that
+
+this event corresponds to a transformation into a new form (1-
+
+Mn/I) that was not obtained by crystallization from solution
+
+and that is isotypic to 1-Ni/I and 1-Fe/I (Figure 7).
+
+Accordingly, it can be concluded that 1-Mn/I becomes stable
+
+at higher temperatures, and because the transition is
+
+endothermic, form I and form III are supposed to behave
+
+enantiotropically. On further heating, transformation into 4-
+
+ethylpyridine deﬁcient compound Mn(NCS)2(4-ethylpyri-
+
+dine) 2(3-Mn/II) is observed at 163 °C (Figure 4 and
+
+Supporting Information, Figure S22). Additional DSC signals at
+
+higher temperatures (197 and 221 °C) correspond to a
+
+transformation into new amorphous phases. These results are
+
+in agreement with the temperature dependent XRPD measure-
+
+ments, which show that 1-Mn/III transforms into 3-Mn/II via
+
+1-Mn/I as an intermediate (Supporting Information, Figure
+
+S23).However,incontrasttoourDTA-TGandDSC
+
+measurements, additional crystalline phases are formed at
+
+higher temperatures (Supporting Information, Figure S22).
+
+The DSC measurements of 1-Fe/II gave no hints for
+
+transformation into a new modiﬁcation but only decomposition
+
+Figure 5. Experimental XRPD patterns of the residues obtained after
+
+the ﬁrst TG step of 1-Ni/II (A), 1-Mn/III (B), 1-Fe/II (C), and 3-
+
+Ni/II (D) calculated from single crystal data (top) and 2-Mn (A), 3-
+
+Mn/III (B), and 3-Mn/II (C) calculated from single crystal data
+
+(bottom).
+
+Figure 6. Experimental XRPD of the residues obtained after the
+
+second TG step of 1-Ni/II (B) together with the powder pattern for
+
+3-Ni/II (A) and Ni(NCS)2(C).
+
+Figure 7. DSC curve for 1-Mn/III (heating rate of 10 °C/min, TP=
+
+peak temperature in °C) (top) and 1-Ni/I retrieved from literature
+
+(bottom).
+
+ Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131908
+
+into [Fe(NCS)2(4-ethylpyridine)2]n(3-Fe/II, as already
+
+observed in the DTA-TG measurements (Supporting Informa-
+
+tion, Figure S23)). It should be noted that crystalline 3-Fe/II
+
+was not detected in our HT-XRPD measurements of 1-Fe/II
+
+because this compound directly decomposes into an
+
+amorphous phase. However, the formation of either a
+
+crystalline or an amorphous phase is not surprising, given
+
+that the outcome of such thermoanalytical measurements
+
+depends on a number of parameters like the heating rate and
+
+the atmosphere used in the experiment.
+
+The DSC measurements on 1-Ni/II show transformation
+
+into 1-Ni/I, indicating that the latter modiﬁcation becomes
+
+more stable at higher temperatures (Supporting Information,
+
+Figure S24). This is in agreement with our investigations on the
+
+corresponding Mn modiﬁcation, 1-Mn/III. On further heating,
+
+1-Ni/I transforms into 4-Ni via 3-Ni/II as intermediate, as
+
+already observed in the DTA-TG measurements. Similar results
+
+were obtained by the HT-XRPD measurements. Surprisingly,
+
+small diﬀerences are found in the powder pattern of 4-Ni
+
+obtained by the DTA-TG and DSC measurements and the one
+
+measured by HT-XRPD at about 270 °C. These diﬀerences
+
+cannot be traced back to an anisotropic shift of the lattice
+
+parameters because when the phase observed at high
+
+temperatures is measured afterward at room temperature the
+
+diﬀerences are still present. A high-temperature phase transition
+
+of 4-Ni can also be excluded; when this compound is
+
+investigated by HT-XRPD measurements, it decomposes
+
+directly into Ni(NCS) 2without any previous transformation.
+
+Therefore, obviously a new high temperature phase has formed
+
+in the XRPD measurements that is not observed in the DTA-
+
+TG and DSC measurements.
+
+Investigations on the Stability of 3-Ni/I and 3-Ni/II.
+
+Numerous synthesis trials showed that almost always 3-Ni/II is
+
+obtained in solution. Surprisingly, a few single crystals of a
+
+second polymorph, 3-Ni/I, were accidently obtained. In order
+
+to check whether 3-Ni/I is formed by kinetic control and is
+
+supposed to transform into 3-Ni/II, nickel(II) thiocyanate and
+
+4-ethylpyridine were stirred in ratio 1:2 in water, and the
+
+residues obtained were investigated by XRPD as a function of
+
+time. At early stages, the solution become deep blue colored,
+
+and 1:4 compound 1-Ni/II was formed. Afterward, trans-
+
+formation into a light blue colored crystalline powder of 3-Ni/I
+
+is observed, which transformed into a light green colored
+
+crystalline powder of 3-Ni/II. It can be concluded that 3-Ni/II
+
+represents the thermodynamically stable form at room
+
+temperature (Figure 8). Additionally, DSC and temperature
+
+dependent XRPD measurements on 3-Ni/I and 3-Ni/II gave
+
+no hints for polymorphic transformations.
+
+Investigations on the Stability of 3-Mn/II and 3-Mn/III.
+
+To prove which of the two diﬀerent 1:2 modiﬁcations, 3-Mn/II
+
+or 3-Mn/III, represents the thermodynamically most stable
+
+form at room-temperature, a solvent mediated conversion
+
+experiment was performed. Mixture of 3-Mn/II and 3-Mn/III
+
+was stirred in a saturated solution in ethanol at room
+
+temperature for 3 days. Afterward, the residues were ﬁltered
+
+and investigated by XRPD. It was shown that 3-Mn/II
+
+transforms into 3-Mn/III, which is the thermodynamically
+
+stable form (Figure 9). Additional DSC and XRPD measure-
+
+ments on forms 3-Mn/II and 3-Mn/III gave no hint for
+
+additional polymorphic transformations.
+
+Thermodynamic Relations and Transformations be-
+
+tween All Compounds. In the investigations presented
+
+above, several compounds of composition M(NCS)2(4-ethyl-
+
+ pyridine)4and [M(NCS)2(4-ethylpyridine)2]nwere obtained,
+
+crystallizing in diﬀerent modiﬁcations. On stirring, trans-
+
+formation of 1-Mn/III into the thermodynamically more stable
+
+form 1-Mn/IV is observed (Figure 10). 1-Mn/III is also
+
+formed as an intermediate in the solution based synthesis and,
+
+therefore, is clearly metastable at room temperature. On
+
+heating 1-Mn/III, a polymorphic endothermic transformation
+
+into 1-Mn/I is observed, proving that the latter is more stable
+
+at higher temperatures and that both forms behave
+
+enantiotropically. Surprisingly, for Mn and Ni, form I is already
+
+obtained at room temperature, but it is metastable and
+
+transforms into the stable form II, which was not obtained
+
+for Mn (Figure 10). It should be noted that on heating 1-Ni/II
+
+Figure 8. Calculated powder pattern of compound 1-Ni/II, together
+
+with the experimental X-ray powder patterns when Ni(NCS)2is
+
+reacted with 4-ethylpyridine in water for 0.15 and 0.30 h and
+
+calculated XRPD pattern of 3-Ni/I and experimental XRPD patterns
+
+of the sample stirred for 1 h and 1 d in water together with the
+
+calculated pattern for 3-Ni/II.
+
+ Figure 9. Calculated powder patterns from Rietveld reﬁnement of 3-
+
+Mn/II (A), mixture of 3-Mn/II and 3-Mn/III (B), and mixture stirred
+
+for 3 days in ethanol (C), together with the calculated powder pattern
+
+of 3-Mn/III (D).
+
+Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131909
+
+transforms into 1-Ni/I in an endothermic reaction; therefore
+
+both forms behave enantiotropically with form I being stable at
+
+higher temperatures, as was the case for Mn.
+
+On heating of 1-Mn/III, 1-Fe/II, and 1-Ni/II, half of the
+
+ligands are removed and transformations into new compounds
+
+of composition M(NCS)2(4-ethylpyridine)2are observed. In
+
+those cases, all compounds are isotypic and crystallize as form
+
+3-M/II (Figure 10). Further experiments, however, show that
+
+for Mn this crystalline phase is only stable at higher
+
+temperatures, whereas at room temperature and in solution it
+
+transforms to 3-Mn/III. In the case of Fe, this 4-ethylpyridine
+
+deﬁcient compound cannot be obtained from solution, whereas
+
+for Ni, form II represents the thermodynamically stable form
+
+already at room temperature. As it can be seen, the 4-
+
+ethylpyridine deﬁcient modiﬁcations of Mn and Ni behave
+
+diﬀerently.
+
+It should be noted that for Ni a second polymorph (3-Ni/I)
+
+exists that is metastable at room temperature and transforms
+
+into the stable form 3-Ni/II (Figure 10). However, at higher
+
+temperature, additional crystalline phases are observed whose
+
+structures are still unknown.
+
+Magnetic Investigations. For compounds 1-Ni/II, 1-Mn/
+
+III, 1-Mn/IV, 1-Fe/II, and 2-Mn, the temperature dependence
+
+of the susceptibility was investigated in the temperature range
+
+of 300−2 K applying a magnetic ﬁeld of H DC= 1 kOe, and for
+
+all compounds, a simple Curie−Weiss paramagnetic behavior
+
+without any anomaly was observed (Supporting Information,
+
+Figure S25). Upon analysis of the magnetic data according to
+
+the Curie−Weiss law, χ M= C/(T − θ) yields a Weiss constant
+
+ of θ = 3.4 K for 1-Ni/II, θ = 0.1 K for 1-Mn/III, θ = −0.9 K for
+
+1-Fe/II, θ = −0.38 K for 2-Mn, and θ = −35.0 K for 1-Mn/IV,
+
+indicating relatively strong antiferromagnetic interactions for
+
+the latter (Supporting Information, Table S10).
+
+Surprisingly, a similar behavior is observed for 3-Ni/I and 3-
+
+Ni/II, even though in these compounds the cations are linked
+
+by μ-1,3-bridging thiocyanato anions (Supporting Information,
+
+Figure S25). Fitting the magnetic data according to the Curie−
+
+Weiss law lead to a Weiss constant of θ = 4.6 K for 3-Ni/I and
+
+θ =3.9Kfor3-Ni/II, indicating weak ferromagnetic
+
+interactions (Table 6). For 3-Fe/II, a similar behavior was
+
+found, and θ was determined to be 1.6 K (Table 6 and
+
+Supporting Information, Figure S25).
+
+In contrast, for 3-Mn/II, a sharp maximum is observed in the
+
+χMversus T curve indicating antiferromagnetic ordering at TN=
+
+21.5 K (Figure 11, top). The same behavior is found for 3-Mn/
+
+III, but T Nis shifted slightly to 23.9 K (Figure 11, bottom).
+
+Fitting the magnetic data according to the Curie−Weiss law
+
+yields a strong negative Weiss constant of θ = −36.1 K for 3-
+
+Mn/II and of −39.2 K for 3-Mn/III indicating relatively strong
+
+antiferromagnetic interactions (Table 6). To check for
+
+metamagnetic behavior, initial curves at 2 K up to 90 kOe
+
+were measured, which show a behavior typical for antiferro-
+
+magnets in the case of 3-Mn/II and 3-Mn/III (Supporting
+
+Information, Figure S26).
+
+Magnetic measurement on 4-Ni at HDC= 1 kOe showed
+
+antiferromagnetic ordering at T N= 8.1 K (Figure 12). Fitting
+
+the magnetic data according to the Curie−Weiss law yields to a
+
+strong positive Weiss constant of θ = 30.3 K. From the
+
+Figure 10. Schematic representation of the thermodynamic relations and the transition behavior of all compounds.
+
+Table 6. Results of the Magnetic Measurements on the 4-Ethylpyridine-Deﬁcient 1:2 Compounds 3-Ni/I, 3-Ni/II, 3-Mn/II, 3-
+
+Mn/III, and 3-Fe/II at HDC= 1 kOe
+
+3-Ni/I 3-Ni/II 3-Fe/II 3-Mn/II 3-Mn/III
+
+T ordering,K TN= 21.5 K TN= 23.9 K
+
+C,cm 3K mol−11.17 1.12 2.90 3.35 4.88
+
+θ, K 4.6 3.9 −1.6 −36.1 −39.2
+
+μ eff(exp)/μB3.06 2.97 4.77 4.87 5.83
+
+μ eff(calc)/μB(hs) 2.82 2.82 4.89 5.92 5.92
+
+ﬁt region, K 2−300 2−300 2−300 50−300 2−300
+
+Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131910
+
+(8χMT)1/2vs T curve, a room-temperature value of the eﬀective
+
+magnetic moment of μeff(exp) = 3.34μBwas obtained, which is
+
+agreement with the spin-only value for Ni2+(S =1,g = 2). On
+
+cooling, an increase in the χ MT curve is observed indicative of
+
+ferromagnetic interactions between the nickel(II) cations, and
+
+on further cooling, this curve drops dramatically (Supporting
+
+Information, Figure S27).
+
+Magnetization measurements at 2 K in the range of 0−90
+
+kOe show a sigmoidal shape indicative of metamagnetic
+
+behavior (Supporting Information, Figure S28). From the
+
+ﬁrst derivative of the initial curve, the critical ﬁeld, HC, was
+
+determined as 1.4 kOe. A magnetization loop experiment at 2 K
+
+in the range ±10 kOe showed a small hysteresis (Figure 13).
+
+Temperature dependent magnetic measurement above the
+
+critical ﬁeld was performed at H DC= 2 kOe, which clearly
+
+shows the transition into a saturated paramagnetic phase. The
+
+ordering temperature of T C= 10.0 K was obtained from the
+
+ﬁrst derivative of the susceptibility curve. To analyze the
+
+saturated paramagnetic phase in more detail, ZFC/FC (zero-
+
+ﬁeld cooled/ﬁeld-cooled) measurements were performed, in
+
+which a small splitting typically for ferromagnetic behavior can
+
+be observed (Supporting Information, Figure S29). Further M
+
+versus H measurements at diﬀerent temperatures below the
+
+antiferromagnetic ordering temperature and temperature
+
+dependent measurements at diﬀerent magnetic ﬁelds below
+
+the critical ﬁelds were combined to prepare the phase diagram,
+
+which is typical for a metamagnet (Figure 14 and Figures S30−
+
+S31 in the Supporting Information).82−84
+
+■CONCLUSIONS
+
+In the present contribution, a large number of new
+
+coordination compounds based on transition metal thiocya-
+
+nates and 4-ethylpyridine as coligand are reported. Several of
+
+them crystallize in diﬀerent polymorphic modiﬁcations.
+
+Interestingly, for the compounds of composition M-
+
+(NCS)2(L)4, Fe and Ni have the same structure in the
+
+thermodynamically stable form at room-temperature, whereas
+
+the one with Mn prefers a diﬀerent structural arrangement. For
+
+the compounds of composition M(NCS)2(L)2, however, only
+
+one common modiﬁcation is found, which is thermodynami-
+
+cally stable for Ni but metastable for Mn. This nicely
+
+demonstrates that even for such simple compounds, where
+
+normally isotypic structures are expected, several polymorphic
+
+Figure 11. χMand (8χMT)1/2(inset) as a function of temperature at
+
+H DC= 1 kOe for 3-Mn/II (top) and 3-Mn/III (bottom).Figure 12. χMand (8χMT)1/2(inset) as a function of temperature at
+
+H DC= 1 kOe (top) and HDC= 2 kOe (bottom) for 4-Ni.
+
+Figure 13. Magnetization loop at T = 2 K in range the ±10 kOe for 4-
+
+Ni.
+
+Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131911
+
+modiﬁcations can be found. Additionally, some new metastable
+
+forms were detected by thermal decomposition of suitable
+
+precursor compounds. One Fe compound was obtained by the
+
+solid state route, and it was shown that it cannot be prepared in
+
+solution, which shows the high potential of this alternative solid
+
+state, decomposition based, synthetic approach. Moreover, on
+
+thermal decomposition, a further compound of unusual
+
+stoichiometry is observed for which a more condensed 1D
+
+structure is expected. Unfortunately the structure of this
+
+compound is still unknown, and because the pattern cannot be
+
+indexed, it cannot be excluded that a small amount of
+
+contamination or a second modiﬁcation is present. From our
+
+magnetic investigations, there is no hint of paramagnetic
+
+contamination, which would be clearly visible in the
+
+antiferromagnetic phase. However, magnetic measurements
+
+reveal that it is a metamagnet, and it can be expected that the
+
+antiferromagnetic interactions are mediated by the metal
+
+thiocyanato chains. For the two modiﬁcations of manganese
+
+with μ-1,3-bridging anions antiferromagnetism is observed with
+
+similar ordering temperatures. Finally, as expected, all
+
+compounds with only terminal N-bonded thiocyanato anions
+
+show simple Curie−Weiss paramagnetism without magnetic
+
+anomalies, and thus μ-1,3-bridging compounds must be
+
+prepared if cooperative magnetic properties should be
+
+generated.
+
+■ASSOCIATED CONTENT
+
+*SSupporting Information
+
+Experimental details on the synthesis, the structures, and the
+
+characterization including IR-spectra, DSC curves, X-ray
+
+powder pattern, and magnetic measurements. This material is
+
+available free of charge via the Internet at http://pubs.acs.org.
+
+■AUTHOR INFORMATION
+
+Corresponding Author
+
+*Email: cnaether@ac.uni-kiel.de. Fax: +49 880 1520. Tel: +49
+
+880 2092.
+
+Notes
+
+The authors declare no competing ﬁnancial interest.
+
+■ACKNOWLEDGMENTS
+
+This project was supported by the Deutsche Forschungsge-
+
+meinschaft (Project No. Na 720/3-1) and the State of
+
+Schleswig-Holstein. We thank Prof. Dr. Wolfgang Bensch for
+
+access to his experimental facilities. Special thanks to Inke Jess
+
+for the single crystal measurements and to Maren Rasmussen
+
+and Henning Lühmann for the magnetic measurements.
+
+■REFERENCES
+
+(1) Janiak, C. Dalton Trans. 2003, 2781−2804.
+
+(2) James, S. L. Chem. Soc. Rev. 2003, 32, 276−288.
+
+(3) Maspoch, D.; Ruiz-Molina, D.; Veciana, J. Chem. Soc. Rev. 2007,
+
+36, 770−818.
+
+(4) Li, H.; Eddaoudi, M.; O’Keeffe, M.; Yaghi, O. M. Nature 1999,
+
+402, 276−279.
+
+(5) Kitagawa, S.; Uemura, K. Chem. Soc. Rev. 2005, 34, 109−119.
+
+(6) Hagrman, P. J.; Hagrman, D.; Zubieta, J. Angew. Chem., Int. Ed.
+
+1999, 38, 2638−2684.
+
+(7) Braga, D.; Maini, L.; Polito, M.; Scaccianoce, L.; Cojazzi, G.;
+
+Grepioni, F. Coord. Chem. Rev. 2001, 216, 225−248.
+
+(8) Moulton, B.; Zaworotko, M. J. Curr. Opin. Solid State Mater. Sci.
+
+2002, 6, 117−123.
+
+(9) Aakeroy, C. B.; Champness, N. R.; Janiak, C. CrystEngComm
+
+2010, 12,22−43.
+
+(10) Desiraju, G. R. Crystal Engineering - The Design of Organic Solids;
+
+Elsevier: Amsterdam - Oxford - New York - Tokyo, 1989.
+
+(11) Desiraju, G. R. Organic Solid State Chemistry; Studies in Organic
+
+Chemistry, Vol. 32; Elsevier: Amsterdam - Oxford - New York -
+
+Tokyo, 1987.
+
+(12) Aakeröy, C. B.; Seddon, K. R. Chem. Soc. Rev. 1993, 22, 397−
+
+407.
+
+(13) Zaworotko, M. J. Chem. Soc. Rev. 1994, 23, 283−288.
+
+(14) Desiraju, G. R. Chem. Commun. 1997, 1475−1482.
+
+(15) Braga, D.; Grepioni, F.; Desiraju, G. R. Chem. Rev. 1998, 98,
+
+1375−1406.
+
+(16) Blake, A. J.; Champness, N. R.; Hubberstey, P.; Li, W.-S.;
+
+Withersby, M. A.; Schröder, M. Coord. Chem. Rev. 1999, 183, 117−
+
+138.
+
+(17) Sharma, C. V. K. Cryst. Growth Des. 2002, 2, 465−474.
+
+(18) Brammer, L. Chem. Soc. Rev. 2004, 33, 476−489.
+
+(19) Rovira, C.; Veciana, J. CrystEngComm 2009, 11, 2031−2031.
+
+(20) Zaworotko, M. J. Nat. Chem. 2011, 3, 653−653.
+
+(21) Blake, A. J.; Brooks, N. R.; Champness, N. R.; Crew, M.;
+
+Gregory, D. H.; Hubberstey, P.; Schröder, M.; Deveson, A.; Fenske,
+
+D.; Hanton, L. R. Chem. Commun. 2001, 1432−1433.
+
+(22) Braga, D.; Grepioni, F. Chem. Soc. Rev. 2000, 29, 229−238.
+
+(23) Wöhlert, S.; Boeckmann, J.; Jess, I.; Näther, C. CrystEngComm
+
+2012, 14, 5412−5420.
+
+(24) Näther, C.; Wriedt, M.; Jeß, I. Inorg. Chem. 2003, 42, 2391−
+
+2397.
+
+(25) Nä ther, C.; Jeß, I. Inorg. Chem. 2003, 42, 2968−2976.
+
+(26) Näther, C.; Bhosekar, G.; Jeß, I. Inorg. Chem. 2007, 46, 8079−
+
+8087.
+
+(27) Näther, C.; Jeß, I.; Lehnert, N.; Hinz-Hübner, D. Solid State Sci.
+
+2003, 5, 1343−1357.
+
+(28) Tao, J.; Wei, R.-J.; Huang, R.-B.; Zheng, L.-S. Chem. Soc. Rev.
+
+2012, 41, 703−737.
+
+(29) Wang, C.-F.; Zhu, Z.-Y.; Zhou, X.-G.; Weng, L.-H.; Shen, Q.-S.;
+
+Yan, Y.-G. Inorg. Chem. Commun. 2006, 9, 1326−1330.
+
+(30) Robin, A. Y.; Fromm, K. M. Coord. Chem. Rev. 2006, 250,
+
+2127−2157.
+
+(31) Barnett, S. A.; Blake, A. J.; Champness, N. R.; Wilson, C. Chem.
+
+Commun. 2002, 1640−1641.
+
+(32) Moulton, B.; Zaworotko, M. J. Chem. Rev. 2001, 101, 1629−
+
+1658.
+
+(33) Zeng, Y.-F.; Hu, X.; Liu, F.-C.; Bu, X.-H. Chem. Soc. Rev. 2009,
+
+38, 469−480.
+
+(34) Kurmoo, M. Chem. Soc. Rev. 2009, 38, 1353−1379.
+
+Figure 14. Magnetic phase diagram, maximum as determined from the
+
+ﬁrst derivative of dM/dH versus H at diﬀerent temperatures (●) and
+
+from the maximum of the molar paramagnetic susceptibility at
+
+diﬀerent magnetic ﬁelds.
+
+ Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131912
+
+(35) Maspoch, D.; Ruiz-Molina, D.; Veciana, J. J. Mater. Chem. 2004,
+
+14, 2713−2723.
+
+(36) Zhang, S.-Y.; Shi, W.; Lan, Y.; Xu, N.; Zhao, X.-Q.; Powell, A.
+
+K.; Zhao, B.; Cheng, P.; Liao, D.-Z.; Yan, S.-P. Chem. Commun. 2011,
+
+47, 2859−2861.
+
+(37) Sun, H.-L.; Wang, Z.-M.; Gao, S. Coord. Chem. Rev. 2010, 254,
+
+1081−1100.
+
+(38) Vallejo, J.; Cano, J.; Castro, I.; Julve, M.; Lloret, F.; Fabelo, O.;
+
+Canadillas-Delgado, L.; Pardo, E. Chem. Commun. 2012, 48, 7726−
+
+7728.
+
+(39) Létard, J.-F.; Asthana, S.; Shepherd, H. J.; Guionneau, P.; Goeta,
+
+A. E.; Suemura, N.; Ishikawa, R.; Kaizaki, S. Chem.Eur. J. 2012, 18,
+
+5924−5934.
+
+(40) Zhang, X.-H.; Hao, Z.-M.; Zhang, X.-M. Chem.Eur. J. 2011,
+
+17, 5588−5594.
+
+(41) Gil-Hernandez, B.; Maclaren, J. K.; Hoppe, H. A.; Pasan, J.;
+
+Sanchiz, J.; Janiak, C. CrystEngComm 2012, 14, 2635−2644.
+
+(42) Gil-Hernández, B.; Gili, P.; Vieth, J. K.; Janiak, C.; Sanchiz, J.
+
+Inorg. Chem. 2010, 49, 7478−7490.
+
+(43) Shurdha, E.; Lapidus, S. H.; Stephens, P. W.; Moore, C. E.;
+
+Rheingold, A. L.; Miller, J. S. Inorg. Chem. 2012, 51, 9655−9665.
+
+(44) Wriedt, M.; Sellmer, S.; Näther, C. Inorg. Chem. 2009, 48,
+
+6896−6903.
+
+(45) Wriedt, M.; Sellmer, S.; Näther, C.Dalton Trans. 2009, 7975.
+
+(46) Wriedt, M.; Jeß, I.; Näther, C. Eur. J. Inorg. Chem. 2009, 1406−
+
+1413.
+
+(47) Adams, C. J.; Muñoz, M. C.; Waddington, R. E.; Real, J. A. Inorg.
+
+Chem. 2011, 50, 10633−10642.
+
+(48) Adams, C. J.; Real, J. A.; Waddington, R. E. CrystEngComm
+
+2010, 12, 3547−3553.
+
+(49) Tao, J.-Q.; Gu, Z.-G.; Wang, T.-W.; Yang, Q.-F.; Zuo, J.-L.; You,
+
+X.-Z. Inorg. Chim. Acta 2007, 360, 4125−4132.
+
+(50) Shi, J. M.; Chen, J. N.; Wu, C. J.; Ma, J. P. J. Coord. Chem. 2007,
+
+60, 2009−2013.
+
+(51) Real, J. A.; De Munno, G.; Munoz, M. C.; Julve, M. Inorg. Chem.
+
+1991, 30, 2701−2704.
+
+(52) Adams, C. J.; Haddow, M. F.; Harding, D. J.; Podesta, T. J.;
+
+Waddington, R. E. CrystEngComm 2011, 13, 4909−4914.
+
+(53) Näther, C.; Wöhlert, S.; Boeckmann, J.; Wriedt, M.; Jeß, I. Z.
+
+Anorg. Allg. Chem. 2013, 639, 2696−2714.
+
+(54) Nesterova, O. V.; Petrusenko, S. R.; Kokozay, V. N.; Skelton, B.
+
+W.; Jezierska, J.; Linert, W.; Ozarowski, A. Dalton Trans. 2008, 1431−
+
+1436.
+
+(55) González,R.;Acosta,A.;Chiozzone,R.;Kremer,C.;
+
+Armentano, D.; De Munno, G.; Julve, M.; Lloret, F.; Faus, J. Inorg.
+
+Chem. 2012, 51, 5737−5747.
+
+(56) Machura, B.; Palion, J.; Penkala, M.; Groń, T.; Duda, H.;
+
+Kruszynski, R. Polyhedron 2013, 56, 189−199.
+
+(57) Banerjee, S.; Drew, M. G. B.; Lu, C.-Z.; Tercero, J.; Diaz, C.;
+
+Ghosh, A. Eur. J. Inorg. Chem. 2005, 2005, 2376−2383.
+
+(58) Ma, Q.; Zhu, M.; Lu, L.; Feng, S.; Yan, J. Inorg. Chim. Acta 2011,
+
+370, 102−107.
+
+(59) Näther, C.; Greve, J. J. Solid State Chem. 2003, 176, 259−265.
+
+(60) Wriedt, M.; Näther, C. Chem. Commun. 2010, 46, 4707−4709.
+
+(61) Näther, C.; Jeß, I. J. Solid State Chem. 2002, 169, 103−112.
+
+(62) Adams, C. J.; Kurawa, M. A.; Lusi, M.; Orpen, A. G.
+
+CrystEngComm 2008, 10, 1790−1795.
+
+(63) Adams, C. J.; Crawford, P. C.; Orpen, A. G.; Podesta, T. J.; Salt,
+
+B. Chem. Commun. 2005, 2457−2458.
+
+(64) James, S. L.; Adams, C. J.; Bolm, C.; Braga, D.; Collier, P.;
+
+Friscic, T.; Grepioni, F.; Harris, K. D. M.; Hyett, G.; Jones, W.; Krebs,
+
+A.; Mack, J.; Maini, L.; Orpen, A. G.; Parkin, I. P.; Shearouse, W. C.;
+
+Steed, J. W.; Waddell, D. C. Chem. Soc. Rev. 2012, 41, 413−447.
+
+(65) Braga, D.; Giaffreda, S. L.; Grepioni, F.; Pettersen, A.; Maini, L.;
+
+Curzi, M.; Polito, M. Dalton Trans. 2006, 1249−1263.
+
+(66) Braga, D.; Curzi, M.; Lusi, M.; Grepioni, F. CrystEngComm
+
+2005, 7, 276−278.
+
+(67) Braga, D.; Curzi, M.; Grepioni, F.; Polito, M. Chem. Commun.
+
+2005, 2915−2917.
+
+ (68) Müller-Buschbaum, K. Z. Anorg. Allg. Chem. 2005, 631, 811−
+
+828.
+
+(69) Wöhlert, S.; Näther, C. Eur. J. Inorg. Chem. 2013, 2013, 2528−
+
+2537.
+
+(70) Wöhlert, S.; Wriedt, M.; Fic, T.; Tomkowicz, Z.; Haase, W.;
+
+Näther, C. Inorg. Chem. 2013, 52, 1061−1068.
+
+(71) Wöhlert, S.; Ruschewitz, U.; Näther, C. Cryst. Growth Des. 2012,
+
+12, 2715−2718.
+
+(72) Wöhlert, S.; Boeckmann, J.; Wriedt, M.; Näther, C. Angew.
+
+Chem., Int. Ed. 2011, 50, 6920−6923.
+
+(73) Boeckmann, J.; Wriedt, M.; Näther, C. Chem.Eur. J. 2012, 18,
+
+5284−5289.
+
+(74) Boeckmann, J.; Näther, C. Chem. Commun. 2011, 47, 7104−
+
+7106.
+
+(75) Boeckmann, J.; Näther, C. Dalton Trans. 2010, 39, 11019−
+
+11026.
+
+(76) Boeckmann, J.; Näther, C. Polyhedron 2012, 31, 587−595.
+
+(77) Wöhlert, S.; Fic, T.; Tomkowicz, Z.; Ebbinghaus, S. G.; Rams,
+
+M.; Haase, W.; Näther, C. Inorg. Chem. 2013, 52, 12947−12957.
+
+(78) Moore, M. H.; Nassimbeni, L. R.; Niven, M. L. J. Chem. Soc.,
+
+Dalton Trans. 1987, 2125−2140.
+
+(79) Rietveld, H. M. J. Appl. Crystallogr. 1969, 2,65−71.
+
+(80) Sheldrick, G. M. Acta Crystallogr. 2008, A64, 112−122.
+
+(81) Wöhlert, S.; Jess, I.; Näther, C. Z. Anorg. Allg. Chem. 2013, 639,
+
+385−391.
+
+(82) Miyasaka, H.; Takayama, K.; Saitoh, A.; Furukawa, S.;
+
+Yamashita, M.; Clérac, R. Chem.Eur. J. 2010, 16, 3656−3662.
+
+(83) Wang, X.-Y.; Wang, L.; Wang, Z.-M.; Su, G.; Gao, S. Chem.
+
+Mater. 2005, 17, 6369−6380.
+
+(84) Zhang, D.; Wang, H.; Chen, Y.; Ni, Z.-H.; Tian, L.; Jiang, J.
+
+Inorg. Chem. 2009, 48, 11215−11225.
+
+Crystal Growth & DesignArticle
+
+dx.doi.org/10.1021/cg500037d | Cryst. Growth Des. 2014, 14, 1902−19131913

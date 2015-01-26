@@ -1,0 +1,981 @@
+ORIGINAL PAPER
+
+Solid-state synthesis of graphite carbon-coated Li4Ti5O12anode
+
+for lithium ion batteries
+
+Ying Wang&Wei Zou&Xinyi Dai&Lidong Feng&
+
+Haiquan Zhang&Aijun Zhou&Jingze Li
+
+Received: 6 January 2014 /Revised: 13 February 2014 /Accepted: 1 March 2014
+
+#Springer-Verlag Berlin Heidelberg 2014
+
+AbstractGraphites are widely used for their high electrical
+
+conductivity and good thermal and chemical stability. In this
+
+work, graphitic carbon-coated lithium titanium (Li4Ti5O12/
+
+GC) was successfully synthesized by a simple one-step
+
+solid-state reaction process with the assistance of sucrose
+
+without elevating sintering temperature. The lattice fringe of
+
+0.208 nm clearly seen from the high-resolution transmission
+
+electron microscopy (HRTEM) images was assigned to graph-
+
+ite (010). The average grain size of the as-prepared Li4Ti5O12/
+
+GC was about 100–200 nm, 1 order smaller than that of pure
+
+Li4Ti5O12prepared similarly. The rate performance and cycle
+
+ability were significantly improved by the hybrid conducting
+
+network formed by graphitic carbon on the grains and amor-
+
+phous carbon between them. The specific capacity retention
+
+rate was 66.7 % when discharged at a rate of 12C compared
+
+with the capacity obtained at 0.5C. After 300 cycles, the
+
+capacity retention was more than 90 % at a high rate of 15C.
+
+KeywordsBatteries.Li4Ti5O12.Solid-state reactions.
+
+Graphitic carbon.Anodes
+
+Introduction
+
+Lithium ion batteries offering higher power and higher energy
+
+density have been powering most of the portable electronic
+
+devices [1]. Furthermore, the increasing crisis of traditional
+
+energy resources and serious concerns on global environment
+
+are making lithium ion batteries to enable electric vehicles
+
+(EVs) and hybrid electric vehicles (HEVs) and be a comple-
+
+ment to wind and solar energy [2,3]. Compared with tradi-
+
+tional carbon-related anodes and alloy anodes, Li4Ti5O12ex-
+
+hibits excellent reversibility between spinel structure and
+
+rock-salt structure after numerous Li+insertion and extraction
+
+processes, which contributes to excellent cycling stability [4].
+
+Together with a high operating potential of 1.55 V vs. Li/Li+
+
+avoiding the formation of lithium dendrites [5], Li4Ti5O12is
+
+proposed as an ideal candidate anode for HEVs and stationary
+
+energy storage [6,7]. Recently, Li4Ti5O12was newly reported
+
+as a wonderful Na+storage material [8]. But the poor rate
+
+performance of pristine Li4Ti5O12caused by low electronic
+
+conductivity (less than 10−13Scm−1[9]) prevents it from
+
+practical use. Many efforts have been made to improve the
+
+electronic conductivity by cation doping (such as K, Al, V,
+
+Nb, etc. [10–13]), surface modification (such as polyacene
+
+[14], carbon [15–18] or N-doped carbon [19–21]), or com-
+
+posites (Li4Ti5O12/TiO2[22–24], Li4Ti5O12/Ag [25],
+
+Li4Ti5O12/Li2Ti3O7[26], etc.). Methods to increase Li+trans-
+
+port ability or shorten Li+diffusion length [27–30]werealso
+
+extensively studied. The carbon coating technique has
+
+attracted much attention due to its simplicity and feasibility,
+
+where a diversity of carbon sources (e.g., pitch [18], ionic
+
+liquid [21], etc.) and fabrication methods (sol-gel method
+
+[17], solid-state reaction [15,16], etc.) were investigated. It
+
+should be noted that most of the carbon layers are in the
+
+amorphous state [31]. It is well known that the conductivity
+
+of graphite is much better than that of amorphous carbon [32].
+
+Generally, the carbon materials can be graphitized until the
+
+critical temperature is over 1,800 °C with a longer treating
+
+period [33]. In this regard, it is understandable why the graph-
+
+itized carbon layer is rarely applied to coat Li4Ti5O12.
+
+Herein, we proposed an economic and easy to be scaled up
+
+route to synthesize graphitized carbon-coated Li4Ti5O12com-
+
+posite in a low temperature. Sucrose was used as a carbon
+
+source, which was mixed with lithium salt and titanium
+
+Y. Wang:W. Zou:X. Dai:L. Feng:H. Zhang:A. Zhou:
+
+J. Li (*)
+
+State Key Laboratory of Electronic Thin Films and Integrated
+
+Devices, School of Microelectronics and Solid-state Electronics,
+
+University of Electronic Science and Technology of China, No. 4,
+
+Section 2, North Jianshe Road, Chengdu 610054, Sichuan, China
+
+e-mail: lijingze@uestc.edu.cn
+
+Ionics
+
+DOI 10.1007/s11581-014-1103-6
+
+compound. Then, the mixture was directly sintered by a
+
+simple one-step solid-state reaction. The graphitized carbon
+
+coating layer can efficiently prevent Li4Ti5O12
+
+nanoparticles from aggregation, leading to the feature size
+
+down to around 200 nm. The composite showed excellent
+
+rate performance even charging/discharging at a high current
+
+rate of 12C, which was attributed to the improved electronic
+
+conductivity as well as the reduced Li+diffusion length.
+
+Experimental
+
+TiO 2(anatase, averaged particle diameter 150 nm), Li2CO3,
+
+and sucrose were chosen as the starting materials. Sucrose
+
+accounted for X (X=0, 10, 15, 20) percent of the total weight
+
+of TiO 2and Li2CO3. All the starting materials were mixed in a
+
+liquid medium of acetone and water by a planetary ball mill for
+
+4 h. The ball feed ratio was 5:1. The as-prepared slurry was then
+
+dried at 80 °C and grounded into fine powder for later use.
+
+Following that, the ternary precursor was treated at a rate of
+
+3 °C/min from room temperature to 800 °C in a tube furnace
+
+filled with argon gas, holding the maximum temperature for
+
+12 h and natural cooling afterwards. The as-synthesized sam-
+
+ples were named as LTOCX (X=0, 10, 15, 20).
+
+The morphology of the as-synthesized samples was char-
+
+acterizedbyafieldemissionscanningelectronmicroscope
+
+(FE-SEM, Hitachi, S3400N) and a transmission electron mi-
+
+croscope (TEM, JEOL, JEM-100CX). The phase analysis was
+
+carried out with X-ray diffraction (XRD, X’Pert PRO MPD)
+
+using Cu Kα radiation, and the data was collected with a 2θ
+
+scan ranging from 15° to 85° at a step size of 0.03°. Raman
+
+spectra were measured by a Renishaw inVia Reflex Raman
+
+Microscope at a laser power of 0.5 mW with the excitation
+
+wavelength of 514 nm.
+
+Two-electrode lab cell was assembled in a glove box cir-
+
+culated with argon gas (99.999 %) for electrochemical mea-
+
+surement. To produce the working electrode, the active mate-
+
+rial and acetylene black and polyvinylidene fluoride (PVDF)
+
+were dispersed in N-methyl-2-pyrrolidine (NMP) solution
+
+with a carnelian mortar. The weight ratio of the above three
+
+solid species was set to be 80:10:10. The electrode fabrication
+
+was finished by spreading the grounded mixture on a thin Cu
+
+foil with the doctor-blade method and drying at 110 °C in a
+
+vacuum drying oven for about 12 h before cell assembly. The
+
+counter electrode was of metallic Li foil. The electrolyte was
+
+LiPF 6(1 mol/l) dissolved in the mixture ethylene carbonate,
+
+diethyl carbonate, and dimethyl carbonate (1:1:1 in volume).
+
+The galvanostatic discharge/charge measurements were
+
+conducted on a LAND series battery testing system
+
+(CT2001A, LAND Electronic Co.) at a potential range of
+
+1.0–3.0 V with different discharge/charge rates varying from
+
+ 0.2C to 20C. Cyclic voltammetry (CV) and electrochemical
+
+impedance spectroscopy (EIS) were performed on an electro-
+
+chemical work station (Solartron Model 1287/1260A;
+
+Solartron Analytical). CV curves were recorded under a scan
+
+rate of 0.1 mV S−1at a potential range of 1.0–3.0 V. EIS was
+
+performed at a frequency range of 0.01 Hz–1.0 MHz with the
+
+voltage amplitude of 5 mV.
+
+Results and discussion
+
+Morphology characterization and phase identification
+
+Figure 1 exhibits the XRD patterns of the as-synthesized
+
+LTOCX compounds. The pattern of LTOC0 demonstrates
+
+clear peaks located at 2θ degree of 18.3°, 35.6°, 43.2°,
+
+57.2°, and 62.9°, which match the positions and relative
+
+intensities of the spinel Li4Ti5O12diffraction peaks listed in
+
+PDF #49-0207 very well. No impurity phase was identified,
+
+suggesting LTOC0 consists of pristine Li4Ti5O12. While the
+
+amount of carbon source is slightly increased, the XRD pat-
+
+tern does not show a noticeable change considering either the
+
+peak position or the intensity. When the weight ratio of su-
+
+crose is increased to 20 % (LTOC20), unexpected diffraction
+
+peaks of Li 2TiO3and anatase TiO2appear, suggesting the
+
+pyrolyzed carbon retarded the reaction. This phenomenon
+
+was frequently observed while the carbon weight ratio is over
+
+the critical point. All of the XRD curves do not show any
+
+signal of carbon, indicating that the total weight of the carbon
+
+material might be too low or the pyrolyzed carbon is
+
+amorphous.
+
+ Fig. 1 XRD patterns of LTOCXs and PDF #49-0207
+
+Ionics
+
+Figure 2 shows the corresponding SEM images of the as-
+
+synthesized LTOCX compounds. As a reference, the SEM
+
+image of the TiO2reactant is also provided. The particle size
+
+of the pristine Li 4Ti5O12(LTOC0) is over 500 nm, and each
+
+particle is well crystallized, exposing very clear and flat facets.
+
+The introduction of 10 % weight of carbon source (LTOC10)
+
+can significantly reduce the particle size [34], in which the
+
+estimated average size is around 200 nm. The smaller particle
+
+will shorten Li +diffusion distance and offer larger reaction
+
+area, which would provide benefit by reducing the electro-
+
+chemical polarization and promoting the rate performance
+
+[35]. With the increased amount of the carbon source, the
+
+product becomes more uniform and its size can be further
+
+decreased slightly. The tendency is consistent with the pub-
+
+lished result, where the TiO2precursor was coated with car-
+
+bon layer prior to the solid-state reaction [16, 36]. However, it
+
+should be mentioned that the particle size of the sample with
+
+the highest carbon ratio (LTOC20) is larger than that of the
+
+TiO 2reactant, suggesting that the aggregation occurred in the
+
+process of thermal annealing. Even though the carbon source
+
+ratio was up to 20 % (LTOC20), it is still very difficult to
+
+identify if the pyrolyzed carbon is coated on Li4Ti5O12nano-
+
+particles by SEM imaging. TEM and high-resolution trans-
+
+mission electron microscopy (HRTEM) images of the com-
+
+posite LTOC15 are given in Fig. 3. Figure 3a exhibits a low
+
+magnification TEM image, where the particle size is around
+
+ 200 nm. It is in accordance with SEM observation. The spider
+
+network is visible in the neighboring particle, which must be
+
+made of pyrolytic carbon. The enlarged TEM image exhibits
+
+that the carbon material is potted uniformly on the surface of
+
+well-crystallized Li4Ti5O12grains. The HRTEM image illus-
+
+trates that there are clear strip lines for each dot, and the
+
+spacing of the lattice fringe is 0.208 nm, which can be
+
+assigned to graphite (010). The maximum height of the dot
+
+is around 4 nm, and the minimum height is around 1 nm. More
+
+importantly, the neighboring dots are overlapped. That is to
+
+say, a serrated graphitized carbon layer is successfully coated
+
+on Li 4Ti5O12.
+
+In order to make sure that graphitized carbon was formed in
+
+the macroscopic area, Raman spectrum was collected as
+
+shown in Fig. 4. The peaks located at 1,340 and 1,595 cm−1
+
+can be assigned to D and G bands, respectively. It is common
+
+knowledge that D band represents the vibration mode from
+
+amorphous carbon and G band originates from graphitized
+
+carbon [37]. The two peaks have comparable intensity, sug-
+
+gesting that the two types of carbon may have similar weight
+
+ratio. A large amount of defects on the surface of graphite
+
+grains also contributes to the low peak intensity ratio of the G
+
+band to D band [38]. According to HRTEM result, it can be
+
+easy to know that the particle is coated with graphitized
+
+carbon, and the neighboring particles were connected with
+
+amorphous carbon network. The nature of the starting material
+
+Fig. 2 SEM images of LTOCXs and TiO2: a LTOC00, b LTOC10, c LTOC15, d LTOC20, and e TiO2used in the experiments
+
+Fig. 3 TEM and HRTEM images of sample LTOC15: a at low resolution, b high magnification of random grains, and c HRTEM of surface area of a
+
+random grain
+
+Ionics
+
+(sucrose) is suggested to be the shifts of the Raman peaks of
+
+carbon [39].
+
+This result was different from that discussed in former
+
+works in which amorphous carbon was detected [24, 40].
+
+The cooperation of relatively higher synthesis temperature
+
+and longer annealing time was suggested to be one of the
+
+reasons of graphitization. Atmosphere was another factor that
+
+affects the graphitization. The carbon layer tended to be amor-
+
+phous if synthesized in NH3atmosphere reported in our
+
+previous work [20].
+
+Electrochemical performance
+
+The typical charge/discharge profiles of LTOC15 at different
+
+current rates are shown in Fig. 5. The average initial specific
+
+capacity was 183 mAh g −1when charged-discharged at a rate
+
+of 0.5C, which is slightly higher than the theoretical value.
+
+The possible reason is that graphitic carbon exhibits electro-
+
+chemical double layer capacitance effect above 1.0 V [41].
+
+Due to the good conductivity of graphitic carbon coating
+
+outside the particles, the batteries prepared with sample
+
+LTOC15 show the best rate performance among all the sam-
+
+ples. As shown in Fig.6, high capacity retentions as 154, 136,
+
+ 127, 114, and 102 mAh g−1were obtained even after being
+
+charged-discharged at 0.5C, 1C, 2C, 7C, and 12C for 100 cy-
+
+cles. Al foil was used as the current collector for comparison.
+
+The capacities are 155, 133, 116, 88, and 67 mAh g−1,respec-
+
+tively, which are much lower than those of the batteries with
+
+Cu foil as the current collector. The tendency agrees with the
+
+result reported by Hu [42]. The coulombic efficiency is over
+
+96 % after the second cycle and almost 100 % afterwards.
+
+After 300 cycles, the capacity retention at a high level of more
+
+than 90 % was achieved with a high discharge-charge rate of
+
+7C and 15C, respectively (shown in Fig. 7). To compare the
+
+rate performance of all the samples, the normalization of the
+
+capacity variations based on the capacity at 0.5C is exhibited
+
+in Fig. 8. Sample LTOC15 performed much better than that of
+
+sample LTOC0, but slightly better than that of sample
+
+LTOC20. It suggests that for sample LTOC15, a thin graphitic
+
+carbon layer on the grains and the pyrolyzed carbon among
+
+them have formed a nearly complete conducting network and
+
+improved the electron conductivity significantly. The smaller
+
+grain size and less agglomeration also contribute to the im-
+
+provement. The results agree with TEM and Raman spectra
+
+well. The graphitic layer on the grains of sample LTOC20 is a
+
+Fig. 4 Raman spectrum of LTOC15
+
+Fig. 5 The charge-discharge data of sample LTOC15 tested from 1 to
+
+3 V at different rates
+
+Fig. 6 The rate performance of sample LTOC15 tested from 1 to 3 V
+
+Fig. 7 The cycle performance of sample LTOC15 tested from 1 to 3 Vat
+
+the discharge-charge rates of 7C and 15C
+
+Ionics
+
+little thicker, which prevents Li+from fast transport just like
+
+the case discussed in our previous work [20], that is why there
+
+is no further obvious improvement for sample LTOC20.
+
+The irreversible capacity decline in the first cycle is pre-
+
+sented in Table 1. The increased phase impurity in the samples
+
+is suggested to be the main reason of the capacity decline in
+
+the first cycle with the increasing weight ratio of sucrose
+
+involved [43].
+
+To further demonstrate the effect of the graphitic carbon
+
+layer on the active materials. The first three cycles of CV
+
+measurement of samples LTOC0 and LTOC15 are shown in
+
+Fig. 9. Checking the figure, one dominant couple of redox
+
+peaks is observed while scanning at a rate of 0.1 mV S−1.For
+
+pure Li 4Ti5O12, the cathodic peak and the anodic peak are
+
+located at 1.40 and 1.78 V, respectively, while for LTOC15,
+
+the two peaks are located at 1.45 and 1.66 V, which demon-
+
+strates that the graphitic carbon layer improves the electronic
+
+conductivity of the active materials. The coincidence of one to
+
+three cycles of the CV curves indicated the stability and
+
+reversibility of the discharge and charge process for pure
+
+and carbon-coated samples. This further indicates that there
+
+is no side effect when introducing sucrose (pyrolyzed carbon)
+
+in the material sintering process.
+
+The AC impedance spectra were measured to further un-
+
+derstand the conductivity of the graphite-coated Li4Ti5O12
+
+material. The data are given in Fig. 10. The equivalent circuit
+
+is shown as an inset. Rctof LTOC15, the equivalent resistance
+
+of the impedance caused by the electrochemical reaction
+
+ activity at the interface between active material and electro-
+
+lyte, is fitted to be 86Ω, which is much smaller than that of
+
+pure Li4Ti5O12(170Ω). The result is comparable or better
+
+than the results mentioned in the literature [24, 44–46].
+
+Conclusions
+
+Graphitic carbon-coated Li4Ti5O12of high rate performance
+
+and good cycle stability was successfully achieved with the
+
+assistance of sucrose, which is cheap, environmentally friend-
+
+ly, and abundant in nature by a simple, short-time consump-
+
+tion, one-step solid-state reaction process. In this work, XRD,
+
+SEM, and TEM were carried out to study the physical char-
+
+acteristics. At both the aids of sucrose film coating on the
+
+grains of Li 2CO3and TiO2, the average grain size of the as-
+
+prepared graphite carbon-coated Li4Ti5O12was tested to be
+
+around 100–200 nm, 1 order smaller than pristine Li4Ti5O12
+
+prepared similarly. A good conducting network formed by
+
+graphitic carbon and pyrolyzed carbon can be seen from
+
+TEM photos. The less agglomeration and reduced grain size
+
+made the lithium ion diffusion much easier. As a result, the
+
+Fig. 8 The capacity retention rates of the samples prepared with different
+
+percentages of sucrose
+
+Ta b l e 1 The capacity retention of the batteries fabricated by the samples
+
+in the initial cycles
+
+Sample name LTOC0 LTOC10 LTOC15 LTOC20
+
+Initial capacity retention (%) 92 85 84 81
+
+Fig. 9 CV dates of samples LTOC0 and LTOC15 tested from 1 to 3 Vat a
+
+scan rate of 0.1 mV S−1
+
+Fig. 10 The AC impedance spectra of LTOC0 and LTOC15 measured at
+
+a stable voltage of 1.55 V in the frequency range of 0.01 Hz–1MHzand
+
+the equivalent circuit used in data fitting
+
+Ionics
+
+rate performance and cycle ability of graphitic carbon-coated
+
+Li4Ti5O12were significantly improved. The specific capacity
+
+retained 66.7 % even at a rate of 12C compared with the
+
+capacity achieved when discharged at 0.5C. After the 300th
+
+cycle, the specific capacity retention was more than 90 % at a
+
+high rate of 15C. The work in this article is expected to be
+
+used in the mass production.
+
+Acknowledgments This work was supported by NSFC (grant nos.
+
+21073029, 11234013, and 51211140045), RFDP (no.
+
+20100185110019), Program for New Century Excellent Talents in Uni-
+
+versity (no. NCET-10-0296), and Fundamental Research Funds for the
+
+Central Universities (no. ZYGX2012Z003, 103.1.2 E022050205). The
+
+authors thank Miss Ming Liu, working at the Analytical and Testing
+
+Center of Sichuan University, China, for her help in TEM
+
+characterization.
+
+References
+
+1. Kang K, Meng YS, Bréger J, Grey CP, Ceder G (2006) Electrodes
+
+with high power and high capacity for rechargeable lithium batteries.
+
+Science 311(5763):977–980
+
+2. Sun YK, Myung ST, Park BC, Prakash J, Belharouak I, Amine K
+
+(2009) High-energy cathode material for long-life and safe lithium
+
+batteries. Nat Mater 8(4):320–324
+
+3. Kang B, Ceder G (2009) Battery materials for ultrafast charging and
+
+discharging. Nature 458(7235):190–193
+
+4. Lu X, Zhao L, He X, Xiao R, Gu L, Hu YS, Li H, Wang Z, Duan X,
+
+Chen L (2012) Lithium storage in Li4Ti5O12spinel: the full static
+
+picture from electron microscopy. Adv Mater 24(24):3233–3238
+
+5. Ohzuku T, Ueda A, Yamamoto N (1995) Zero-strain insertion mate-
+
+rial of Li(Li 1/3Ti5/3)O4for rechargeable lithium cells. J Electrochem
+
+Soc 142(5):1431–1435
+
+6. Guerfi A, Sevigny S, Lagace M, Hovington P, Kinoshita K, Zaghib K
+
+(2003) Nano-particle Li4Ti5O12spinel as electrode for electrochem-
+
+ical generators. J Power Sources 119:88–94
+
+7. Zaghib K, Simoneau M, Armand M, Gauthier M (1999)
+
+Electrochemical study of Li 4Ti5O12as negative electrode for Li-ion
+
+polymer rechargeable batteries. J Power Sources 81:300–305
+
+8. Wang Y, Yu X, Xu S, Bai J, Xiao R, Hu YS, Li H, Yang XQ, Chen
+
+LQ, Huang XJ (2013) A zero-strain layered metal oxide as the
+
+negative electrode for long-life sodium-ion batteries. Nature commu-
+
+nications 4: doi:10.1038/ncomms3365
+
+9. Chen C, Vaughey J, Jansen A, Dees D, Kahaian A, Goacher T,
+
+Thackeray M (2001) Studies of Mg-substituted Li4−xMgxTi5O12
+
+spinel electrodes (0≤x≤1) for lithium batteries. J Electrochem Soc
+
+148:A102–A104
+
+10. Li X, Qu MZ, Yu ZL (2010) Structural and electrochemical charac-
+
+teristics of Li4−xKxTi5O12as anode material for lithium-ion batteries.
+
+Chin J Inorg Chem 26(2):233–239
+
+11. Zhao H, Li Y, Zhu Z, Lin J, Tian Z, Wang R (2008) Structural and
+
+electrochemical characteristics of Li4−xAlxTi5O12as anode material
+
+for lithium-ion batteries. Electrochim Acta 53(24):7079–7083
+
+12. Yi TF, Shu J, Zhu YR, Zhu XD, Yue CB, Zhou AN, Zhu RS (2009)
+
+High-performance Li 4Ti5−xVxO12(0≤x≤0.3) as an anode material
+
+for secondary lithium-ion battery. Electrochim Acta 54(28):7464–
+
+7470
+
+13. Tian B, Xiang H, Zhang L, Wang H (2012) Effect of Nb-doping on
+
+electrochemical stability of Li 4Ti5O12discharged to 0 V. J Solid State
+
+Electrochem 16(1):205–211
+
+ 14. Yu H, Zhang X, Jalbout AF, Yan X, Pan X, Xie H, Wang R (2008)
+
+High-rate characteristics of novel anode Li4Ti5O12/polyacene materials
+
+for Li-ion secondary batteries. Electrochim Acta 53(12):4200–4204
+
+15. Bin Kim J, Kim DJ, Chung KY, Byun D, Cho BW (2010) Research
+
+on carbon-coated Li 4Ti5O12material for lithium ion batteries. Physica
+
+Scripta T139. doi:10.1088/0031-8949/2010/t139/014026
+
+16. Yuan T, Cai R, Shao ZP (2011) Different effect of the atmospheres on
+
+the phase formation and performance of Li4Ti5O12prepared from
+
+ball-milling-assisted solid-phase reaction with pristine and carbon-
+
+precoated TiO 2as starting materials. J Phys Chem C 115(11):4943–
+
+4952
+
+17. Wang J, Liu XM, Yang H, Shen XD (2011) Characterization and
+
+electrochemical properties of carbon-coated Li4Ti5O12prepared by a
+
+citric acid sol-gel method. J Alloys Compd 509(3):712–718
+
+18. Jung HG, Kim J, Scrosati B, Sun YK (2011) Micron-sized, carbon-
+
+coated Li 4Ti5O12as high power anode material for advanced lithium
+
+batteries. J Power Sources 196(18):7763–7766
+
+19. Li H, Shen L, Zhang X, Wang J, Nie P, Che Q, Ding B (2013)
+
+Nitrogen-doped carbon coated Li4Ti5O12nanocomposite: superior
+
+anode materials for rechargeable lithium ion batteries. J Power
+
+Sources 221:122–127
+
+20. Zhang HQ, Deng QJ, Mou CX, Huang ZL, Wang Y, Zhou AJ, Li JZ
+
+(2013) Surface structure and high-rate performance of spinel
+
+Li 4Ti5O12coated with N-doped carbon as anode material for
+
+lithium-ion batteries. J Power Sources 239:538–545
+
+21. Zhao L, Hu YS, Li H, Wang Z, Chen LQ (2011) Porous Li4Ti5O12
+
+coated with N-doped carbon from ionic liquids for Li-ion batteries.
+
+Adv Mater 23(11):1385–1388
+
+22. Wang YQ, Gu L, Guo YG, Li H, He XQ, Tsukimoto S, Ikuhara Y,
+
+Wan LJ (2012) Rutile-TiO2nanocoating for a high-rate Li4Ti5O12
+
+anode of a lithium-ion battery. J Am Chem Soc 134(18):7874–7879
+
+23. Wang J, Zhao H, Yang Q, Wang C, Lv P, Xia Q (2012) Li4Ti5O12-
+
+TiO 2composite anode materials for lithium-ion batteries. J Power
+
+Sources 222:196–201
+
+24. Rahman M, Wang JZ, Hassan MF, Wexler D, Liu HK (2011)
+
+Amorphous carbon coated high grain boundary density dual phase
+
+Li 4Ti5O12-TiO2: a nanocomposite anode material for Li-ion batteries.
+
+Adv Energy Mater 1(2):212–220
+
+25. Kim JG, Shi D, Park MS, Jeong G, Heo YU, Seo M, Kim YJ, Kim
+
+JH, Dou SX (2013) Controlled Ag-driven superior rate-capability of
+
+Li 4Ti5O12anodes for lithium rechargeable batteries. Nano Res 6(5):
+
+365–372
+
+26. Zhu GN, Chen L, Wang YG, Wang CX, Che RC, Xia YY (2012)
+
+Binary Li 4Ti5O12-Li2Ti3O7nanocomposite as an anode material for
+
+Li-ion batteries. Adv Funct Mater 23(5):640–647
+
+27. Matsui E, Abe Y, Senna M, Guerfi A, Zaghib K (2008) Solid-state
+
+synthesis of 70 nm Li 4Ti5O12particles by mechanically activating
+
+intermediates with amino acids. J Am Ceram Soc 91(5):1522–1527
+
+28. Yu L, Wu HB, Lou XWD (2013) Mesoporous Li4Ti5O12hollow
+
+spheres with enhanced lithium storage capability. Adv Mater
+
+25(16):2296–2300
+
+29. Liu J, Li X, Yang J, Geng D, Li Y, Wang D, Li R, Sun X, Cai M,
+
+Verbrugge MW (2012) Microwave-assisted hydrothermal synthesis
+
+of nanostructured spinel Li 4Ti5O12as anode materials for lithium ion
+
+batteries. Electrochim Acta 63:100–104
+
+30. Shen L, Uchaker E, Zhang X, Cao G (2012) Hydrogenated Li4Ti5O12
+
+nanowire arrays for high rate lithium ion batteries. Adv Mater 24(48):
+
+6502–6506
+
+31. Pan H, Zhao L, Hu YS, Li H, Chen L (2012) Improved Li-storage
+
+performance of Li4Ti5O12coated with C-N compounds derived from
+
+pyrolysis of urea through a low-temperature approach.
+
+ChemSusChem 5(3):526–529
+
+32. Mattia D, Rossi MP, Kim BM, Korneva G, Bau HH, Gogotsi Y
+
+(2006) Effect of graphitization on the wettability and electrical con-
+
+ductivity of CVD-carbon nanotubes and films. J Phys Chem B
+
+110(20):9850–9855
+
+ Ionics
+
+33. Pierson HO (1993) Handbook of carbon, graphite, diamond, and
+
+fullerenes: properties, processing, and applications. Noyes
+
+Publications Park Ridge Chapter 3
+
+34. Cheng L, Yan J, Zhu GN, Luo JY, Wang CX, Xia YY (2010) General
+
+synthesis of carbon-coated nanostructure Li4Ti5O12as a high rate elec-
+
+trode material for Li-ion intercalation. J Mater Chem 20(3):595–602
+
+35. Amine K, Belharouak I, Chen Z, Tran T, Yumoto H, Ota N, Myung
+
+ST, Sun YK (2010) Nanostructured anode material for high-power
+
+battery system in electric vehicles. Adv Mater 22(28):3052–3057
+
+36. Jung HG, Myung ST, Yoon CS, Son SB, Oh KH, Amine K, Scrosati
+
+B, Sun YK (2011) Microscale spherical carbon-coated Li4Ti5O12as
+
+ultra high power anode material for lithium batteries. Energ Environ
+
+Sci 4(4):1345–1351
+
+37. Borgel V, Gershinsky G, Hu T, Theivanayagam MG, Aurbach D
+
+(2013) LiMn 0.8Fe0.2PO4/Li4Ti5O12, a possible Li-ion battery system
+
+for load-leveling application. J Electrochem Soc 160(4):A650–A657
+
+38. Ding Z, Zhao L, Suo L, Jiao Y, Meng S, Hu YS, Wang Z, Chen L
+
+(2011) Towards understanding the effects of carbon and nitrogen-
+
+doped carbon coating on the electrochemical performance of
+
+Li 4Ti5O12in lithium ion batteries: a combined experimental and
+
+theoretical study. Phys Chem Chem Phys 13(33):15127–15133
+
+39. Franklin RE (1951) Crystallite growth in graphitizing and non-
+
+graphitizing carbons. Proc Royal Soc Lond Ser A Math Phys Sci
+
+209(1097):196–218
+
+ 40. Yuan T, Cai R, Gu P, Shao ZP (2010) Synthesis of lithium insertion
+
+material Li4Ti5O12from rutile TiO2via surface activation. J Power
+
+Sources 195(9):2883–2887
+
+41. Zhou H, Zhu S, Hibino M, Honma I (2003) Electrochemical capac-
+
+itance of self-ordered mesoporous carbon. J Power Sources 122(2):
+
+219–223
+
+42. Pan HL, Hu YS, Li H, Chen LQ (2011) Significant effect of electron
+
+transfer between current collector and active material on high rate
+
+performance of Li 4Ti5O12. Chin Phys B 20(11):118202-1–118202-4.
+
+doi:10.1088/1674-1056/20/11/118202
+
+43. Yuan T, Wang K, Cai R, Ran R, Shao ZP (2009) Cellulose-assisted
+
+combustion synthesis of Li4Ti5O12adopting anatase TiO2solid as
+
+raw material with high electrochemical performance. J Alloys
+
+Compd 477(1–2):665–672
+
+44. Li X, Qu M, Huai Y, Yu Z (2010) Preparation and electrochemical
+
+performance of Li 4Ti5O12/carbon/carbon nano-tubes for lithium ion
+
+battery. Electrochim Acta 55(8):2978–2982
+
+45. Yuan T, Cai R, Wang K, Ran R, Liu SM, Shao ZP (2009)
+
+Combustion synthesis of high-performance Li4Ti5O12for secondary
+
+Li-ion battery. Ceram Int 35(5):1757–1768
+
+46. Lin ZJ, Hu XB, Huai YJ, Liu L, Deng ZH, Suo JS (2010) One-step
+
+synthesis of Li 4Ti5O12/C anode material with high performance for
+
+lithiumion batteries. Solid State Ionics 181(8–10):412–415
+
+Ionics

@@ -80,11 +80,11 @@ data––a relatively well deﬁned task that can be evaluated and optimized–
 
 semantic equivalence, which we believe will always be illusive.
 
-To reasonwith a universalschema,we learnlatent featurerepresentationsofrelations, tuples anden-
+To reason with a universal schema, we learn latent feature representations of relations, tuples and en-
 
-tities. Theseact, throughdot products,as naturalparametersof a log-linearmodelforthe probability
+tities. These act, through dot products, as natural parameters of a log-linear model for the probability
 
-that a given relation holds for a given tuple. We show experimentallythat this approachsigniﬁcantly
+that a given relation holds for a given tuple. We show experimentally that this approach signiﬁcantly
 
 outperforms a comparable baseline without latent features, and the current state-of-the-art distant
 
@@ -98,29 +98,29 @@ We use R to denote the set of relations we seek to predict (such as works-writte
 
 the X–heads–Y pattern), and T to denote the set of input tuples. For simplicity we assume each
 
-relation to be binary. Given a relation r ∈ R and a tuple t ∈ T the pair hr,ti is a fact, or relation
+relation to be binary. Given a relation r ∈ R and a tuple t ∈ T the pair hr, ti is a fact, or relation
 
 instance. The input to our model is a set of observed facts , and the observed facts for a given tuple
 
-t := {hr,ti ∈ }.
+t := {hr, ti ∈ }.
 
 Our goal is a model that can estimate, for a given relation r (such as X–historian-at–Y) and a given
 
-tuple t (such as <FERGUSON,HARVARD>) a score cr,t for the fact hr,ti. This matrix completion
+tuple t (such as <FERGUSON,HARVARD>) a score cr,t for the fact hr, ti. This matrix completion
 
 problem is related to collaborative ﬁltering. We can think of each tuple as a customer, and each
 
 relation as a product. Our goal is to predict how the tuple rates the relation (rating 0 = false, rating 1
 
-= true), based on observed ratings in . We interpret cr,t as the probability p(yr,t = 1) where yr,t is
+= true), based on observed ratings in . We interpret cr,t as the probability p (yr,t = 1) where yr,t is
 
-a binary random variable that is true iff hr,ti holds. To this end we introduce a series of exponential
+a binary random variable that is true iff hr, ti holds. To this end we introduce a series of exponential
 
 family models inspired by generalized PCA [8], a probabilistic generalization of Principle Compo-
 
-nent Analysis. These models will estimate the conﬁdence in hr,ti using a natural parameter θr,t
+nent Analysis. These models will estimate the conﬁdence in hr, ti using a natural parameter θr,t
 
-and the logistic function: cr,t := p(yr,t|θr,t) := 1
+and the logistic function: cr,t := p (yr,t|θr,t) := 1
 
 1+exp(−θr,t).
 
@@ -140,7 +140,7 @@ the original generalized PCA that learns a low-rank factorization of Θ = (θr,t
 
 Neighborhood Model We can interpolate the conﬁdence for a given tuple and relation based on
 
-the trueness of other similar relations for the same tuple. In Collaborative Filtering this is referredas
+the trueness of other similar relations for the same tuple. In Collaborative Filtering this is referred as
 
 a neighborhood-based approach [10]. We implement a neighborhood model N via a set of weights
 
@@ -184,13 +184,13 @@ In the following we seek to answer this question empirically.
 
 Data Our experimental setup is roughly equivalent to previous work [2], and hence we omit de-
 
-tails. To summarize, we consider each pair ht1,t2i of Freebase entities that appear together in a
+tails. To summarize, we consider each pair ht1, t2i of Freebase entities that appear together in a
 
 corpus. Its set of observed facts t correspond to: Extracted surface patterns (in our case lexicalized
 
 dependency paths) between mentions of t1 and t2, and the relations of t1 and t2 in Freebase. We
 
-divide all our tuples into approximately200k training tuples, and 200k test tuples. The total number
+divide all our tuples into approximately 200k training tuples, and 200k test tuples. The total number
 
 of relations (patterns and from Freebase) is approximately 4k.
 
@@ -212,7 +212,7 @@ compare against YA11, a version of MI09 that uses preprocessed pattern cluster f
 
 to [7]. The third baseline is SU12, the state-of-the-art Multi-Instance Multi-Label system by [11].
 
-Theremainingsystems areourneighborhoodmodel(N),the factorizedmodel(F),their combination
+The remaining systems are our neighborhood model (N), the factorized model (F), their combination
 
 (NF) and the combined model with a latent entity representation (NFE).
 
@@ -226,7 +226,7 @@ Total Freebase 3340.48 0.52 0.570.52 0.66 0.67 0.69
 
 Total Pattern 329 0.28 0.56 0.50 0.46
 
-ForFreebase relations,we can see that addingpatternclusterfeatures(andhenceincorporatingmore
+For Freebase relations, we can see that adding pattern cluster features (and hence incorporating more
 
 data) helps YA11 to improve over MI09. Likewise, we see that the factorized model F improves
 
@@ -234,7 +234,7 @@ over N, again learning from unlabeled data. This improvement is bigger than the 
 
 change between MI09 and YA11, possibly indicating that our latent representations are optimized
 
-directly towards improvingpredictionperformance. Our best model, the combinationof N, F and E,
+directly towards improving prediction performance. Our best model, the combination of N, F and E,
 
 outperforms all other models in terms of total MAP, indicating the power of selectional preferences
 
@@ -252,7 +252,7 @@ All our models are fast to train. The slowest model trains in just 30 minutes. B
 
 the topic model in YA11 alone takes 4 hours. Training SU12 takes two hours (on less data). Also
 
-notice that ourmodels notonly learnto predictFreebase relations, but also approximately4k surface
+notice that our models not only learn to predict Freebase relations, but also approximately 4k surface
 
 pattern relations.
 
@@ -262,7 +262,7 @@ We represent relations using universal schemas. Such schemas contain surface pat
 
 as well as relations from structured sources. We can predict missing tuples for surface pattern rela-
 
-tionsandstructuredschemarelations. We showthisexperimentallybycontrastingaseriesofpopular
+tions and structured schema relations. We show this experimentally by contrasting a series of popular
 
 weakly supervised models to our collaborative ﬁltering models that learn latent feature representa-
 
@@ -296,7 +296,7 @@ Knowledge Discovery in Databases (ECML PKDD ’10), 2010.
 
 [3] Oren Etzioni, Michele Banko, Stephen Soderland, and Daniel S. Weld. Open information
 
-extraction from the web. Commun. ACM, 51(12):68–74,2008.
+extraction from the web. Commun. ACM, 51(12):68–74, 2008.
 
 3
 
@@ -310,7 +310,7 @@ ISP: Learning Inferential Selectional Preferences. In Proceedings of NAACL HLT, 
 
 [6] Alexander Yates and Oren Etzioni. Unsupervised methods for determining object and relation
 
-synonyms on the web. Journal of Artiﬁcial Intelligence Research, 34:255–296,2009.
+synonyms on the web. Journal of Artiﬁcial Intelligence Research, 34:255–296, 2009.
 
 [7] Limin Yao, Aria Haghighi, Sebastian Riedel, and Andrew McCallum. Structured relation
 
