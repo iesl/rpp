@@ -15,9 +15,6 @@ lib_managed
 # VIM
 *.sw?
 
-#svgs
-*.svg
-
 *~
 
 #crf model
