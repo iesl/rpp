@@ -463,6 +463,8 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
                 phantomToken.setNumericProperty("llx", llx)
                 phantomToken.setNumericProperty("lly", lly)
                 phantomToken.setNumericProperty("phantom", 1)
+                phantomToken.setProperty("divElement", tbox)
+
                 this.add(phantomToken)
               }
             }
@@ -741,6 +743,8 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
               phantomToken.setNumericProperty("llx", llx)
               phantomToken.setNumericProperty("lly", lly)
               phantomToken.setNumericProperty("phantom", 1)
+              phantomToken.setProperty("divElement", tbox)
+
               this.add(phantomToken)
             }
           }
