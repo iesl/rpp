@@ -21,7 +21,7 @@ object HeaderPartProcessor extends Processor {
   import Annotator._
 
   val headerInstitution = "header-institution"
-  val headerADdress = "header-address" 
+  val headerAddress = "header-address" 
   val headerTitle = "header-title" 
   val headerAuthor = "header-author"
   val headerTech = "header-tech" 

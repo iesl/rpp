@@ -31,6 +31,47 @@ object Main {
 
     annotator.write(outFilePath)
 
+    import Annotator._
+
+    { //find author names 
+      println
+      println("header author names (1)")
+      val authorBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("header-author")))
+
+      val authorList: List[List[String]] = authorBIndexPairSet.toList.map(bIndexPair => {
+        val (blockIndex, charIndex) = bIndexPair
+        val authorSegment = annotator.getSegment("header-author")(blockIndex, charIndex) 
+        authorSegment.toList.flatMap { case (bi, labelMap) =>
+          labelMap.map { case (ci, label) => 
+            annotator.getTextMap("header-token")(bi, ci).values.map(_._2).mkString("")
+          }
+        }
+      })
+
+      authorList.foreach(a => println(a))
+    }
+
+    { //find author names in a different way 
+      println
+      println("header author names (2)")
+
+      val authorBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("header-author")))
+      val authorTokenBIndexPairSet = annotator.getBIndexPairSet(Range("header-author", SegmentCon("header-token")))
+
+      val authorList: List[List[String]] = authorTokenBIndexPairSet.foldLeft(List.empty[List[String]])((listAcc, tokenIndexPair) => {
+        val (bi, ci) = tokenIndexPair 
+        val authorToken: String = annotator.getTextMap("header-token")(bi, ci).values.map(_._2).mkString("")
+        if (authorBIndexPairSet.contains(tokenIndexPair)) {
+          List(authorToken) :: listAcc
+        } else {
+          (authorToken :: listAcc.head) :: listAcc.tail
+        }
+      }).reverse.map(_.reverse)
+
+      authorList.foreach(a => println(a))
+    }
+
+
     { //find all the lines
       println
       println("lines")
