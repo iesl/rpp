@@ -12,6 +12,7 @@ import cc.factorie.app.nlp.segment.DeterministicTokenizer
 import cc.factorie.app.nlp.Sentence
 
 import cc.factorie.app.nlp.Token
+import scala.compat.Platform
 
 object ReferencePartProcessor {
 
@@ -73,19 +74,20 @@ object ReferencePartProcessor {
   val refAddressString = "ref-address"
   val refAddressChar = 'r'
 
-  def apply(modelUri: String): ReferencePartProcessor = {
-    new ReferencePartProcessor(modelUri)
+  def apply(trainer: CitationCRFTrainer): ReferencePartProcessor = {
+    new ReferencePartProcessor(trainer)
   }
 
 
 }
 
 
-class ReferencePartProcessor(modelUri: String) extends Processor {
+class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
   import Annotator._
   import ReferencePartProcessor._
 
   override def process(annotator: Annotator): Annotator =  {
+
 
     val typePairMap = HashMap(
         "authors" -> (refAuthorsString, refAuthorsChar), 
@@ -110,10 +112,6 @@ class ReferencePartProcessor(modelUri: String) extends Processor {
 
     val lineString = LineProcessor.lineString
     val biblioMarkerString = StructureProcessor.biblioMarkerString
-
-    val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
-
-    val trainer = TestCitationModel.loadModel(modelUri, lexiconUrlPrefix)
 
     val refBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(biblioMarkerString)))
 
@@ -164,6 +162,7 @@ class ReferencePartProcessor(modelUri: String) extends Processor {
       
     }
 
+
     val indexPair2TokenLabelMap = dptSeq.flatMap(_.tokenLabelMap).toMap
 
     val annoWithTokens = annotator.annotate(List(referenceTokenString -> referenceTokenChar), Single(CharCon), indexPair2TokenLabelMap)
@@ -194,6 +193,7 @@ class ReferencePartProcessor(modelUri: String) extends Processor {
           indexPair -> typeLabelMap
         })
     } 
+
 
     type IntPair = (Int, Int)
     type StringLabelMap = Map[String, Label]
@@ -228,6 +228,7 @@ class ReferencePartProcessor(modelUri: String) extends Processor {
 
     }
 
+
     val typeLabelMapMap = replaceBIWithUL(indexPair2typeLabelMapList).toMap
 
     typePairMap.values.foldLeft(annoWithTokens) {
@@ -242,6 +243,7 @@ class ReferencePartProcessor(modelUri: String) extends Processor {
 
         anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon(referenceTokenString)), table)
     } 
+
 
   }
 

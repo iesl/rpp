@@ -3,18 +3,20 @@ package edu.umass.cs.iesl.rpp
 import java.io.File
 import org.jdom2.input.SAXBuilder
 import edu.umass.cs.iesl.xml_annotator.Annotator
+import scala.compat.Platform
 import Annotator._
+import edu.umass.cs.iesl.bibie._
 
 object Main {
 
-  def process(referenceModelUri: String, inFilePath: String): Annotator = {
+  def process(trainer: CitationCRFTrainer, inFilePath: String): Annotator = {
     val builder = new SAXBuilder()
     val dom = builder.build(new File(inFilePath)) 
 
     val l = List(
         LineProcessor, 
         StructureProcessor, 
-        ReferencePartProcessor(referenceModelUri), 
+        ReferencePartProcessor(trainer), 
         CitationProcessor, 
         CitationReferenceLinkProcessor, 
         HeaderPartProcessor
@@ -138,11 +140,15 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 
+
     val referenceModelUri = args(0) 
     val inFilePath = args(1) 
     val outFilePath = args(2)
 
-    process(referenceModelUri, inFilePath).write(outFilePath)
+    val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
+    val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
+
+    val annotator = process(trainer, inFilePath).write(outFilePath)
 
   }
 
