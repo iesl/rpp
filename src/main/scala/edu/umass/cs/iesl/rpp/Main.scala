@@ -33,6 +33,58 @@ object Main {
 
     import Annotator._
 
+
+    { //find citation and reference marker pairs 
+      println
+      println("citation and reference marker pairs")
+      val citRefPair = annotator.annotationLinkSet.filter(_.name == "citation-reference-link").map(annoLink => {
+        val linkMap = annoLink.attrValueMap
+        val (citationString, citBlockIndex, citCharIndex) = linkMap("cit")
+        val (refMarkerString, refBlockIndex, refCharIndex) = linkMap("ref")
+
+        val citString = annotator.getTextMap(citationString)(citBlockIndex, citCharIndex).values.map(_._2).mkString("")
+        val refString = annotator.getTextMap(refMarkerString)(refBlockIndex, refCharIndex).values.map(_._2).mkString("")
+
+        (citString, refString)
+
+      })
+
+      citRefPair.foreach(p => {
+        println(p)
+      })
+    }
+
+    { //find lines with citations and reference pairs 
+      println
+      println("citation and reference(biblio-marker) pairs")
+
+      val bibMarkIndexPairSeq = annotator.getBIndexPairSet(Single(SegmentCon("biblio-marker"))).toIndexedSeq
+
+      val citRefPair = annotator.annotationLinkSet.filter(_.name == "citation-reference-link").map(annoLink => {
+        val linkMap = annoLink.attrValueMap
+        val (citationString, citBlockIndex, citCharIndex) = linkMap("cit")
+        val (refMarkerString, refBlockIndex, refCharIndex) = linkMap("ref")
+
+        val citString = annotator.getTextMap(citationString)(citBlockIndex, citCharIndex).values.map(_._2).mkString("")
+
+        def pairLte(p1: (Int, Int), p2: (Int, Int)) = (p1._1 < p2._2) || (p1._1 == p2._1 && p1._2 <= p2._2)
+        val bibMarkerIndex = bibMarkIndexPairSeq.lastIndexWhere(p => pairLte(p, (refBlockIndex, refCharIndex)))
+        val bibMarkerIndexPair = bibMarkIndexPairSeq(bibMarkerIndex)
+
+        val lineBIndexPairSet = annotator.getBIndexPairSet(Range("biblio-marker", SegmentCon("line")))
+        val refString = mkTextWithBreaks(annotator.getTextMap("biblio-marker")(bibMarkerIndexPair._1, bibMarkerIndexPair._2), lineBIndexPairSet, '\n')
+        
+        (citString, refString)
+
+      })
+
+      citRefPair.foreach(p => {
+        println("citation: " + p._1)
+        println("reference: " + p._2)
+        println()
+      })
+    }
+
     { //find author names 
       println
       println("header author names (1)")
