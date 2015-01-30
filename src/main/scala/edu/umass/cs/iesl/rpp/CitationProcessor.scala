@@ -96,6 +96,7 @@ object CitationProcessor extends Processor {
 
 
       def loop(list: List[List[Match]]): List[Match] = list match {
+        case Nil => List[Match]()
         case x::Nil => x
         case x1::(x2::xs) => 
 
