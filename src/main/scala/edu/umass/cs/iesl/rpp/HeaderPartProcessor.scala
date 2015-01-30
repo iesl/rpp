@@ -17,6 +17,8 @@ import cc.factorie.app.nlp.segment.DeterministicTokenizer
 
 import cc.factorie.app.nlp.Token
 
+import scala.compat.Platform
+
 object HeaderPartProcessor extends Processor {
   import Annotator._
 
@@ -88,20 +90,21 @@ object HeaderPartProcessor extends Processor {
     val indexPair2TokenLabelMap = headerSet.flatMap(_._1).toMap
 
     val annoWithTokens = annotator.annotate(List("header-token" -> 't'), Single(CharCon), indexPair2TokenLabelMap)
+    val separator = "{{-^--^-}}"
 
     val str = (headerSet.map { case (_, headerItemSeq) => {
-      "#\n" + (headerItemSeq.map {
+      separator + "\n" + (headerItemSeq.map {
         case HeaderItem(_, token, x, y, fontSize) =>
           token.string + "\t" + x + "\t" + y + "\t" + fontSize
       }).mkString("\n")
-    }}).mkString("\n\n") + "\n\n#"
+    }}).mkString("\n\n") + "\n\n" + separator
+
 
     val docs = {
-      val ds = (new LoadTSV(false)).fromSource(Source.fromString(str)).toIndexedSeq
+      val ds = (new LoadTSV(false, separator)).fromSource(Source.fromString(str)).toIndexedSeq
       paperheader.process.DocProcessor(ds)
       ds.toIndexedSeq
     } 
-
 
     val typePairMap = HashMap(
         "institution" -> ("header-institution", 'i'), 
@@ -114,7 +117,6 @@ object HeaderPartProcessor extends Processor {
         "abstract" -> ("abstract", 'b'), 
         "email" -> ("header-email", 'e')
     )
-
 
     val headerSeq = headerSet.map(_._2).toIndexedSeq
 
