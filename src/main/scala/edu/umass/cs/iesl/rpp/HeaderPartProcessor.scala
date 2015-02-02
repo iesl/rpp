@@ -19,6 +19,8 @@ import cc.factorie.app.nlp.Token
 
 import scala.compat.Platform
 
+import paperheader.crf.LoadTSV
+
 object HeaderPartProcessor extends Processor {
   import Annotator._
 
@@ -101,7 +103,7 @@ object HeaderPartProcessor extends Processor {
 
 
     val docs = {
-      val ds = (new LoadTSV(false, separator)).fromSource(Source.fromString(str)).toIndexedSeq
+      val ds = (new LoadTSV(false)).fromSource(Source.fromString(str), separator).toIndexedSeq
       paperheader.process.DocProcessor(ds)
       ds.toIndexedSeq
     } 
