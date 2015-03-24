@@ -6,10 +6,11 @@ import edu.umass.cs.iesl.xml_annotator.Annotator
 import scala.compat.Platform
 import Annotator._
 import edu.umass.cs.iesl.bibie._
+import edu.umass.cs.iesl.paperheader.crf.HeaderTagger
 
 object Main {
 
-  def process(trainer: CitationCRFTrainer, headerTaggerModelFile: String, inFilePath: String): Annotator = {
+  def process(trainer: CitationCRFTrainer, headerTagger: HeaderTagger, inFilePath: String): Annotator = {
     val builder = new SAXBuilder()
     val dom = builder.build(new File(inFilePath)) 
 
@@ -19,7 +20,7 @@ object Main {
         ReferencePartProcessor(trainer), 
         CitationProcessor, 
         CitationReferenceLinkProcessor, 
-        HeaderPartProcessor(headerTaggerModelFile)
+        HeaderPartProcessor(headerTagger)
     )
 
     val annotator = l.foldLeft(Annotator(dom)) {
@@ -139,6 +140,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
+
     val referenceModelUri = args(0)
     val headerTaggerModelFile = args(1)
     val inFilePath = args(2)
@@ -147,7 +149,10 @@ object Main {
     val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
 
-    val annotator = process(trainer, headerTaggerModelFile, inFilePath).write(outFilePath)
+    val headerTagger = new HeaderTagger
+    headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
+
+    val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
 
   }
 

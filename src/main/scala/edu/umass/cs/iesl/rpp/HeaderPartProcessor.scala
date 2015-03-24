@@ -19,11 +19,8 @@ import cc.factorie.app.nlp.Token
 import scala.compat.Platform
 
 
-class HeaderPartProcessor(val model: String) extends Processor {
+class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
   import Annotator._
-
-  val headerTagger = new HeaderTagger
-  headerTagger.deSerialize(new java.io.FileInputStream(model))
 
   val headerInstitution = "header-institution"
   val headerAddress = "header-address"
@@ -227,5 +224,5 @@ class HeaderPartProcessor(val model: String) extends Processor {
 }
 
 object HeaderPartProcessor {
-  def apply(model: String): HeaderPartProcessor = new HeaderPartProcessor(model)
+  def apply(headerTagger: HeaderTagger): HeaderPartProcessor = new HeaderPartProcessor(headerTagger)
 }
