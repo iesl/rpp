@@ -1,9 +1,7 @@
 #!/bin/bash
 
-#!/bin/bash
-
-root="/Users/kate/research/citez/rpp"
-lexicons="file://$root/main/resources/lexicons"
+root=$1
+lexicons=$2
 citeCRF="file://$root/citationCRF.factorie"
 headerCRF="$root/headerCRF.factorie"
 inputDir="$root/input"
