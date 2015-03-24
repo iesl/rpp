@@ -6,7 +6,7 @@ Research Paper Processor
 Build and run Main from command line
 ------------------------------------
 ```bash
-  run.sh file:///lexicons/uri file:///reference/crf/model/uri \
+  run.sh file:///lexicons/uri file:///reference/crf/model/uri header/crf/model/path \
     input/pdf/file/path output/svg/file/path
 ```
 
@@ -29,7 +29,7 @@ Use from Scala
       ReferencePartProcessor("file:///your/reference/crf/model/uri"), 
       CitationProcessor, 
       CitationReferenceLinkProcessor, 
-      HeaderPartProcessor /* 
+      HeaderPartProcessor("your/header/crf/model") /* 
       * Depends on FACTORIE's lexicon files.
       * The files can be loaded from cli when you run your java/scala program: 
       * java -Dcc.factorie.app.nlp.lexicon.Lexicon="file:///your/lexicons/uri"
