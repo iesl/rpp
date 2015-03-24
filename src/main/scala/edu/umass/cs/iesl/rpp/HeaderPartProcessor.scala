@@ -95,13 +95,13 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
     val str = (headerSet.map { case (_, headerItemSeq) => {
       separator + "\n" + (headerItemSeq.map {
         case HeaderItem(_, token, x, y, fontSize) =>
-          token.string + "\t" + x + "\t" + y + "\t" + fontSize
+          token.string //+ "\t" + x + "\t" + y + "\t" + fontSize
       }).mkString("\n")
     }}).mkString("\n\n") + "\n\n" + separator
 
 
     val docs = {
-      val ds = (new LoadTSV(false)).fromSource(Source.fromString(str), separator).toIndexedSeq
+      val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str), separator).toIndexedSeq
 //      paperheader.process.DocProcessor(ds)
       ds.foreach(headerTagger.process)
       ds.toIndexedSeq
