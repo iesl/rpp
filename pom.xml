@@ -37,6 +37,31 @@
     </developer>
   </developers>
 
+  <repositories>
+    <repository>
+      <id>iesl.cs.umass.edu2</id>
+      <name>IESL repository</name>
+      <url>https://dev-iesl.cs.umass.edu/nexus/content/repositories/releases/</url>
+    </repository>
+
+    <repository>
+      <id>iesl.cs.umass.edu3</id>
+      <name>IESL repository</name>
+      <url>https://dev-iesl.cs.umass.edu/nexus/content/repositories/snapshots/</url>
+    </repository>
+
+    <repository>
+      <id>oss.sonatype.org-snapshot</id>
+      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>org.scala-lang</groupId>
@@ -68,6 +93,16 @@
       <artifactId>scalatest_${scala.majorVersion}</artifactId>
       <version>2.2.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>cc.factorie</groupId>
+      <artifactId>factorie_2.11</artifactId>
+      <version>1.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>cc.factorie.app.nlp</groupId>
+      <artifactId>all-models</artifactId>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 

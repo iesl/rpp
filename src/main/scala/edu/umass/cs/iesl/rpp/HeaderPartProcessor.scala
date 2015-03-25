@@ -7,8 +7,7 @@ import scala.io.Source
 
 import edu.umass.cs.iesl.paperheader
 
-import edu.umass.cs.iesl.paperheader.crf.BioHeaderTag
-import edu.umass.cs.iesl.paperheader.crf.LoadTSV
+import edu.umass.cs.iesl.paperheader.crf._
 
 import edu.umass.cs.iesl.xml_annotator.Annotator
 
@@ -17,17 +16,20 @@ import cc.factorie.app.nlp.segment.DeterministicTokenizer
 
 import cc.factorie.app.nlp.Token
 
-object HeaderPartProcessor extends Processor {
+import scala.compat.Platform
+
+
+class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
   import Annotator._
 
   val headerInstitution = "header-institution"
-  val headerAddress = "header-address" 
-  val headerTitle = "header-title" 
+  val headerAddress = "header-address"
+  val headerTitle = "header-title"
   val headerAuthor = "header-author"
-  val headerTech = "header-tech" 
-  val headerDate = "header-date" 
-  val headerNote = "header-note" 
-  val headerAbstract = "abstract" 
+  val headerTech = "header-tech"
+  val headerDate = "header-date"
+  val headerNote = "header-note"
+  val headerAbstract = "abstract"
   val headerEmail = "header-email"
 
   override def process(annotator: Annotator): Annotator =  {
@@ -56,7 +58,7 @@ object HeaderPartProcessor extends Processor {
         val textMap = annotator.getTextMap("header")(blockBIndex, charBIndex)
         val elementMap = annotator.getElements("header")(blockBIndex, charBIndex)
 
-        val indexPairMap = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet) 
+        val indexPairMap = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet)
 
         val headerItemSeq = {
           val text = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet)
@@ -88,33 +90,34 @@ object HeaderPartProcessor extends Processor {
     val indexPair2TokenLabelMap = headerSet.flatMap(_._1).toMap
 
     val annoWithTokens = annotator.annotate(List("header-token" -> 't'), Single(CharCon), indexPair2TokenLabelMap)
+    val separator = "{{-^--^-}}"
 
     val str = (headerSet.map { case (_, headerItemSeq) => {
-      "#\n" + (headerItemSeq.map {
+      separator + "\n" + (headerItemSeq.map {
         case HeaderItem(_, token, x, y, fontSize) =>
-          token.string + "\t" + x + "\t" + y + "\t" + fontSize
+          token.string //+ "\t" + x + "\t" + y + "\t" + fontSize
       }).mkString("\n")
-    }}).mkString("\n\n") + "\n\n#"
+    }}).mkString("\n\n") + "\n\n" + separator
+
 
     val docs = {
-      val ds = (new LoadTSV(false)).fromSource(Source.fromString(str)).toIndexedSeq
-      paperheader.process.DocProcessor(ds)
+      val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str), separator).toIndexedSeq
+//      paperheader.process.DocProcessor(ds)
+      ds.foreach(headerTagger.process)
       ds.toIndexedSeq
-    } 
-
+    }
 
     val typePairMap = HashMap(
-        "institution" -> ("header-institution", 'i'), 
-        "address" -> ("header-address", 'a'), 
-        "title" -> ("header-title", 't'), 
-        "author" -> ("header-author", 'a'),
-        "tech" -> ("header-tech", 't'), 
-        "date" -> ("header-date", 'd'), 
-        "note" -> ("header-note", 'n'), 
-        "abstract" -> ("abstract", 'b'), 
-        "email" -> ("header-email", 'e')
+      "institution" -> ("header-institution", 'i'),
+      "address" -> ("header-address", 'a'),
+      "title" -> ("header-title", 't'),
+      "author" -> ("header-author", 'a'),
+      "tech" -> ("header-tech", 't'),
+      "date" -> ("header-date", 'd'),
+      "note" -> ("header-note", 'n'),
+      "abstract" -> ("abstract", 'b'),
+      "email" -> ("header-email", 'e')
     )
-
 
     val headerSeq = headerSet.map(_._2).toIndexedSeq
 
@@ -153,12 +156,12 @@ object HeaderPartProcessor extends Processor {
     def replaceIWithB(list: List[(IISTrip, Label)]): List[(IISTrip, Label)] = {
       val name2Char = typePairMap.values.toMap
       def loop(
-          prevTypeString: String, 
-          lst: List[(IISTrip, Label)]
-      ): List[(IISTrip, Label)] = lst match {
+                prevTypeString: String,
+                lst: List[(IISTrip, Label)]
+                ): List[(IISTrip, Label)] = lst match {
 
         case Nil => List()
-        case x::xs => 
+        case x::xs =>
           val (xTypeString, xLabel) = x match { case ((_, _, typeString), label) => (typeString, label) }
           if (xLabel == I && xTypeString != prevTypeString) {
             val c = name2Char(xTypeString)
@@ -166,7 +169,7 @@ object HeaderPartProcessor extends Processor {
           } else {
             x::loop(xTypeString, xs)
           }
-      
+
       }
       loop("", list)
     }
@@ -175,15 +178,15 @@ object HeaderPartProcessor extends Processor {
     def replaceBIWithUL(list: List[(IISTrip, Label)]): List[(IISTrip, Label)] = {
 
       def loop(
-          nextLabelMap: StringLabelMap, 
-          reverseList: List[(IISTrip, Label)]
-      ): List[(IISTrip, Label)] = {
+                nextLabelMap: StringLabelMap,
+                reverseList: List[(IISTrip, Label)]
+                ): List[(IISTrip, Label)] = {
         reverseList match {
-          case Nil => 
+          case Nil =>
             List()
           case (triple, label)::xs =>
             val typeString = triple._3
-            val _nextLabelMap = nextLabelMap + (typeString -> label) 
+            val _nextLabelMap = nextLabelMap + (typeString -> label)
             val _label = (label, nextLabelMap(typeString)) match {
               case (I, B(_)) => L
               case (B(typeChar), B(_)) => U(typeChar)
@@ -214,9 +217,12 @@ object HeaderPartProcessor extends Processor {
             (blockIndex, charIndex) -> label
         }
 
-        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("header-token")), table) 
-    } 
+        anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("header-token")), table)
+    }
 
   }
+}
 
+object HeaderPartProcessor {
+  def apply(headerTagger: HeaderTagger): HeaderPartProcessor = new HeaderPartProcessor(headerTagger)
 }

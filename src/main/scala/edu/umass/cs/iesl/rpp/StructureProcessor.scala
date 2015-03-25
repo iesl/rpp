@@ -127,17 +127,16 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
   }
 
   def getBlockId(elem:Span):String = {
-    val realElem:Span = {
-      if (elem.isInstanceOf[CompositeSpan]) {
-        elem.asInstanceOf[CompositeSpan].getSpans(0).asInstanceOf[Span]
-      } else {
-        elem
-      }
+    val realElem:Span = elem match {
+      case e: CompositeSpan if e.getSpans.size > 0 =>
+        e.getSpans(0).asInstanceOf[Span]
+      case _ => elem
     }
 
-    val blockId = LayoutUtils
-      .getProperty(realElem.asInstanceOf[Span], "divElement")
-      .asInstanceOf[scala.Tuple2[Any,Any]]._1.toString.toInt
+    val blockId = LayoutUtils.getProperty(realElem.asInstanceOf[Span], "divElement") match {
+      case null => -1 
+      case (x, y) => x.toString.toInt
+    }
 
     val pageNum =  LayoutUtils.getProperty(realElem.asInstanceOf[Span], "pageNum")
 
