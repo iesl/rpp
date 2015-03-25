@@ -20,8 +20,18 @@ object BatchMain {
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
     val headerTagger = new HeaderTagger
     headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
+    var failCount = 0
+    var totalCount = 0
     inputFiles.zip(outputFiles).foreach({ case (input, output) =>
+      try {
         val annotator = Main.process(trainer, headerTagger, input).write(output)
+      } catch {
+        case e: Exception =>
+          println(s"failed to process file: $input")
+          failCount += 1
+      }
+      totalCount += 1
     })
+    println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
   }
 }
