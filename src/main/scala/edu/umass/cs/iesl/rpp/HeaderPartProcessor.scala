@@ -136,6 +136,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         val toks = doc.sections.flatMap(_.tokens)
         assert(typeLabelList.length > 0, "empty TypeLabelList")
         assert(typeLabelList.length == toks.length, "TLL != toks.length")
+        assert(typeLabelList.length == indexPairMap.length, "TLL != indexPairMap.length")
 
         typeLabelList.toList.zipWithIndex.flatMap {
           case (typeLabel, lsIdx) =>
