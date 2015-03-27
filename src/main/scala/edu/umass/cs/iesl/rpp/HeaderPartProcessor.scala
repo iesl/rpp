@@ -133,6 +133,9 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         val headerItemSeq = headerSeq(docIdx)
         val indexPairMap = headerItemSeq.map(_.indexPair)
         val typeLabelList = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue)
+        val toks = doc.sections.flatMap(_.tokens)
+        assert(typeLabelList.length > 0, "empty TypeLabelList")
+        assert(typeLabelList.length == toks.length, "TLL != toks.length")
 
         typeLabelList.toList.zipWithIndex.flatMap {
           case (typeLabel, lsIdx) =>
