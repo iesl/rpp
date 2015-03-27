@@ -51,6 +51,8 @@ object BatchMain {
           }
         }
       })
+      println("annotations:")
+      for (annoList <- annotationList; anno <- annoList) println(anno)
     }
 
     /*
