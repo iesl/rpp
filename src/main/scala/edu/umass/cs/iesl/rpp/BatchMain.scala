@@ -39,6 +39,7 @@ object BatchMain {
       } catch {
         case e: Exception =>
           println(s"failed to process file: $input")
+          e.printStackTrace()
           failCount += 1
       }
       totalCount += 1
