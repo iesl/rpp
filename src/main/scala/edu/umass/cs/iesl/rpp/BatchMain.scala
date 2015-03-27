@@ -34,7 +34,7 @@ object BatchMain {
 //        authorLists.foreach(al => println(al.mkString(" ")))
 //        val headerTokenLists = Main.getHeaderTokens(annotator)
 //        headerTokenLists.foreach(hl => println(hl.mkString(" ")))
-        
+
         annotator.write(output)
       } catch {
         case e: Exception =>

@@ -101,15 +101,16 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
 
     val docs = {
+      println(s"HeaderPartProcessor: str=$str")
       val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str), separator).toIndexedSeq
-//      paperheader.process.DocProcessor(ds)
+      assert(ds.length > 0, "HeaderPartProcessor: failed to LoadTSV any docs")
+      println(s"HeaderPartProcessor: Loaded ${ds.length}")
       ds.foreach(headerTagger.process)
-      if (ds.length > 0) {
-        println("HPP: got annotations for doc:")
-        ds.head.sections.flatMap(_.tokens).foreach(token => println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}"))
-      } else {
-        println("EMPTY DS")
-      }
+      println("HeaderPartProcessor: got annotations:")
+      ds.head.sections.flatMap(_.tokens).foreach(token => println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}"))
+
+//      paperheader.process.DocProcessor(ds)
+
       ds.toIndexedSeq
     }
 
