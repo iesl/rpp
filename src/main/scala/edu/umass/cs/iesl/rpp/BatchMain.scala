@@ -28,7 +28,9 @@ object BatchMain {
     inputFiles.zip(outputFiles).take(5).foreach({ case (input, output) =>
       try {
         val annotator = Main.process(trainer, headerTagger, input)//.write(output)
-        annotators += annotator
+        val annots = Main.getAllAnnotations(annotator)
+        annots.foreach{case (u, v) => println(List(u, v).mkString(" "))}
+//        annotators += annotator
         annotator.write(output)
       } catch {
         case e: Exception =>
@@ -38,34 +40,34 @@ object BatchMain {
       totalCount += 1
     })
 
-    val tags = Set("institution", "address", "title", "author", "tech", "date", "note", "email").map("header-" + _) ++ Set("abstract")
-    for (annotator <- annotators; tag <- tags) {
-      import Annotator._
-      val pairSet = annotator.getBIndexPairSet(Single(SegmentCon(tag)))
-      val annotationList: List[List[String]] = pairSet.toList.map(pair => {
-        val (blockIdx, charIdx) = pair
-        val seg = annotator.getSegment(tag)(blockIdx, charIdx)
-        seg.toList.flatMap{ case (bi, labelMap) =>
-          labelMap.map{ case (ci, label) =>
-            annotator.getTextMap("header-token")(bi, ci).values.map(_._2).mkString("")
-          }
-        }
-      })
-      println("annotations:")
-      for (annoList <- annotationList; anno <- annoList) println(anno)
-    }
-
-    /*
-      val headerInstitution = "header-institution"
-  val headerAddress = "header-address"
-  val headerTitle = "header-title"
-  val headerAuthor = "header-author"
-  val headerTech = "header-tech"
-  val headerDate = "header-date"
-  val headerNote = "header-note"
-  val headerAbstract = "abstract"
-  val headerEmail = "header-email"
-     */
+//    val tags = Set("institution", "address", "title", "author", "tech", "date", "note", "email").map("header-" + _) ++ Set("abstract")
+//    for (annotator <- annotators; tag <- tags) {
+//      import Annotator._
+//      val pairSet = annotator.getBIndexPairSet(Single(SegmentCon(tag)))
+//      val annotationList: List[List[String]] = pairSet.toList.map(pair => {
+//        val (blockIdx, charIdx) = pair
+//        val seg = annotator.getSegment(tag)(blockIdx, charIdx)
+//        seg.toList.flatMap{ case (bi, labelMap) =>
+//          labelMap.map{ case (ci, label) =>
+//            annotator.getTextMap("header-token")(bi, ci).values.map(_._2).mkString("")
+//          }
+//        }
+//      })
+//      println("annotations:")
+//      for (annoList <- annotationList; anno <- annoList) println(anno)
+//    }
+//
+//    /*
+//      val headerInstitution = "header-institution"
+//  val headerAddress = "header-address"
+//  val headerTitle = "header-title"
+//  val headerAuthor = "header-author"
+//  val headerTech = "header-tech"
+//  val headerDate = "header-date"
+//  val headerNote = "header-note"
+//  val headerAbstract = "abstract"
+//  val headerEmail = "header-email"
+//     */
     println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
   }
 }
