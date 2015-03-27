@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
   "org.jdom" % "jdom2" % "2.0.5",
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
-  "cc.factorie" % "factorie_2.11" % "1.1",
+  "cc.factorie" % "factorie_2.11" % "1.2-SNAPSHOT",
   "dom4j" % "dom4j" % "1.6.1",
   "jaxen" % "jaxen" % "1.1.6",
   "edu.umass.cs.iesl.xml_annotator" % "xml_annotator" % "0.1-SNAPSHOT",
