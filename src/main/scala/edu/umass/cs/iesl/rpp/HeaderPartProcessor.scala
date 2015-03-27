@@ -104,6 +104,10 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
       val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str), separator).toIndexedSeq
 //      paperheader.process.DocProcessor(ds)
       ds.foreach(headerTagger.process)
+      if (ds.length > 0) {
+        println("HPP: got annotations for doc:")
+        ds.head.sections.flatMap(_.tokens).foreach(token => println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}"))
+      }
       ds.toIndexedSeq
     }
 

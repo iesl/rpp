@@ -12,20 +12,20 @@ object Main {
 
   def process(trainer: CitationCRFTrainer, headerTagger: HeaderTagger, inFilePath: String): Annotator = {
     val builder = new SAXBuilder()
-    val dom = builder.build(new File(inFilePath)) 
+    val dom = builder.build(new File(inFilePath))
 
     val l = List(
-        LineProcessor, 
-        StructureProcessor, 
-        ReferencePartProcessor(trainer), 
-        CitationProcessor, 
-        CitationReferenceLinkProcessor, 
-        HeaderPartProcessor(headerTagger)
+      LineProcessor,
+      StructureProcessor,
+      ReferencePartProcessor(trainer),
+      CitationProcessor,
+      CitationReferenceLinkProcessor,
+      HeaderPartProcessor(headerTagger)
     )
 
     val annotator = l.foldLeft(Annotator(dom)) {
       case (annoAcc, pro) => pro.process(annoAcc)
-    } 
+    }
 
     annotator
   }
@@ -62,10 +62,23 @@ object Main {
       val bibMarkerIndexPair = bibMarkIndexPairSeq(bibMarkerIndex)
 
       val refString = mkTextWithBreaks(annotator.getTextMap("biblio-marker")(bibMarkerIndexPair._1, bibMarkerIndexPair._2), lineBIndexPairSet, '\n')
-      
+
       (citString, refString)
 
     }).toSeq
+  }
+
+  def getHeaderTokens(annotator: Annotator): Seq[Seq[String]] = {
+    val headerTokenBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("header-token")))
+    headerTokenBIndexPairSet.toList.map(pair => {
+      val (blockIdx, charIdx) = pair
+      val seg = annotator.getSegment("header-token")(blockIdx, charIdx)
+      seg.toList.flatMap{ case (bi, labelMap) =>
+        labelMap.map{ case (ci, label) =>
+          annotator.getTextMap("header-token")(bi, ci).values.map(_._2).mkString("")
+        }
+      }
+    })
   }
 
   def getAuthorNames(annotator: Annotator): Seq[Seq[String]] = {
@@ -73,9 +86,9 @@ object Main {
 
     authorBIndexPairSet.toList.map(bIndexPair => {
       val (blockIndex, charIndex) = bIndexPair
-      val authorSegment = annotator.getSegment("header-author")(blockIndex, charIndex) 
+      val authorSegment = annotator.getSegment("header-author")(blockIndex, charIndex)
       authorSegment.toList.flatMap { case (bi, labelMap) =>
-        labelMap.map { case (ci, label) => 
+        labelMap.map { case (ci, label) =>
           annotator.getTextMap("header-token")(bi, ci).values.map(_._2).mkString("")
         }
       }
@@ -88,7 +101,7 @@ object Main {
     val authorTokenBIndexPairSet = annotator.getBIndexPairSet(Range("header-author", SegmentCon("header-token")))
 
     authorTokenBIndexPairSet.foldLeft(List.empty[List[String]])((listAcc, tokenIndexPair) => {
-      val (bi, ci) = tokenIndexPair 
+      val (bi, ci) = tokenIndexPair
       val authorToken: String = annotator.getTextMap("header-token")(bi, ci).values.map(_._2).mkString("")
       if (authorBIndexPairSet.contains(tokenIndexPair)) {
         List(authorToken) :: listAcc
