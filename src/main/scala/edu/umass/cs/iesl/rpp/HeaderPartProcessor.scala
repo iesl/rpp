@@ -107,6 +107,8 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
       if (ds.length > 0) {
         println("HPP: got annotations for doc:")
         ds.head.sections.flatMap(_.tokens).foreach(token => println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}"))
+      } else {
+        println("EMPTY DS")
       }
       ds.toIndexedSeq
     }

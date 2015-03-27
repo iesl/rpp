@@ -30,10 +30,10 @@ object BatchMain {
         val annotator = Main.process(trainer, headerTagger, input)//.write(output)
 //        val annots = Main.getAllAnnotations(annotator)
 //        annots.foreach{case (u, v) => println(List(u, v).mkString(" "))}
-        val authorLists = Main.getAuthorNames2(annotator)
-        authorLists.foreach(al => println(al.mkString(" ")))
-        val headerTokenLists = Main.getHeaderTokens(annotator)
-        headerTokenLists.foreach(hl => println(hl.mkString(" ")))
+//        val authorLists = Main.getAuthorNames2(annotator)
+//        authorLists.foreach(al => println(al.mkString(" ")))
+//        val headerTokenLists = Main.getHeaderTokens(annotator)
+//        headerTokenLists.foreach(hl => println(hl.mkString(" ")))
         
         annotator.write(output)
       } catch {
