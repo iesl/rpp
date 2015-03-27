@@ -8,7 +8,7 @@ scalaVersion := "2.11.4"
 
 resolvers ++= Seq(
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-  "IESL repository" at "https://dev-iesl.cs.umass.edu/nexus/content/repositories/releases/",
+//  "IESL repository" at "https://dev-iesl.cs.umass.edu/nexus/content/repositories/releases/",
   "IESL snapshot repository" at "https://dev-iesl.cs.umass.edu/nexus/content/repositories/snapshots/"
 )
 
