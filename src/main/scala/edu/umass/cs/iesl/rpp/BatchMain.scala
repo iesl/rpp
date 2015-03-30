@@ -29,8 +29,16 @@ object BatchMain {
     inputFiles.zip(outputFiles).take(5).foreach({ case (input, output) =>
       try {
         val annotator = Main.process(trainer, headerTagger, input)//.write(output)
-        val annots = tags.flatMap(t => Main.getAnnotationsByTag(annotator, t))
-        annots.foreach(ann => println(ann.mkString(", ")))
+        for (tag <- tags) {
+          val annots = Main.getAnnotationsByTag(annotator, tag)
+          for (annot <- annots) {
+            for (t <- annot) {
+              println(s"$tag\t$t")
+            }
+          }
+        }
+//        val annots = tags.flatMap(t => Main.getAnnotationsByTag(annotator, t))
+//        annots.foreach(ann => println(ann.mkString(", ")))
 //        val annots = Main.getAllAnnotations(annotator)
 //        annots.foreach{case (u, v) => println(List(u, v).mkString(" "))}
 //        val authorLists = Main.getAuthorNames2(annotator)
