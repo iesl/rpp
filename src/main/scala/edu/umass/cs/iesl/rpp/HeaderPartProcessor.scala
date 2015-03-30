@@ -114,13 +114,13 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
     val docs: IndexedSeq[Document] = {
       //      println(s"HeaderPartProcessor: str=$str")
       val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str), separator).toIndexedSeq
-      assert(ds.length > 0, "HeaderPartProcessor: failed to LoadTSV any docs")
-      println(s"HeaderPartProcessor: Loaded ${ds.length}")
-      ds.foreach(headerTagger.process)
-      println("HeaderPartProcessor: got annotations:")
-      ds.head.sections.flatMap(_.tokens).foreach(token => println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}"))
-
-      //      paperheader.process.DocProcessor(ds)
+//      assert(ds.length > 0, "HeaderPartProcessor: failed to LoadTSV any docs")
+//      println(s"HeaderPartProcessor: Loaded ${ds.length}")
+//      ds.foreach(headerTagger.process)
+//      println("HeaderPartProcessor: got annotations:")
+//      ds.head.sections.flatMap(_.tokens).foreach(token => println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}"))
+//
+//      //      paperheader.process.DocProcessor(ds)
 
       ds.toIndexedSeq
     }
@@ -144,18 +144,12 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         val headerItemSeq: IndexedSeq[HeaderItem] = headerSeq(docIdx)
         val indexPairMap: IndexedSeq[(Int, Int)] = headerItemSeq.map(_.indexPair)
         val typeLabelList = headerItemSeq.map(_.token).map(_.attr[BioHeaderTag].categoryValue)
-//        val typeLabelList: IndexedSeq[String] = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue).toIndexedSeq
-//        val tokenIndexes = doc.sections.flatMap(_.tokens).map(_.position)
-        println(s"indexPairMap len: ${indexPairMap.length}") //1474
-        println(s"typeLabelList len: ${typeLabelList.length}") //1476
-
-        val labeledTriples: IndexedSeq[((Int, Int, String), Label)] = typeLabelList.zipWithIndex.flatMap {
-//        val labeledTriples = typeLabelList.zip(tokenIndexes).flatMap {
+        typeLabelList.zipWithIndex.flatMap {
           case (typeLabel, tokenIndex) =>
             val (bIndex, cIndex) = indexPairMap(tokenIndex)
             val labelString = typeLabel.take(1)
             val typeKey = typeLabel.drop(2)
-            val labeled: Option[((Int, Int, String), Label)] = typePairMap.get(typeKey).map {
+            typePairMap.get(typeKey).map {
               case (typeString, typeChar) =>
                 (bIndex, cIndex, typeString) -> (labelString match {
                   case "B" => B(typeChar)
@@ -163,9 +157,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
                   case "O" => O
                 })
             }
-            labeled
         }
-        labeledTriples
     } toList
 
     type IISTrip = (Int, Int, String)
