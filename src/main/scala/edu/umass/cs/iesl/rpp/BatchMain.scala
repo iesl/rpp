@@ -10,7 +10,6 @@ import scala.collection.mutable.ArrayBuffer
  */
 object BatchMain {
   def main(args: Array[String]): Unit = {
-    import Annotator._
     import java.io.File
     val referenceModelUri = args(0)
     val headerTaggerModelFile = args(1)
@@ -26,23 +25,11 @@ object BatchMain {
     var totalCount = 0
     val annotators = new ArrayBuffer[Annotator]()
     val tags = Set("institution", "address", "title", "author", "tech", "date", "note", "email").map("header-" + _) ++ Set("abstract")
-    def getAnnotationsByTag(annotator: Annotator, tag: String): List[List[String]] = {
-      val tagBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(tag)))
-      val tagTokenBIndexPairSet = annotator.getBIndexPairSet(Range(tag, SegmentCon("header-token")))
-      tagTokenBIndexPairSet.foldLeft(List.empty[List[String]])((listAcc, tokenIndexPair) => {
-        val (bi, ci) = tokenIndexPair
-        val tagToken: String = annotator.getTextMap("header-token")(bi, ci).values.map(_._2).mkString("")
-        if (tagBIndexPairSet.contains(tokenIndexPair)) {
-          List(tagToken) :: listAcc
-        } else {
-          (tagToken :: listAcc.head) :: listAcc.tail
-        }
-      }).reverse.map(_.reverse)
-    }
+
     inputFiles.zip(outputFiles).take(5).foreach({ case (input, output) =>
       try {
         val annotator = Main.process(trainer, headerTagger, input)//.write(output)
-        val annots = tags.flatMap(t => getAnnotationsByTag(annotator, t))
+        val annots = tags.flatMap(t => Main.getAnnotationsByTag(annotator, t))
         annots.foreach(ann => println(ann.mkString(", ")))
 //        val annots = Main.getAllAnnotations(annotator)
 //        annots.foreach{case (u, v) => println(List(u, v).mkString(" "))}

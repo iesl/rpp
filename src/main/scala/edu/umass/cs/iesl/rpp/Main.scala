@@ -152,6 +152,20 @@ object Main {
     } toSeq
   }
 
+  def getAnnotationsByTag(annotator: Annotator, tag: String): List[List[String]] = {
+    val tagBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(tag)))
+    val tagTokenBIndexPairSet = annotator.getBIndexPairSet(Range(tag, SegmentCon("header-token")))
+    tagTokenBIndexPairSet.foldLeft(List.empty[List[String]])((listAcc, tokenIndexPair) => {
+      val (bi, ci) = tokenIndexPair
+      val tagToken: String = annotator.getTextMap("header-token")(bi, ci).values.map(_._2).mkString("")
+      if (tagBIndexPairSet.contains(tokenIndexPair)) {
+        List(tagToken) :: listAcc
+      } else {
+        (tagToken :: listAcc.head) :: listAcc.tail
+      }
+    }).reverse.map(_.reverse)
+  }
+
   def main(args: Array[String]): Unit = {
 
     val referenceModelUri = args(0)
