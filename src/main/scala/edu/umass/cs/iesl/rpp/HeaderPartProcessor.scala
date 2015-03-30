@@ -38,11 +38,6 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
     case class HeaderItem(indexPair: (Int, Int), token: Token, x: Int, y: Int, fontSize: Int)
 
-    /**
-     * Map a token to a BILU IntMap of token characters e.g. "cat" -> Map('c' -> 'B', 'a' -> 'I', 't' -> 'U')
-     * @param token
-     * @return BILU IntMap of token characters
-     */
     def token2LabelMap(token: Token): IntMap[Label] = {
       if (token.stringStart + 1 == token.stringEnd) {
         IntMap(token.stringStart -> U('t'))
