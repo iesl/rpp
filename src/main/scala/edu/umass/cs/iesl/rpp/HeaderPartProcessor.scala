@@ -145,6 +145,8 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         val typeLabelList: IndexedSeq[String] = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue).toIndexedSeq
         val tokenIndexes = doc.sections.flatMap(_.tokens).map(_.position)
 //        val labeledTriples: IndexedSeq[((Int, Int, String), Label)] = typeLabelList.zipWithIndex.flatMap {
+        println(s"indexPairMap len: ${indexPairMap.length}")
+        println(s"tokenIndex len: ${tokenIndexes.length}")
         val labeledTriples = typeLabelList.zip(tokenIndexes).flatMap {
           case (typeLabel, tokenIndex) =>
             val (bIndex, cIndex) = indexPairMap(tokenIndex)
