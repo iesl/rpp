@@ -1,8 +1,10 @@
 package edu.umass.cs.iesl.rpp
 
+import org.jdom2.Element
+
 import scala.collection.immutable.HashMap
 
-import scala.collection.immutable.IntMap
+import scala.collection.immutable.{IntMap, SortedSet}
 import scala.io.Source
 
 import edu.umass.cs.iesl.paperheader
@@ -36,6 +38,11 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
     case class HeaderItem(indexPair: (Int, Int), token: Token, x: Int, y: Int, fontSize: Int)
 
+    /**
+     * Map a token to a BILU IntMap of token characters e.g. "cat" -> Map('c' -> 'B', 'a' -> 'I', 't' -> 'U')
+     * @param token
+     * @return BILU IntMap of token characters
+     */
     def token2LabelMap(token: Token): IntMap[Label] = {
       if (token.stringStart + 1 == token.stringEnd) {
         IntMap(token.stringStart -> U('t'))
@@ -46,22 +53,24 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
       }
     }
 
-    val rootElement = annotator.getDom().getRootElement()
+    // "root" of the XML file
+    val rootElement = annotator.getDom().getRootElement
 
     //create index from (section idx) -> (bIndex, cIndex)
-    val headerBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("header")))
-    val lineBIndexPairSet = annotator.getBIndexPairSet(Range("header", SegmentCon("line")))
+    val headerBIndexPairSet: SortedSet[(Int, Int)] = annotator.getBIndexPairSet(Single(SegmentCon("header")))
+    val lineBIndexPairSet: SortedSet[(Int, Int)] = annotator.getBIndexPairSet(Range("header", SegmentCon("line")))
 
-    val headerSet = headerBIndexPairSet.map {
+    //: (Map[(Int, Int), Label], IndexedSeq[HeaderItem])
+    val headerSet: Set[(Map[(Int, Int), Label], IndexedSeq[HeaderItem])] = headerBIndexPairSet.map {
 
       case (blockBIndex, charBIndex) =>
-        val textMap = annotator.getTextMap("header")(blockBIndex, charBIndex)
-        val elementMap = annotator.getElements("header")(blockBIndex, charBIndex)
+        val textMap: IntMap[(Int, String)] = annotator.getTextMap("header")(blockBIndex, charBIndex)
+        val elementMap: IntMap[Element] = annotator.getElements("header")(blockBIndex, charBIndex)
 
-        val indexPairMap = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet)
+        val indexPairMap: IntMap[(Int, Int)] = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet)
 
-        val headerItemSeq = {
-          val text = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet)
+        val headerItemSeq: IndexedSeq[HeaderItem] = {
+          val text: String = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet)
           val d = new Document(text)
           DeterministicTokenizer.process(d)
           d.tokens.map(token => {
@@ -78,7 +87,8 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
           }).toIndexedSeq
         }
 
-        val indexPair2TokenLabelMap = headerItemSeq.flatMap(hi => token2LabelMap(hi.token)).map {
+        val indexPair2TokenLabelMap: Map[(Int, Int), Label] = headerItemSeq.flatMap(hi =>
+          token2LabelMap(hi.token)).map {
           case (i, label) => indexPairMap(i) -> label
         } toMap
 
@@ -87,12 +97,12 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
     }
 
 
-    val indexPair2TokenLabelMap = headerSet.flatMap(_._1).toMap
+    val indexPair2TokenLabelMap: Map[(Int, Int), Label] = headerSet.flatMap(_._1).toMap
 
-    val annoWithTokens = annotator.annotate(List("header-token" -> 't'), Single(CharCon), indexPair2TokenLabelMap)
+    val annoWithTokens: Annotator = annotator.annotate(List("header-token" -> 't'), Single(CharCon), indexPair2TokenLabelMap)
     val separator = "{{-^--^-}}"
 
-    val str = (headerSet.map { case (_, headerItemSeq) => {
+    val str: String = (headerSet.map { case (_, headerItemSeq) => {
       separator + "\n" + (headerItemSeq.map {
         case HeaderItem(_, token, x, y, fontSize) =>
           token.string //+ "\t" + x + "\t" + y + "\t" + fontSize
@@ -100,8 +110,8 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
     }}).mkString("\n\n") + "\n\n" + separator
 
 
-    val docs = {
-//      println(s"HeaderPartProcessor: str=$str")
+    val docs: IndexedSeq[Document] = {
+      //      println(s"HeaderPartProcessor: str=$str")
       val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str), separator).toIndexedSeq
       assert(ds.length > 0, "HeaderPartProcessor: failed to LoadTSV any docs")
       println(s"HeaderPartProcessor: Loaded ${ds.length}")
@@ -109,12 +119,12 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
       println("HeaderPartProcessor: got annotations:")
       ds.head.sections.flatMap(_.tokens).foreach(token => println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}"))
 
-//      paperheader.process.DocProcessor(ds)
+      //      paperheader.process.DocProcessor(ds)
 
       ds.toIndexedSeq
     }
 
-    val typePairMap = HashMap(
+    val typePairMap: HashMap[String, (String, Char)] = HashMap(
       "institution" -> ("header-institution", 'i'),
       "address" -> ("header-address", 'a'),
       "title" -> ("header-title", 't'),
@@ -126,39 +136,39 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
       "email" -> ("header-email", 'e')
     )
 
-    val headerSeq = headerSet.map(_._2).toIndexedSeq
+    val headerSeq: IndexedSeq[IndexedSeq[HeaderItem]] = headerSet.map(_._2).toIndexedSeq
 
-    val indexTypeTriple2LabelList = docs.zipWithIndex.flatMap {
+    val indexTypeTriple2LabelList: List[((Int, Int, String), Label)] = docs.zipWithIndex.flatMap {
       case (doc, docIdx) =>
-        val headerItemSeq = headerSeq(docIdx)
-        val indexPairMap = headerItemSeq.map(_.indexPair)
-        val typeLabelList = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue)
-        val toks = doc.sections.flatMap(_.tokens)
-        assert(typeLabelList.length > 0, "empty TypeLabelList")
-        assert(typeLabelList.length == toks.length, "TLL != toks.length")
-        assert(typeLabelList.length == indexPairMap.length, "TLL != indexPairMap.length")
+        val headerItemSeq: IndexedSeq[HeaderItem] = headerSeq(docIdx)
+        val indexPairMap: IndexedSeq[(Int, Int)] = headerItemSeq.map(_.indexPair)
+//        val typeLabelList: IndexedSeq[String] = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue).toIndexedSeq
+        val typeLabelList: IndexedSeq[String] = headerItemSeq.map(_.token).map(_.attr[BioHeaderTag].categoryValue).toIndexedSeq
 
-        typeLabelList.toList.zipWithIndex.flatMap {
-          case (typeLabel, lsIdx) =>
-            val (bIndex, cIndex) = indexPairMap(lsIdx)
-            val labelString = typeLabel.take(1)
-            val typeKey = typeLabel.drop(2)
-
-            typePairMap.get(typeKey).map(typePair => {
-
-              val typeString =  typePair._1
-              val typeChar = typePair._2
-
-              (bIndex, cIndex, typeString) -> (labelString match {
-                case "B" => B(typeChar)
-                case "I" => I
-                case "O" => O
-              })
-
-            })
-
-
+        val labeledTriples: IndexedSeq[((Int, Int, String), Label)] = typeLabelList.zipWithIndex.flatMap {
+          case (typeLabel, tokenIndex) =>
+            var withLabels: Option[((Int, Int, String), Label)] = null
+            try {
+              val (bIndex, cIndex) = indexPairMap(tokenIndex)
+              val labelString = typeLabel.take(1)
+              val typeKey = typeLabel.drop(2)
+              val labeled: Option[((Int, Int, String), Label)] = typePairMap.get(typeKey).map {
+                case (typeString, typeChar) =>
+                  (bIndex, cIndex, typeString) -> (labelString match {
+                    case "B" => B(typeChar)
+                    case "I" => I
+                    case "O" => O
+                  })
+              }
+              withLabels = labeled
+            } catch {
+              case e: Exception =>
+                e.printStackTrace()
+                withLabels = Some(((-1, -1, ""), O))
+            }
+            withLabels
         }
+        labeledTriples
     } toList
 
     type IISTrip = (Int, Int, String)
