@@ -145,26 +145,18 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         val typeLabelList: IndexedSeq[String] = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue).toIndexedSeq
         val labeledTriples: IndexedSeq[((Int, Int, String), Label)] = typeLabelList.zipWithIndex.flatMap {
           case (typeLabel, tokenIndex) =>
-            var withLabels: Option[((Int, Int, String), Label)] = null
-            try {
-              val (bIndex, cIndex) = indexPairMap(tokenIndex)
-              val labelString = typeLabel.take(1)
-              val typeKey = typeLabel.drop(2)
-              val labeled: Option[((Int, Int, String), Label)] = typePairMap.get(typeKey).map {
-                case (typeString, typeChar) =>
-                  (bIndex, cIndex, typeString) -> (labelString match {
-                    case "B" => B(typeChar)
-                    case "I" => I
-                    case "O" => O
-                  })
-              }
-              withLabels = labeled
-            } catch {
-              case e: Exception =>
-                e.printStackTrace()
-                withLabels = Some(((-1, -1, ""), O))
+            val (bIndex, cIndex) = indexPairMap(tokenIndex)
+            val labelString = typeLabel.take(1)
+            val typeKey = typeLabel.drop(2)
+            val labeled: Option[((Int, Int, String), Label)] = typePairMap.get(typeKey).map {
+              case (typeString, typeChar) =>
+                (bIndex, cIndex, typeString) -> (labelString match {
+                  case "B" => B(typeChar)
+                  case "I" => I
+                  case "O" => O
+                })
             }
-            withLabels
+            labeled
         }
         labeledTriples
     } toList
