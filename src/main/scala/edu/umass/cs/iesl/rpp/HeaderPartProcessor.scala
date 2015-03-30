@@ -73,6 +73,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
           val text: String = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet)
           val d = new Document(text)
           DeterministicTokenizer.process(d)
+          headerTagger.process(d)
           d.tokens.map(token => {
             val indexPair = indexPairMap(token.stringStart)
             val e = elementMap(indexPair._1)
@@ -142,12 +143,14 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
       case (doc, docIdx) =>
         val headerItemSeq: IndexedSeq[HeaderItem] = headerSeq(docIdx)
         val indexPairMap: IndexedSeq[(Int, Int)] = headerItemSeq.map(_.indexPair)
-        val typeLabelList: IndexedSeq[String] = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue).toIndexedSeq
-        val tokenIndexes = doc.sections.flatMap(_.tokens).map(_.position)
-//        val labeledTriples: IndexedSeq[((Int, Int, String), Label)] = typeLabelList.zipWithIndex.flatMap {
-        println(s"indexPairMap len: ${indexPairMap.length}")
-        println(s"tokenIndex len: ${tokenIndexes.length}")
-        val labeledTriples = typeLabelList.zip(tokenIndexes).flatMap {
+        val typeLabelList = headerItemSeq.map(_.token).map(_.attr[BioHeaderTag].categoryValue)
+//        val typeLabelList: IndexedSeq[String] = doc.sections.flatMap(_.tokens).map(_.attr[BioHeaderTag].categoryValue).toIndexedSeq
+//        val tokenIndexes = doc.sections.flatMap(_.tokens).map(_.position)
+        println(s"indexPairMap len: ${indexPairMap.length}") //1474
+        println(s"typeLabelList len: ${typeLabelList.length}") //1476
+
+        val labeledTriples: IndexedSeq[((Int, Int, String), Label)] = typeLabelList.zipWithIndex.flatMap {
+//        val labeledTriples = typeLabelList.zip(tokenIndexes).flatMap {
           case (typeLabel, tokenIndex) =>
             val (bIndex, cIndex) = indexPairMap(tokenIndex)
             val labelString = typeLabel.take(1)
