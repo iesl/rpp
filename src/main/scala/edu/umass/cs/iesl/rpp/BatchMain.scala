@@ -47,9 +47,18 @@ object BatchMain {
         val headerTags = allTypes.filter(t => t.startsWith("header-") || t == "abstract").filter(t => t != "header-token" && t != "header")
         val refTags = allTypes.filter(t => t.startsWith("ref-"))
         val headerAnnots: Seq[(String, List[List[String]])] = headerTags.map(t => (t, Main.getHeaderAnnotationsByTag(annotator, t)))
+        val refAnnots: Seq[(String, List[List[String]])] = refTags.map(t => (t, Main.getCitationAnnotationsByTag(annotator, t)))
         val doc = new ArrayBuffer[String]()
         doc += "<document>"
+        // TODO sometimes outputs multiple copies of same annot string?
         headerAnnots.foreach {
+          case (tag, annots) => annots.foreach(a => {
+            println(s"$tag\t${a.mkString("|")}")
+            val xml = s"<$tag>${a.mkString(" ")}</$tag>"
+            doc += xml
+          })
+        }
+        refAnnots.foreach {
           case (tag, annots) => annots.foreach(a => {
             println(s"$tag\t${a.mkString("|")}")
             val xml = s"<$tag>${a.mkString(" ")}</$tag>"
