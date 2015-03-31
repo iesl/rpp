@@ -100,24 +100,29 @@ object Main {
     }).reverse.map(_.reverse)
   }
 
+
+
   def getAnnotatedReferences(annotator: Annotator): List[List[(String, String)]] = {
     val refTags = getAllAnnotationTypes(annotator).filter(t => t.startsWith("ref-"))
     val refTokenBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("reference-token")))
     val refs = new scala.collection.mutable.ArrayBuffer[List[(String, String)]]()
-    refTokenBIndexPairSet.foreach(tokenIndexPair => {
-      refs += getAnnotationsForReference(annotator, tokenIndexPair)
-//      val thisRef = new scala.collection.mutable.ArrayBuffer[(String, String)]()
-//      val (bi, ci) = tokenIndexPair
-//      refTags.foreach(tag => {
-//        val tagBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(tag)))
-//        val tagToken: String = annotator.getTextMap("reference-token")(bi, ci).values.map(_._2).mkString("")
-//        if (tagBIndexPairSet.contains(tokenIndexPair)) {
-//          val pair: (String, String) = (tag, tagToken)
-//          thisRef += pair
-//        }
-//      })
-//      refs += thisRef.toList
-    })
+    val refTitles: List[(String, String)] = refTokenBIndexPairSet.map(pair => getRefTitleInSpan(annotator, pair)).toList
+    val refTitle = List(("ref-title", refTitles.map(_._2).mkString(" ")))
+    refs += refTitle
+//    refTokenBIndexPairSet.foreach(tokenIndexPair => {
+//      refs += getAnnotationsForReference(annotator, tokenIndexPair)
+////      val thisRef = new scala.collection.mutable.ArrayBuffer[(String, String)]()
+////      val (bi, ci) = tokenIndexPair
+////      refTags.foreach(tag => {
+////        val tagBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(tag)))
+////        val tagToken: String = annotator.getTextMap("reference-token")(bi, ci).values.map(_._2).mkString("")
+////        if (tagBIndexPairSet.contains(tokenIndexPair)) {
+////          val pair: (String, String) = (tag, tagToken)
+////          thisRef += pair
+////        }
+////      })
+////      refs += thisRef.toList
+//    })
     refs.toList
   }
 
