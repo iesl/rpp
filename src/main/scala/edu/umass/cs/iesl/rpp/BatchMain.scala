@@ -51,6 +51,7 @@ object BatchMain {
         doc += "<document>"
         headerAnnots.foreach {
           case (tag, annots) => annots.foreach(a => {
+            println(s"$tag\t${a.mkString("|")}")
             val xml = s"<$tag>${a.mkString(" ")}</$tag>"
             doc += xml
           })
