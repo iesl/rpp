@@ -52,12 +52,16 @@ object BatchMain {
         doc += "<document>"
         // TODO sometimes outputs multiple copies of same annot string?
         headerAnnots.foreach { case (tag, annots) => annots.foreach(a => doc += s"<$tag>${a.mkString(" ")}</$tag>") }
-        refAnnots.foreach { case (tag, annots) => annots.foreach(a => doc += s"<$tag>${a.mkString(" ")}</$tag>") }
+//        refAnnots.foreach { case (tag, annots) => annots.foreach(a => doc += s"<$tag>${a.mkString(" ")}</$tag>") }
         doc += "</document>"
         val wholeXml = doc.mkString("\n")
         val pw = new PrintWriter(new File(outputFile))
         pw.write(wholeXml)
         pw.close()
+
+        val refs = Main.getReferences(annotator)
+        println("got refs:")
+        refs.foreach(println)
     }
     println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
   }
