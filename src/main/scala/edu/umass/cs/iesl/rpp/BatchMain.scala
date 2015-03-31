@@ -47,10 +47,13 @@ object BatchMain {
         val headerTags = allTypes.filter(t => t.startsWith("header-") || t == "abstract").filter(t => t != "header-token" && t != "header")
         val refTags = allTypes.filter(t => t.startsWith("ref-"))
         val headerAnnots = headerTags.map(t => (t, Main.getHeaderAnnotationsByTag(annotator, t)))
-        val refAnnots = refTags.map(t => (t, Main.getCitationAnnotationsByTag(annotator, t)))
-        (headerAnnots ++ refAnnots).foreach {
+        headerAnnots.foreach {
           case (tag, annot) => println(s"$tag\t$annot")
         }
+//        val refAnnots = refTags.map(t => (t, Main.getCitationAnnotationsByTag(annotator, t)))
+//        (headerAnnots ++ refAnnots).foreach {
+//          case (tag, annot) => println(s"$tag\t$annot")
+//        }
 
 //        val headerTags = Set("institution", "address", "title", "author", "tech", "date", "note", "email").map("header-" + _) ++ Set("abstract")
 //        val refTags = Set("")
