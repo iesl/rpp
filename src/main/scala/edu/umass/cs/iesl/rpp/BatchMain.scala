@@ -50,8 +50,10 @@ object BatchMain {
         val refAnnots: Seq[(String, List[List[String]])] = refTags.map(t => (t, Main.getCitationAnnotationsByTag(annotator, t)))
         val doc = new ArrayBuffer[String]()
         doc += "<document>"
+        doc += "<header>"
         // TODO sometimes outputs multiple copies of same annot string?
         headerAnnots.foreach { case (tag, annots) => annots.foreach(a => doc += s"<$tag>${a.mkString(" ")}</$tag>") }
+        doc += "</header>"
 //        refAnnots.foreach { case (tag, annots) => annots.foreach(a => doc += s"<$tag>${a.mkString(" ")}</$tag>") }
         doc += "</document>"
         val wholeXml = doc.mkString("\n")
@@ -62,6 +64,10 @@ object BatchMain {
         val refs = Main.getReferences(annotator)
         println("got refs:")
         refs.foreach(println)
+
+        println("getCitationsAndReferences:")
+        val cAndR = Main.getCitationsAndReferences(annotator)
+        cAndR.foreach{ case (citeStr, refStr) => println(s"$citeStr\t$refStr") }
     }
     println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
   }
