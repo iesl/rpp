@@ -101,47 +101,23 @@ object Main {
   }
 
 
-  case class AnnotatedRef(title: String, authors: List[String])
 
   def getAnnotatedReferences(annotator: Annotator): List[List[(String, String)]] = {
     val refTags = getAllAnnotationTypes(annotator).filter(t => t.startsWith("ref-"))
-    val refTokenBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("reference")))
-    val refs = new scala.collection.mutable.ArrayBuffer[List[(String, String)]]()
-    val refTitles: List[(String, String)] = refTokenBIndexPairSet.map(pair => getRefTitleInSpan(annotator, pair)).toList
-    val refTitle = List(("ref-title", refTitles.map(_._2).mkString(" ")))
-    refs += refTitle
-
-//    refTokenBIndexPairSet.foreach(tokenIndexPair => {
-//      refs += getAnnotationsForReference(annotator, tokenIndexPair)
-////      val thisRef = new scala.collection.mutable.ArrayBuffer[(String, String)]()
-////      val (bi, ci) = tokenIndexPair
-////      refTags.foreach(tag => {
-////        val tagBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(tag)))
-////        val tagToken: String = annotator.getTextMap("reference-token")(bi, ci).values.map(_._2).mkString("")
-////        if (tagBIndexPairSet.contains(tokenIndexPair)) {
-////          val pair: (String, String) = (tag, tagToken)
-////          thisRef += pair
-////        }
-////      })
-////      refs += thisRef.toList
-//    })
-    refs.toList
+    val refTokenBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("reference-token")))
+    val titles = refTokenBIndexPairSet.toList.map {
+      case (bi, ci) =>
+        val tm = annotator.getTextMap("ref-title")(bi, ci)
+        ("ref-title", tm.values.map(_._2).mkString(""))
+    }
+    List(titles)
+//    val refs = new scala.collection.mutable.ArrayBuffer[List[(String, String)]]()
+//    val refTitles: List[(String, String)] = refTokenBIndexPairSet.map(pair => getRefTitleInSpan(annotator, pair)).toList
+//    val refTitle = List(("ref-title", refTitles.map(_._2).mkString(" ")))
+//    refs += refTitle
+//    refs.toList
   }
 
-  def getAnnotationsForReference(annotator: Annotator, tokenIndexPair: (Int, Int)): List[(String, String)] = {
-    val (bi, ci) = tokenIndexPair
-    val title = getRefTitleInSpan(annotator, tokenIndexPair)
-    List(title)
-  }
-
-  def getRefTitleInSpan(annotator: Annotator, tokenIndexPair: (Int, Int)): (String, String) = {
-    val (bi, ci) = tokenIndexPair
-    val titleBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("ref-title")))
-    val tagToken: String = annotator.getTextMap("reference-token")(bi, ci).values.map(_._2).mkString("")
-    if (titleBIndexPairSet.contains(tokenIndexPair)) {
-      ("ref-title", tagToken)
-    } else ("", "")
-  }
 
   def getHeaderTokens(annotator: Annotator): Seq[Seq[String]] = {
     val headerTokenBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("header-token")))
