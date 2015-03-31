@@ -105,17 +105,24 @@ object Main {
   def getAnnotatedReferences(annotator: Annotator): List[List[(String, String)]] = {
     val refTags = getAllAnnotationTypes(annotator).filter(t => t.startsWith("ref-"))
     val refTokenBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("reference-token")))
-    val titles = refTokenBIndexPairSet.toList.map {
+    val allAnnots = new scala.collection.mutable.ArrayBuffer[List[(String, String)]]()
+    refTokenBIndexPairSet.toList.foreach {
       case (bi, ci) =>
-        val tm = annotator.getTextMap("ref-title")(bi, ci)
-        ("ref-title", tm.values.map(_._2).mkString(""))
+        val annots = new scala.collection.mutable.ArrayBuffer[(String, String)]()
+        val titleSeg = annotator.getSegment("ref-title")(bi, ci)
+        val title = titleSeg.toList.flatMap { case (bi, labelMap) =>
+            labelMap.map { case (ci, label) =>
+                annotator.getTextMap("ref-title")(bi, ci).values.map(_._2).mkString("")
+            }
+        }
+        val titlePair: (String, String) = ("ref-title", title.mkString(" "))
+        annots += titlePair
+//        val titleTm = annotator.getTextMap("ref-title")(bi, ci)
+//        val title: (String, String) = ("ref-title", titleTm.values.map(_._2).mkString(""))
+//        annots += title
+        allAnnots += annots.toList
     }
-    List(titles)
-//    val refs = new scala.collection.mutable.ArrayBuffer[List[(String, String)]]()
-//    val refTitles: List[(String, String)] = refTokenBIndexPairSet.map(pair => getRefTitleInSpan(annotator, pair)).toList
-//    val refTitle = List(("ref-title", refTitles.map(_._2).mkString(" ")))
-//    refs += refTitle
-//    refs.toList
+    allAnnots.toList
   }
 
 
