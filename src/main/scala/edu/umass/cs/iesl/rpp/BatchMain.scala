@@ -65,17 +65,19 @@ object BatchMain {
         val allRefs = Main.getReferences(annotator)
         for (ref <- allRefs) println(ref)
 
-//        println("")
-//
-//        val refs = Main.getAnnotatedReferences(annotator)
-//        for (ref <- refs if ref.length > 0) {
-//          println("<reference>")
-//          println(ref)
-////          for (ann <- ref) {
-////            println(s"\t${ann._1}\t${ann._2}")
-////          }
-//          println("</reference>")
-//        }
+        println("")
+
+
+
+        val refs = Main.getAnnotatedReferences(annotator)
+        for (ref <- refs if ref.length > 0) {
+          println("<reference>")
+          println(ref)
+//          for (ann <- ref) {
+//            println(s"\t${ann._1}\t${ann._2}")
+//          }
+          println("</reference>")
+        }
 
 //        val refs = Main.getReferences(annotator)
 //        println("got refs:")
