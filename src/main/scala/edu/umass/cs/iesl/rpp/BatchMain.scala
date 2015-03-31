@@ -61,13 +61,22 @@ object BatchMain {
         pw.write(wholeXml)
         pw.close()
 
-        val refs = Main.getReferences(annotator)
-        println("got refs:")
-        refs.foreach(println)
+        val refs = Main.getAnnotatedReferences(annotator)
+        for (ref <- refs) {
+          println("<reference>")
+          for (ann <- ref) {
+            println(s"\t${ann._1}\t${ann._2}")
+          }
+          println("</reference>")
+        }
 
-        println("getCitationsAndReferences:")
-        val cAndR = Main.getCitationsAndReferences(annotator)
-        cAndR.foreach{ case (citeStr, refStr) => println(s"$citeStr\t$refStr") }
+//        val refs = Main.getReferences(annotator)
+//        println("got refs:")
+//        refs.foreach(println)
+//
+//        println("getCitationsAndReferences:")
+//        val cAndR = Main.getCitationsAndReferences(annotator)
+//        cAndR.foreach{ case (citeStr, refStr) => println(s"$citeStr\t$refStr") }
     }
     println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
   }
