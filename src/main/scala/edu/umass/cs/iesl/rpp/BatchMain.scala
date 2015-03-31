@@ -32,16 +32,6 @@ object BatchMain {
         val annotator = Main.process(trainer, headerTagger, input)//.write(output)
         val tup: (Annotator, String) = (annotator, output)
         annotatorsWithOutputFile += tup
-//        for (tag <- tags) {
-//          val annots = Main.getAnnotationsByTag(annotator, tag)
-//          for (annot <- annots) {
-//            for (t <- annot) {
-//              println(s"$tag\t$t")
-//            }
-//          }
-//        }
-
-//        annotator.write(output)
       } catch {
         case e: Exception =>
           println(s"failed to process file: $input")
@@ -53,10 +43,8 @@ object BatchMain {
 
     annotatorsWithOutputFile.foreach {
       case (annotator, outputFile) =>
-        val dom = annotator.mkAnnotatedDom()
-        val pw = new PrintWriter(new File(outputFile))
-        pw.write(dom.toString)
-        pw.close()
+        val annots = Main.getAllAnnotationTypes(annotator)
+        for (ann <- annots) println(ann)
     }
     println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
   }
