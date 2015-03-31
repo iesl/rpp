@@ -69,9 +69,10 @@ object BatchMain {
         val refs = Main.getAnnotatedReferences(annotator)
         for (ref <- refs if ref.length > 0) {
           println("<reference>")
-          for (ann <- ref) {
-            println(s"\t${ann._1}\t${ann._2}")
-          }
+          println(ref)
+//          for (ann <- ref) {
+//            println(s"\t${ann._1}\t${ann._2}")
+//          }
           println("</reference>")
         }
 
