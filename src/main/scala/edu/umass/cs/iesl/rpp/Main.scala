@@ -101,14 +101,16 @@ object Main {
   }
 
 
+  case class AnnotatedRef(title: String, authors: List[String])
 
   def getAnnotatedReferences(annotator: Annotator): List[List[(String, String)]] = {
     val refTags = getAllAnnotationTypes(annotator).filter(t => t.startsWith("ref-"))
-    val refTokenBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("reference-token")))
+    val refTokenBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("biblio-marker")))
     val refs = new scala.collection.mutable.ArrayBuffer[List[(String, String)]]()
     val refTitles: List[(String, String)] = refTokenBIndexPairSet.map(pair => getRefTitleInSpan(annotator, pair)).toList
     val refTitle = List(("ref-title", refTitles.map(_._2).mkString(" ")))
     refs += refTitle
+
 //    refTokenBIndexPairSet.foreach(tokenIndexPair => {
 //      refs += getAnnotationsForReference(annotator, tokenIndexPair)
 ////      val thisRef = new scala.collection.mutable.ArrayBuffer[(String, String)]()
