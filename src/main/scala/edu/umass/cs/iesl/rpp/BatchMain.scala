@@ -46,12 +46,12 @@ object BatchMain {
         val allTypes = Main.getAllAnnotationTypes(annotator)
         val headerTags = allTypes.filter(t => t.startsWith("header-") || t == "abstract").filter(t => t != "header-token" && t != "header")
         val refTags = allTypes.filter(t => t.startsWith("ref-"))
-        val headerAnnots = headerTags.map(t => (t, Main.getHeaderAnnotationsByTag(annotator, t)))
+        val headerAnnots: Seq[(String, List[List[String]])] = headerTags.map(t => (t, Main.getHeaderAnnotationsByTag(annotator, t)))
         val doc = new ArrayBuffer[String]()
         doc += "<document>"
         headerAnnots.foreach {
-          case (tag, annot) => annot.foreach(a => {
-            val xml = s"<$tag>${annot.mkString(" ")}</$tag>"
+          case (tag, annots) => annots.foreach(a => {
+            val xml = s"<$tag>${a.mkString(" ")}</$tag>"
             doc += xml
           })
         }
