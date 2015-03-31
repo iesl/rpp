@@ -168,10 +168,10 @@ object Main {
 
   def getCitationAnnotationsByTag(annotator: Annotator, tag: String): List[List[String]] = {
     val tagBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(tag)))
-    val tagTokenBIndexPairSet = annotator.getBIndexPairSet(Range(tag, SegmentCon("biblio-marker")))
+    val tagTokenBIndexPairSet = annotator.getBIndexPairSet(Range(tag, SegmentCon("reference-token")))
     tagTokenBIndexPairSet.foldLeft(List.empty[List[String]])((listAcc, tokenIndexPair) => {
       val (bi, ci) = tokenIndexPair
-      val tagToken: String = annotator.getTextMap("biblio-marker")(bi, ci).values.map(_._2).mkString("")
+      val tagToken: String = annotator.getTextMap("reference-token")(bi, ci).values.map(_._2).mkString("")
       if (tagBIndexPairSet.contains(tokenIndexPair)) {
         List(tagToken) :: listAcc
       } else {

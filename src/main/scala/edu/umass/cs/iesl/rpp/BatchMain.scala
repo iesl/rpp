@@ -51,20 +51,8 @@ object BatchMain {
         val doc = new ArrayBuffer[String]()
         doc += "<document>"
         // TODO sometimes outputs multiple copies of same annot string?
-        headerAnnots.foreach {
-          case (tag, annots) => annots.foreach(a => {
-            println(s"$tag\t${a.mkString("|")}")
-            val xml = s"<$tag>${a.mkString(" ")}</$tag>"
-            doc += xml
-          })
-        }
-        refAnnots.foreach {
-          case (tag, annots) => annots.foreach(a => {
-            println(s"$tag\t${a.mkString("|")}")
-            val xml = s"<$tag>${a.mkString(" ")}</$tag>"
-            doc += xml
-          })
-        }
+        headerAnnots.foreach { case (tag, annots) => annots.foreach(a => doc += s"<$tag>${a.mkString(" ")}</$tag>") }
+        refAnnots.foreach { case (tag, annots) => annots.foreach(a => doc += s"<$tag>${a.mkString(" ")}</$tag>") }
         doc += "</document>"
         val wholeXml = doc.mkString("\n")
         val pw = new PrintWriter(new File(outputFile))
