@@ -43,9 +43,62 @@ object BatchMain {
 
     annotatorsWithOutputFile.foreach {
       case (annotator, outputFile) =>
-        val annots = Main.getAllAnnotationTypes(annotator)
-        for (ann <- annots) println(ann)
+        val allTypes = Main.getAllAnnotationTypes(annotator)
+        val headerTags = allTypes.filter(t => t.startsWith("header-") || t == "abstract").filter(t => t != "header-token" && t != "header")
+        val refTags = allTypes.filter(t => t.startsWith("ref-"))
+        val headerAnnots = headerTags.map(t => (t, Main.getHeaderAnnotationsByTag(annotator, t)))
+        val refAnnots = refTags.map(t => (t, Main.getCitationAnnotationsByTag(annotator, t)))
+        (headerAnnots ++ refAnnots).foreach {
+          case (tag, annot) => println(s"$tag\t$annot")
+        }
+
+//        val headerTags = Set("institution", "address", "title", "author", "tech", "date", "note", "email").map("header-" + _) ++ Set("abstract")
+//        val refTags = Set("")
     }
     println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
   }
 }
+
+/*
+annotation types:
+
+reference
+body
+header-institution
+ref-month
+header-note
+header-token
+line
+ref-address
+ref-first
+reference-token
+section-marker
+abstract
+header-title
+ref-middle
+ref-date
+ref-booktitle
+citation
+reference_id
+header-email
+ref-marker
+ref-year
+paragraph
+ref-organization
+ref-volume
+header-author
+header-date
+ref-pages
+header
+ref-authors
+ref-title
+ref-last
+biblio-marker
+ref-journal
+header-address
+ref-person
+header-tech
+figure-marker
+table-marker
+ref-venue
+ */
