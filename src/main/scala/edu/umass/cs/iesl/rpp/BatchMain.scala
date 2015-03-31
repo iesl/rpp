@@ -61,8 +61,13 @@ object BatchMain {
         pw.write(wholeXml)
         pw.close()
 
+        val allRefs = Main.getReferences(annotator)
+        for (ref <- allRefs) println(ref)
+
+        println("")
+
         val refs = Main.getAnnotatedReferences(annotator)
-        for (ref <- refs) {
+        for (ref <- refs if ref.length > 0) {
           println("<reference>")
           for (ann <- ref) {
             println(s"\t${ann._1}\t${ann._2}")

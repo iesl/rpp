@@ -101,7 +101,7 @@ object Main {
   }
 
   def getAnnotatedReferences(annotator: Annotator): List[List[(String, String)]] = {
-    val refTags = getAllAnnotationTypes(annotator).filter(t => t.startsWith("ref-"))
+    val refTags = getAllAnnotationTypes(annotator).filter(t => t.startsWith("ref-")).filterNot(t => t == "ref-person" || t == "ref-date")
     val refTokenBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("reference-token")))
     val refs = new scala.collection.mutable.ArrayBuffer[List[(String, String)]]()
     refTokenBIndexPairSet.foreach(tokenIndexPair => {
