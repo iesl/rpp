@@ -47,16 +47,19 @@ object BatchMain {
         val headerTags = allTypes.filter(t => t.startsWith("header-") || t == "abstract").filter(t => t != "header-token" && t != "header")
         val refTags = allTypes.filter(t => t.startsWith("ref-"))
         val headerAnnots = headerTags.map(t => (t, Main.getHeaderAnnotationsByTag(annotator, t)))
+        val doc = new ArrayBuffer[String]()
+        doc += "<document>"
         headerAnnots.foreach {
-          case (tag, annot) => println(s"$tag\t$annot")
+          case (tag, annot) => annot.foreach(a => {
+            val xml = s"<$tag>${annot.mkString(" ")}</$tag>"
+            doc += xml
+          })
         }
-//        val refAnnots = refTags.map(t => (t, Main.getCitationAnnotationsByTag(annotator, t)))
-//        (headerAnnots ++ refAnnots).foreach {
-//          case (tag, annot) => println(s"$tag\t$annot")
-//        }
-
-//        val headerTags = Set("institution", "address", "title", "author", "tech", "date", "note", "email").map("header-" + _) ++ Set("abstract")
-//        val refTags = Set("")
+        doc += "</document>"
+        val wholeXml = doc.mkString("\n")
+        val pw = new PrintWriter(new File(outputFile))
+        pw.write(wholeXml)
+        pw.close()
     }
     println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
   }
