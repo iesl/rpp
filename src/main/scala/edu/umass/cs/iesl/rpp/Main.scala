@@ -86,6 +86,15 @@ object Main {
     annotator.getFilteredTextByAnnotationType("biblio-marker","line")
   }
 
+  def getHeaderLines(annotator: Annotator): Seq[String] = {
+    val biblioBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("header")))
+    val lineBIndexPairSet = annotator.getBIndexPairSet(Range("header", SegmentCon("line")))
+    biblioBIndexPairSet.toList.map { case (blockBIndex, charBIndex) =>
+      val textMap = annotator.getTextMap("header")(blockBIndex, charBIndex)
+      Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet)
+    }
+  }
+
   def getCitationAnnotationsByTag(annotator: Annotator, tag: String): List[List[String]] = {
     val tagBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(tag)))
     val tagTokenBIndexPairSet = annotator.getBIndexPairSet(Range(tag, SegmentCon("reference-token")))

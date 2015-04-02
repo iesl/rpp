@@ -17,26 +17,7 @@ import edu.umass.cs.iesl.bibie.CitationLabel
 
 
 object BatchMain {
-  // TODO  move this into XMLParser
-  def toXML(headerDoc: Document, refs: Seq[Document]): String = {
-    val stuff = new ArrayBuffer[String]()
-    stuff += "<document>"
-    if (headerDoc.attr.contains(classOf[HeaderTagSpanBuffer])) {
-      val hb = headerDoc.attr[HeaderTagSpanBuffer]
-      stuff += "<header>"
-      for (span <- hb) {
-        val label = span.label.categoryValue
-        val contents = span.tokens.map(_.string).mkString(" ")
-        stuff += s"<$label>$contents</$label>"
-      }
-      stuff += "</header>"
-    }
-    for (ref <- refs) {
-      stuff += XMLParser.fromBibieReferenceDocument(ref)
-    }
-    stuff += "</document>"
-    stuff.mkString("\n")
-  }
+
 
   def main(args: Array[String]): Unit = {
     import java.io.{File, PrintWriter}
@@ -59,7 +40,7 @@ object BatchMain {
       try {
         println(s"processing: $input")
         val annotator = Main.process(trainer, headerTagger, input)
-        val headerTxt = Extractor.getHeaderLines(annotator).mkString("\n")
+        val headerTxt = Main.getHeaderLines(annotator).mkString("\n")
         val headerDoc = new Document(headerTxt)
         DeterministicTokenizer.process(headerDoc)
         new Sentence(headerDoc.asSection, 0, headerDoc.tokens.size)
@@ -75,7 +56,7 @@ object BatchMain {
         })
         TestCitationModel.process(refDocs, trainer)
 
-        val xml = toXML(headerDoc, refDocs)
+        val xml = XMLParser.docsToXML(headerDoc, refDocs)
         println(xml)
         scala.xml.XML.loadString(xml)
 

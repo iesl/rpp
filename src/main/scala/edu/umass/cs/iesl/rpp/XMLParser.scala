@@ -6,6 +6,7 @@ package edu.umass.cs.iesl.rpp
  */
 import cc.factorie.app.nlp._
 import edu.umass.cs.iesl.bibie._
+import edu.umass.cs.iesl.paperheader.crf.HeaderTagSpanBuffer
 import scala.collection.mutable.{ArrayBuffer, Stack}
 
 
@@ -101,6 +102,25 @@ class XMLTree(root: TreeNode) {
 object XMLParser {
   def getTags(token: Token): Seq[String] = token.attr[CitationLabel].categoryValue.split(":").map(t => t.drop(2))
   def getLastTag(token: Token): String = token.attr[CitationLabel].categoryValue.split(":").last
+  def docsToXML(headerDoc: Document, refs: Seq[Document]): String = {
+    val stuff = new ArrayBuffer[String]()
+    stuff += "<document>"
+    if (headerDoc.attr.contains(classOf[HeaderTagSpanBuffer])) {
+      val hb = headerDoc.attr[HeaderTagSpanBuffer]
+      stuff += "<header>"
+      for (span <- hb) {
+        val label = span.label.categoryValue
+        val contents = span.tokens.map(_.string).mkString(" ")
+        stuff += s"<$label>$contents</$label>"
+      }
+      stuff += "</header>"
+    }
+    for (ref <- refs) {
+      stuff += XMLParser.fromBibieReferenceDocument(ref)
+    }
+    stuff += "</document>"
+    stuff.mkString("\n")
+  }
   def fromBibieReferenceDocument(doc: Document): String = {
     val tokens = doc.tokens.toIndexedSeq
 
