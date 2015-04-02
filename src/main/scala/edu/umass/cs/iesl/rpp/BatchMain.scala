@@ -17,6 +17,7 @@ import edu.umass.cs.iesl.bibie.CitationLabel
 
 
 object BatchMain {
+  // TODO  move this into XMLParser
   def toXML(headerDoc: Document, refs: Seq[Document]): String = {
     val stuff = new ArrayBuffer[String]()
     stuff += "<document>"
@@ -31,7 +32,7 @@ object BatchMain {
       stuff += "</header>"
     }
     for (ref <- refs) {
-      stuff += XMLParser.fromDocument(ref)
+      stuff += XMLParser.fromBibieReferenceDocument(ref)
     }
     stuff += "</document>"
     stuff.mkString("\n")

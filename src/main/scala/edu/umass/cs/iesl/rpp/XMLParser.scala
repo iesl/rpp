@@ -101,7 +101,7 @@ class XMLTree(root: TreeNode) {
 object XMLParser {
   def getTags(token: Token): Seq[String] = token.attr[CitationLabel].categoryValue.split(":").map(t => t.drop(2))
   def getLastTag(token: Token): String = token.attr[CitationLabel].categoryValue.split(":").last
-  def fromDocument(doc: Document): String = {
+  def fromBibieReferenceDocument(doc: Document): String = {
     val tokens = doc.tokens.toIndexedSeq
 
     // pre-process by grouping tokens with the same "specific" tag into single strings
