@@ -3,12 +3,40 @@ package edu.umass.cs.iesl.rpp
 import edu.umass.cs.iesl.bibie.TestCitationModel
 import edu.umass.cs.iesl.paperheader.crf._
 import edu.umass.cs.iesl.xml_annotator._
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, Stack}
+import cc.factorie.app.nlp._
+import cc.factorie.app.nlp.{Document, Sentence, Token}
+import cc.factorie.app.nlp.segment.DeterministicTokenizer
+import edu.umass.cs.iesl.bibie.CitationLabel
+
 
 /**
  * Created by kate on 3/24/15.
  */
+
+
+
 object BatchMain {
+  def toXML(headerDoc: Document, refs: Seq[Document]): String = {
+    val stuff = new ArrayBuffer[String]()
+    stuff += "<document>"
+    if (headerDoc.attr.contains(classOf[HeaderTagSpanBuffer])) {
+      val hb = headerDoc.attr[HeaderTagSpanBuffer]
+      stuff += "<header>"
+      for (span <- hb) {
+        val label = span.label.categoryValue
+        val contents = span.tokens.map(_.string).mkString(" ")
+        stuff += s"<$label>$contents</$label>"
+      }
+      stuff += "</header>"
+    }
+    for (ref <- refs) {
+      stuff += XMLParser.fromDocument(ref)
+    }
+    stuff += "</document>"
+    stuff.mkString("\n")
+  }
+
   def main(args: Array[String]): Unit = {
     import java.io.{File, PrintWriter}
     val referenceModelUri = args(0)
@@ -23,15 +51,37 @@ object BatchMain {
     headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
     var failCount = 0
     var totalCount = 0
-    val annotatorsWithOutputFile = new ArrayBuffer[(Annotator, String)]()
-    val tags = Set("institution", "address", "title", "author", "tech", "date", "note", "email").map("header-" + _) ++ Set("abstract")
 
+    // FIXME need to get around this whole re-processing thing -- but how ...
+    // TODO also add body text?
     inputFiles.zip(outputFiles).take(5).foreach({ case (input, output) =>
       try {
         println(s"processing: $input")
-        val annotator = Main.process(trainer, headerTagger, input)//.write(output)
-        val tup: (Annotator, String) = (annotator, output)
-        annotatorsWithOutputFile += tup
+        val annotator = Main.process(trainer, headerTagger, input)
+        val headerTxt = Extractor.getHeaderLines(annotator).mkString("\n")
+        val headerDoc = new Document(headerTxt)
+        DeterministicTokenizer.process(headerDoc)
+        new Sentence(headerDoc.asSection, 0, headerDoc.tokens.size)
+        headerTagger.process(headerDoc)
+
+        val refs = Main.getReferencesWithBreaks(annotator)
+        val refDocs = refs.map(ref => {
+          val doc = new Document(ref)
+          DeterministicTokenizer.process(doc)
+          new Sentence(doc.asSection, 0, doc.tokens.size)
+          doc.tokens.foreach(t => t.attr += new CitationLabel("", t))
+          doc
+        })
+        TestCitationModel.process(refDocs, trainer)
+
+        val xml = toXML(headerDoc, refDocs)
+        println(xml)
+        scala.xml.XML.loadString(xml)
+
+        val pw = new PrintWriter(new File(output))
+        pw.write(xml)
+        pw.close()
+
       } catch {
         case e: Exception =>
           println(s"failed to process file: $input")
@@ -41,52 +91,6 @@ object BatchMain {
       totalCount += 1
     })
 
-    annotatorsWithOutputFile.foreach {
-      case (annotator, outputFile) =>
-        annotator.write(outputFile+".raw")
-        val allTypes = Main.getAllAnnotationTypes(annotator)
-        val headerTags = allTypes.filter(t => t.startsWith("header-") || t == "abstract").filter(t => t != "header-token" && t != "header")
-        val refTags = allTypes.filter(t => t.startsWith("ref-"))
-        val headerAnnots: Seq[(String, List[List[String]])] = headerTags.map(t => (t, Main.getHeaderAnnotationsByTag(annotator, t)))
-        val refAnnots: Seq[(String, List[List[String]])] = refTags.map(t => (t, Main.getCitationAnnotationsByTag(annotator, t)))
-        val doc = new ArrayBuffer[String]()
-        doc += "<document>"
-        doc += "<header>"
-        // TODO sometimes outputs multiple copies of same annot string?
-        headerAnnots.foreach { case (tag, annots) => annots.foreach(a => doc += s"<$tag>${a.mkString(" ")}</$tag>") }
-        doc += "</header>"
-//        refAnnots.foreach { case (tag, annots) => annots.foreach(a => doc += s"<$tag>${a.mkString(" ")}</$tag>") }
-        doc += "</document>"
-        val wholeXml = doc.mkString("\n")
-        val pw = new PrintWriter(new File(outputFile))
-        pw.write(wholeXml)
-        pw.close()
-
-        val allRefs = Main.getReferences(annotator)
-        for (ref <- allRefs) println(ref)
-
-        println("")
-
-
-
-        val refs = Main.getAnnotatedReferences(annotator)
-        for (ref <- refs if ref.length > 0) {
-          println("<reference>")
-          println(ref)
-//          for (ann <- ref) {
-//            println(s"\t${ann._1}\t${ann._2}")
-//          }
-          println("</reference>")
-        }
-
-//        val refs = Main.getReferences(annotator)
-//        println("got refs:")
-//        refs.foreach(println)
-//
-//        println("getCitationsAndReferences:")
-//        val cAndR = Main.getCitationsAndReferences(annotator)
-//        cAndR.foreach{ case (citeStr, refStr) => println(s"$citeStr\t$refStr") }
-    }
     println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
   }
 }
