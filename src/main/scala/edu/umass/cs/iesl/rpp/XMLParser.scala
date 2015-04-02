@@ -12,13 +12,10 @@ import scala.collection.mutable.{ArrayBuffer, Stack}
 class TreeNode(val tag: String, val value: String = null, val parent: TreeNode = null) {
   val children = new ArrayBuffer[TreeNode]()
   var discovered: Boolean = false
-  def openTag: String = s"<$tag>"
-  def closeTag: String = s"</$tag>"
   def isLeaf: Boolean = children.isEmpty
-  def isRoot: Boolean = parent == null
   def addChild(n: TreeNode): Unit = children += n
   def repr: String = s"(<$tag>${if (value != null) value}</$tag>)"
-  override def toString: String = if (value != null) value else "" //if (isLeaf && value != null) value else s"<$tag>" + children.map(c => s"<${c.tag}>${c.toString}</${c.tag}>").mkString("\n") + s"</$tag>"
+  override def toString: String = if (value != null) value else ""
 }
 
 class XMLTree(root: TreeNode) {
@@ -36,6 +33,7 @@ class XMLTree(root: TreeNode) {
     resetAll()
     None
   }
+
   def resetAll(): Unit = {
     val S = new Stack[TreeNode]()
     S.push(root)
@@ -46,18 +44,11 @@ class XMLTree(root: TreeNode) {
         S.pushAll(v.children)
       }
     }
-    None
   }
 
-  def addNode(node: TreeNode): Unit = {
-    val parent: TreeNode = search(node.tag).getOrElse(root)
-    parent.addChild(node)
-    println(s"search for: ${node.repr}; got parent: ${parent.repr}")
-  }
-
-  def addNode(tagChunk: String, string: String): Unit = {
-    val tags = tagChunk.split(":").reverse
+  def addNodes(tagChunk: String, string: String): Unit = {
     // search tags specific --> general; add node to most specific non-leaf node
+    val tags = tagChunk.split(":").reverse
     var done = false
     var i = 0
     while (!done && i < tags.length) {
@@ -65,73 +56,57 @@ class XMLTree(root: TreeNode) {
       search(curr) match {
         case Some(node) =>
           // if the node found is a leaf, attach the new node to its parent
-          if (node.isLeaf) {
-            val n = new TreeNode(tags.head, string, node.parent)
-//            println(s"tag=$curr ; found node=${node.repr} ; attach ${n.repr} to parent ${node.parent.repr}")
-            node.parent.addChild(n)
-          } else { // otherwise, just add the new node to the found node's children
-            val n = new TreeNode(tags.head, string, node)
-//            println(s"tag=$curr ; found node=${node.repr} ; attach ${n.repr} to ${node.repr}")
-            node.addChild(n)
-          }
+          // otherwise, just add the new node to the found node's children
+          val parent = if (node.isLeaf) node.parent else node
+          parent.addChild(new TreeNode(tags.head, string, parent))
           done = true
         case None =>
       }
       i += 1
     }
-    // if we didnt find anything, add the necessary subtree
+    // if we didnt find anywhere to attach, add the necessary subtree
     if (!done) {
       // unreverse tags (want to add general --> specific in this case)
-      val tags2 = tags.reverse
+      val tagsUnrev = tags.reverse
       var prev = root
       i = 0
-      while (i < tags2.length - 1) {
-        val n = new TreeNode(tags2(i), null, prev)
-//        println(s"add child: ${n.repr} to parent: ${prev.repr}")
+      while (i < tagsUnrev.length - 1) {
+        val n = new TreeNode(tagsUnrev(i), null, prev)
         prev.addChild(n)
         prev = n
         i += 1
       }
-      val l = new TreeNode(tags2.last, string, prev)
-      prev.addChild(l)
-//      println(s"(final) add child: ${l.repr} to parent: ${prev.repr}")
-
+      prev.addChild(new TreeNode(tagsUnrev.last, string, prev))
     }
-
   }
 
-  def dfs(n: TreeNode): String = {
+  def preorderTraversalString(n: TreeNode): String = {
     n.discovered = true
-    if (n.isLeaf) s"${n.openTag}${n.value}${n.closeTag}"
+    if (n.isLeaf) s"<${n.tag}>${n.value}</${n.tag}>"
     else {
-      var result = s"${n.openTag}"
+      var result = s"<${n.tag}>"
       for (c <- root.children if !c.discovered) {
         val subtree = new XMLTree(c)
-        result += subtree.dfs(c)
+        result += subtree.preorderTraversalString(c)
       }
-      result += s"${n.closeTag}"
+      result += s"</${n.tag}>"
       result
     }
   }
 
-  def printTree(): Unit = {
-    println(dfs(root))
-  }
-
-  override def toString: String = dfs(root)
+  override def toString: String = preorderTraversalString(root)
 
 }
 
 object XMLParser {
   def getTags(token: Token): Seq[String] = token.attr[CitationLabel].categoryValue.split(":").map(t => t.drop(2))
   def getLastTag(token: Token): String = token.attr[CitationLabel].categoryValue.split(":").last
-  def getFirstTag(token: Token): String = token.attr[CitationLabel].categoryValue.split(":").head.drop(2)
-  def getTagAtPos(token: Token, pos: Int): String = token.attr[CitationLabel].categoryValue.split(":")(pos).drop(2)
   def fromDocument(doc: Document): String = {
     val tokens = doc.tokens.toIndexedSeq
-    for (token <- tokens) println(s"${token.string}\t${token.attr[CitationLabel].categoryValue}")
-    println("")
 
+    // pre-process by grouping tokens with the same "specific" tag into single strings
+    // e.g. <authors><person><person-first>Emily</person-first><person-first> . </person-first> becomes
+    // <authors><person><person-first>Emily . </person-first> ...
     val grouped = new ArrayBuffer[(String, String)]()
     var lastSeen = getLastTag(tokens.head)
     var lastSeenFull = getTags(tokens.head).mkString(":")
@@ -157,13 +132,10 @@ object XMLParser {
     grouped.foreach {
       case (tag, chunk) =>
         println(tag + " --> " + chunk)
-        tree.addNode(tag, chunk)
+        tree.addNodes(tag, chunk)
     }
 
-//    println(tree.toString)
-
     tree.toString
-
   }
 }
 
