@@ -4,8 +4,8 @@ root=$1
 lexicons=$2
 citeCRF="file://$root/citationCRF.factorie"
 headerCRF="$root/headerCRF.factorie"
-inputDir="$root/input"
-outputDir="$root/output"
+inputDir=$3
+outputDir=$4
 
 sbt -mem 4000 \
  -Dcc.factorie.app.nlp.lexicon.Lexicon=$lexicons \
