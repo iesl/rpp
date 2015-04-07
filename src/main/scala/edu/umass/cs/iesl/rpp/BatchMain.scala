@@ -57,9 +57,8 @@ object BatchMain {
         TestCitationModel.process(refDocs, trainer)
 
         val xml = XMLParser.docsToXML(headerDoc, refDocs)
-        println(xml)
         scala.xml.XML.loadString(xml)
-
+        println(xml)
         val pw = new PrintWriter(new File(output))
         pw.write(xml)
         pw.close()
