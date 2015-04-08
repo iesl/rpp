@@ -73,10 +73,19 @@ object XMLParser {
       }
       stuff += "</header>"
     }
-    val refxml: Seq[String] = for (ref <- refs) yield XMLParser.fromBibieReferenceDocument(ref)
-    if (refxml.nonEmpty) {
+    val refxml: Seq[String] = for (ref <- refs) yield {
+      var str: String = ""
+      try {
+        str = XMLParser.fromBibieReferenceDocument(ref)
+      } catch {
+        case e: Exception => e.printStackTrace()
+      }
+      str
+    }
+    val refxmlFilt = refxml.filter(s => s.length > 0)
+    if (refxmlFilt.nonEmpty) {
       stuff += "<references>"
-      stuff ++= refxml
+      stuff ++= refxmlFilt
       stuff += "</references>"
     }
     stuff += "</document>"

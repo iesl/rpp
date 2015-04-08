@@ -92,9 +92,9 @@ object BatchMain {
             fail = 1
         }
         if (fail == 0) {
-          println("")
-          println(xml)
-          println("")
+//          println("")
+//          println(xml)
+//          println("")
           val pw = new PrintWriter(new File(output))
           pw.write(xml)
           pw.close()
