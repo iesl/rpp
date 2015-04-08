@@ -19,8 +19,8 @@ object Main {
       StructureProcessor,
       ReferencePartProcessor(trainer),
       CitationProcessor,
-      CitationReferenceLinkProcessor,
-      HeaderPartProcessor(headerTagger)
+      CitationReferenceLinkProcessor//,
+//      HeaderPartProcessor(headerTagger)
     )
 
     val annotator = l.foldLeft(Annotator(dom)) {

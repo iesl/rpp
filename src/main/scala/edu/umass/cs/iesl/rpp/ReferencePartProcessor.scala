@@ -157,7 +157,7 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
           DPT(doc, indexPairMap, indexPair2TokenLabelMap)
       }
 
-      TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
+//      TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
       dpts 
       
     }
