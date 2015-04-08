@@ -83,8 +83,9 @@ object BatchMain {
             updateErrs(e)
             fail = 1
         }
-        val xml = XMLParser.docsToXML(headerDoc, refDocs)
+        var xml =  ""
         try {
+          xml = XMLParser.docsToXML(headerDoc, refDocs)
           scala.xml.XML.loadString(xml)
         } catch {
           case e: Exception =>
