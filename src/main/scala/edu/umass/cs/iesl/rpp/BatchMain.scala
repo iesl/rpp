@@ -89,7 +89,7 @@ object ParallelInvoker {
       pw.close()
     }
 
-    scriptFilenames.foreach { script =>
+    scriptFilenames.par.foreach { script =>
       val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -cwd -j y -S /bin/sh $script"
       println("invoking: " + qsubCmd)
       qsubCmd.!!
