@@ -4,34 +4,122 @@ import edu.umass.cs.iesl.bibie.TestCitationModel
 import edu.umass.cs.iesl.paperheader.crf._
 import edu.umass.cs.iesl.xml_annotator._
 import scala.collection.mutable.{ArrayBuffer, Stack}
-import cc.factorie.app.nlp._
 import cc.factorie.app.nlp.{Document, Sentence, Token}
 import cc.factorie.app.nlp.segment.DeterministicTokenizer
+import cc.factorie.util._
 import edu.umass.cs.iesl.bibie.CitationLabel
+import java.io.{File, PrintWriter}
+import java.nio.file.{Paths, Files}
 
 
 /**
  * Created by kate on 3/24/15.
+ *
  */
 
+class BatchOpts extends DefaultCmdOptions {
+  val lexiconsUri = new CmdOption("lexicons-uri", "", "STRING", "URI to lexicons")
+  val referenceModelUri = new CmdOption("reference-model-uri", "", "STRING", "reference model URI")
+  val headerTaggerModelFile = new CmdOption("header-tagger-model", "", "STRING", "path to serialized header tagger model")
+  val outputDir = new CmdOption("output-dir", "", "STRING", "where to store output")
+  val inputDir = new CmdOption("input-dir", "", "STRING", "path to dir of input files")
+  val dataFilesFile = new CmdOption("data-files-file", "", "STRING", "file containing a list of paths to data files, one per line")
+}
 
+class ParallelOpts extends BatchOpts {
+  val dir = new CmdOption("dir", "", "STRING", "directory of files to process")
+  val numJobs = new CmdOption("num-jobs", 8, "INT", "number of jobs to distribute processing over")
+  val memPerJob = new CmdOption("mem", 16, "INT", "GB of memory to request per job")
+  val numCores = new CmdOption("num-cores", 8, "INT", "number of cores to use")
+}
+
+object ParallelInvoker {
+  def cut[A](xs: Seq[A], n: Int) = {
+    val m = xs.length
+    val targets = (0 to n).map { x => math.round((x.toDouble * m) / n).toInt}
+    def snip(xs: Seq[A], ns: Seq[Int], got: Seq[Seq[A]]): Seq[Seq[A]] = {
+      if (ns.length < 2) got
+      else {
+        val (i, j) = (ns.head, ns.tail.head)
+        snip(xs.drop(j - i), ns.tail, got :+ xs.take(j - i))
+      }
+    }
+    snip(xs, targets, Seq.empty)
+  }
+  def main(args: Array[String]): Unit = {
+    import sys.process._
+    implicit val random = new scala.util.Random(0)
+    val opts = new ParallelOpts
+    opts.parse(args)
+    val njobs = opts.numJobs.value
+    val ncores = opts.numCores.value
+    val mem = opts.memPerJob.value
+    val dataDir = opts.dir.value
+    val files = new File(dataDir).listFiles().map(_.getPath)
+    // divide files into njobs sets of equal size
+    val dividedDocs = cut(scala.util.Random.shuffle(files), njobs)
+    //write filelists
+    val prefix = "tmp-filelist-"
+    val filenames = (0 until njobs).map(i => Paths.get(s"$prefix$i").toAbsolutePath.toString)
+    dividedDocs.zipWithIndex.foreach { case (doclist, idx) =>
+      val pw = new PrintWriter(filenames(idx))
+      doclist.foreach { fname => pw.println(fname) }
+      println(filenames(idx))
+      pw.close()
+    }
+
+    val sbtCmds = filenames.map { filelist =>
+      val args =
+        s"""
+           |--data-files-file=$filelist \\
+           |--output-dir=${opts.outputDir.value} \\
+           |--reference-model-uri=${opts.referenceModelUri.value} \\
+           |--header-tagger-model=${opts.headerTaggerModelFile.value} \"
+         """.stripMargin
+      val sbtCmd = s"sbt -mem ${mem}000 -Dcc.factorie.app.nlp.lexicon.Lexicon=" + opts.lexiconsUri.value + " \"runMain edu.umass.cs.iesl.rpp.BatchMain \\" + args
+      sbtCmd
+    }
+    val scriptPrefix = "tmp-script-"
+    val scriptFilenames = (0 until sbtCmds.length).map(i => Paths.get(s"$scriptPrefix$i").toAbsolutePath.toString)
+    sbtCmds.zipWithIndex.foreach { case (cmd, idx) =>
+      val pw = new PrintWriter(scriptFilenames(idx))
+      pw.write("#!/bin/bash\n\n")
+      pw.write(cmd)
+      println(scriptFilenames(idx))
+      pw.close()
+    }
+
+    scriptFilenames.foreach { script =>
+      val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -cwd -j y -S /bin/sh $script"
+      println("invoking: " + qsubCmd)
+      qsubCmd.!!
+    }
+
+    // remove created filelists
+    filenames.foreach { fname => Files.delete(Paths.get(fname)) }
+    scriptFilenames.foreach { fname => Files.delete(Paths.get(fname)) }
+    println("done.")
+  }
+}
 
 object BatchMain {
   def main(args: Array[String]): Unit = {
-    import java.io.{File, PrintWriter}
-
-    // check to make sure the args are valid
-    //    args.foreach(arg => assert(new File(arg).exists, s"filename $arg does not exist."))
-
-    val referenceModelUri = args(0)
-    val headerTaggerModelFile = args(1)
-    val inputDir = new File(args(2))
-    val outputDir = args(3)
-
-    val inputFiles = inputDir.listFiles.map(_.getPath)
-    println(s"about to process ${inputFiles.length} input files")
-    val outputFiles = inputDir.listFiles.map(_.getName).map(n => outputDir + "/" + n + ".tagged")
-    val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
+    val opts = new BatchOpts
+    opts.parse(args)
+    val referenceModelUri = opts.referenceModelUri.value
+    val headerTaggerModelFile = opts.headerTaggerModelFile.value
+    val inputFiles: Seq[File] = {
+      if (opts.dataFilesFile.wasInvoked) scala.io.Source.fromFile(opts.dataFilesFile.value).getLines().map(fname => new File(fname)).toSeq
+      else if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles
+      else Seq()
+    }
+    val outputFilenames: Seq[String] = {
+      if (opts.outputDir.wasInvoked) {
+        val outputDir = opts.outputDir.value
+        inputFiles.map(_.getName).map(f => outputDir + f + ".tagged")
+      } else inputFiles.map(_.getAbsolutePath + ".tagged")
+    }
+    val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
     val headerTagger = new HeaderTagger
     headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
@@ -47,11 +135,11 @@ object BatchMain {
 
     // FIXME need to get around this whole re-processing thing -- but how ...
     // TODO also add body text?
-    inputFiles.zip(outputFiles).foreach { case (input, output) =>
-      println(s"processing: $input")
+    inputFiles.zip(outputFilenames).foreach { case (input, output) =>
+      println(s"processing: ${input.getAbsolutePath} --> $output")
       var annotator: Annotator = null
       try {
-        annotator = Main.process(trainer, headerTagger, input)
+        annotator = Main.process(trainer, headerTagger, input.getAbsolutePath)
       } catch {
         case e: Exception => updateErrs(e)
       }
@@ -93,9 +181,6 @@ object BatchMain {
             fail = 1
         }
         if (fail == 0) {
-//          println("")
-//          println(xml)
-//          println("")
           val pw = new PrintWriter(new File(output))
           pw.write(xml)
           pw.close()
@@ -105,37 +190,6 @@ object BatchMain {
       } else {
         failCount += 1
       }
-      //      try {
-      //        println(s"processing: $input")
-      //        val annotator = Main.process(trainer, headerTagger, input)
-      //        val headerTxt = Main.getHeaderLines(annotator).mkString("\n")
-      //        val headerDoc = new Document(headerTxt)
-      //        DeterministicTokenizer.process(headerDoc)
-      //        new Sentence(headerDoc.asSection, 0, headerDoc.tokens.size)
-      //        headerTagger.process(headerDoc)
-      //
-      //        val refs = Main.getReferencesWithBreaks(annotator)
-      //        val refDocs = refs.map(ref => {
-      //          val doc = new Document(ref)
-      //          DeterministicTokenizer.process(doc)
-      //          new Sentence(doc.asSection, 0, doc.tokens.size)
-      //          doc.tokens.foreach(t => t.attr += new CitationLabel("", t))
-      //          doc
-      //        })
-      //        TestCitationModel.process(refDocs, trainer, print=false)
-      //
-      //        val xml = XMLParser.docsToXML(headerDoc, refDocs)
-      //        scala.xml.XML.loadString(xml)
-      //        val pw = new PrintWriter(new File(output))
-      //        pw.write(xml)
-      //        pw.close()
-      //
-      //      } catch {
-      //        case e: Exception =>
-      //          println(s"failed to process file: $input ; exception message = ${e.toString}")
-      ////          e.printStackTrace()
-      //          failCount += 1
-      //      }
     }
 
     println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
