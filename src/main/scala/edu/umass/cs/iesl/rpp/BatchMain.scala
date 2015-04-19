@@ -1,7 +1,8 @@
 package edu.umass.cs.iesl.rpp
 
 import edu.umass.cs.iesl.bibie.TestCitationModel
-import edu.umass.cs.iesl.paperheader.crf._
+//import edu.umass.cs.iesl.paperheader.crf._
+import edu.umass.cs.iesl.paperheader.tagger._
 import edu.umass.cs.iesl.xml_annotator._
 import scala.collection.mutable.{ArrayBuffer, Stack}
 import cc.factorie.app.nlp.{Document, Sentence, Token}
@@ -102,6 +103,8 @@ object ParallelInvoker {
   }
 }
 
+class Thingy
+
 object BatchMain {
   def main(args: Array[String]): Unit = {
     val opts = new BatchOpts
@@ -119,7 +122,9 @@ object BatchMain {
         inputFiles.map(_.getName).map(f => outputDir + f + ".tagged")
       } else inputFiles.map(_.getAbsolutePath + ".tagged")
     }
-    val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath
+//    val thingy = new Thingy
+    val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
+    println(lexiconUrlPrefix)
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
     val headerTagger = new HeaderTagger
     headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))

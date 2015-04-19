@@ -9,7 +9,8 @@ import scala.io.Source
 
 import edu.umass.cs.iesl.paperheader
 
-import edu.umass.cs.iesl.paperheader.crf._
+import edu.umass.cs.iesl.paperheader.tagger._
+import edu.umass.cs.iesl.paperheader.load._
 
 import edu.umass.cs.iesl.xml_annotator.Annotator
 
@@ -108,7 +109,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
     val docs: IndexedSeq[Document] = {
       //      println(s"HeaderPartProcessor: str=$str")
-      val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str), separator).toIndexedSeq
+      val ds = LoadTSV.fromSource(Source.fromString(str)).toIndexedSeq
 //      assert(ds.length > 0, "HeaderPartProcessor: failed to LoadTSV any docs")
 //      println(s"HeaderPartProcessor: Loaded ${ds.length}")
 //      ds.foreach(headerTagger.process)

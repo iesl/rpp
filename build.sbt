@@ -25,3 +25,5 @@ libraryDependencies ++= Seq(
   "edu.umass.cs.iesl.paper_header" % "paper_header" % "0.1-SNAPSHOT",
   "edu.umass.cs.iesl.bibie" % "bibie" % "0.1-SNAPSHOT"
 )
+
+parallelExecution := true
