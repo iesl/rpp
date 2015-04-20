@@ -69,41 +69,20 @@ object ParallelInvoker {
       pw.close()
     }
 
-    val sbtCmds = filenames.map { filelist =>
-      val args =
-        s"""
-           |--data-files-file=$filelist \\
-           |--output-dir=${opts.outputDir.value} \\
-           |--reference-model-uri=${opts.referenceModelUri.value} \\
-           |--header-tagger-model=${opts.headerTaggerModelFile.value} \"
-         """.stripMargin
-      val sbtCmd = s"sbt -mem ${mem}000 -Dcc.factorie.app.nlp.lexicon.Lexicon=" + opts.lexiconsUri.value + " \"runMain edu.umass.cs.iesl.rpp.BatchMain \\" + args
-      sbtCmd
-    }
-    val scriptPrefix = "tmp-script-"
-    val scriptFilenames = (0 until sbtCmds.length).map(i => Paths.get(s"$scriptPrefix$i").toAbsolutePath.toString)
-    sbtCmds.zipWithIndex.foreach { case (cmd, idx) =>
-      val pw = new PrintWriter(scriptFilenames(idx))
-      pw.write("#!/bin/bash\n\n")
-      pw.write(cmd)
-      println(scriptFilenames(idx))
-      pw.close()
+    val cmds = filenames.map { filelist =>
+      val args = s"$filelist ${opts.outputDir.value}"
+      val cmd = System.getenv("RPP_ROOT") + "/bin/process-batch-distributed.sh " + args
+      val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -cwd -j y -S /bin/sh $cmd"
+      qsubCmd
     }
 
-    scriptFilenames.par.foreach { script =>
-      val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -cwd -j y -S /bin/sh $script"
-      println("invoking: " + qsubCmd)
-      qsubCmd.!!
-    }
+    cmds.par.foreach { cmd => Process(cmd).run() }
 
-    // remove created filelists
+//     remove created filelists
     filenames.foreach { fname => Files.delete(Paths.get(fname)) }
-    scriptFilenames.foreach { fname => Files.delete(Paths.get(fname)) }
     println("done.")
   }
 }
-
-class Thingy
 
 object BatchMain {
   def main(args: Array[String]): Unit = {
@@ -122,7 +101,6 @@ object BatchMain {
         inputFiles.map(_.getName).map(f => outputDir + f + ".tagged")
       } else inputFiles.map(_.getAbsolutePath + ".tagged")
     }
-//    val thingy = new Thingy
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
     println(lexiconUrlPrefix)
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
