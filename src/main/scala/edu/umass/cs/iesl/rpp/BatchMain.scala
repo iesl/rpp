@@ -80,7 +80,7 @@ object ParallelInvoker {
 
     cmds.par.foreach { cmd =>
       println(cmd)
-//      Process(cmd).run()
+      Process(cmd).run()
     }
 
 //     remove created filelists
