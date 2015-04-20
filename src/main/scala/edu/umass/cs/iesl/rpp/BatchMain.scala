@@ -29,6 +29,7 @@ class BatchOpts extends DefaultCmdOptions {
 
 class ParallelOpts extends BatchOpts {
   val dir = new CmdOption("dir", "", "STRING", "directory of files to process")
+  val output = new CmdOption("output", "", "STRING", "output dir")
   val numJobs = new CmdOption("num-jobs", 8, "INT", "number of jobs to distribute processing over")
   val memPerJob = new CmdOption("mem", 8, "INT", "GB of memory to request per job")
   val numCores = new CmdOption("num-cores", 1, "INT", "number of cores to use")
@@ -56,6 +57,7 @@ object ParallelInvoker {
     val ncores = opts.numCores.value
     val mem = opts.memPerJob.value
     val dataDir = opts.dir.value
+    val outputDir = opts.output.value
     val files = new File(dataDir).listFiles().map(_.getPath)
     // divide files into njobs sets of equal size
     val dividedDocs = cut(scala.util.Random.shuffle(files), njobs)
@@ -70,7 +72,7 @@ object ParallelInvoker {
     }
 
     val cmds = filenames.map { filelist =>
-      val args = s"$filelist ${opts.outputDir.value}"
+      val args = s"$filelist $outputDir"
       val cmd = System.getenv("RPP_ROOT") + "/bin/process-batch-distributed.sh " + args
       val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -v RPP_ROOT -j y -S /bin/sh $cmd"
       qsubCmd
@@ -78,7 +80,7 @@ object ParallelInvoker {
 
     cmds.par.foreach { cmd =>
       println(cmd)
-      Process(cmd).run()
+//      Process(cmd).run()
     }
 
 //     remove created filelists

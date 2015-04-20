@@ -18,10 +18,10 @@ fi
 CP=`cat $RPP_ROOT/CP.hack`
 
 root=$RPP_ROOT
-outputDir="--output-dir=$2"
+outputDir="--output=$2"
 dir="--dir=$1"
-njobs="--num-jobs=20"
-memPerJob="--mem=8"
-ncores="--num-cores=2"
+njobs="--num-jobs=$3"
+memPerJob="--mem=$4"
+ncores="--num-cores=$5"
 
 java -Dfile.encoding=UTF8 -cp $CP -Xmx$memory "edu.umass.cs.iesl.rpp.ParallelInvoker" $dir $ouputDir $njobs $memPerJob
