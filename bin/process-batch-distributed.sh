@@ -2,6 +2,8 @@
 
 memory=15g
 
+cd $RPP_ROOT
+
 if [ ! -f "$RPP_ROOT/CP.hack" ]
 then
     echo "generating CP.hack ..."

@@ -72,11 +72,14 @@ object ParallelInvoker {
     val cmds = filenames.map { filelist =>
       val args = s"$filelist ${opts.outputDir.value}"
       val cmd = System.getenv("RPP_ROOT") + "/bin/process-batch-distributed.sh " + args
-      val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -cwd -j y -S /bin/sh $cmd"
+      val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -v RPP_ROOT -j y -S /bin/sh $cmd"
       qsubCmd
     }
 
-    cmds.par.foreach { cmd => Process(cmd).run() }
+    cmds.par.foreach { cmd =>
+      println(cmd)
+      Process(cmd).run()
+    }
 
 //     remove created filelists
     filenames.foreach { fname => Files.delete(Paths.get(fname)) }
