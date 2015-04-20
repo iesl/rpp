@@ -82,7 +82,7 @@ object ParallelInvoker {
     }
 
 //     remove created filelists
-    filenames.foreach { fname => Files.delete(Paths.get(fname)) }
+//    filenames.foreach { fname => Files.delete(Paths.get(fname)) }
     println("done.")
   }
 }
