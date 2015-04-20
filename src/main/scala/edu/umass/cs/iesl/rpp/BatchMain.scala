@@ -30,8 +30,8 @@ class BatchOpts extends DefaultCmdOptions {
 class ParallelOpts extends BatchOpts {
   val dir = new CmdOption("dir", "", "STRING", "directory of files to process")
   val numJobs = new CmdOption("num-jobs", 8, "INT", "number of jobs to distribute processing over")
-  val memPerJob = new CmdOption("mem", 16, "INT", "GB of memory to request per job")
-  val numCores = new CmdOption("num-cores", 8, "INT", "number of cores to use")
+  val memPerJob = new CmdOption("mem", 8, "INT", "GB of memory to request per job")
+  val numCores = new CmdOption("num-cores", 1, "INT", "number of cores to use")
 }
 
 object ParallelInvoker {
@@ -99,13 +99,12 @@ object BatchMain {
       else Seq()
     }
     val outputFilenames: Seq[String] = {
-      if (opts.outputDir.wasInvoked) {
+//      if (opts.outputDir.wasInvoked) {
         val outputDir = opts.outputDir.value
         inputFiles.map(_.getName).map(f => outputDir + f + ".tagged")
-      } else inputFiles.map(_.getAbsolutePath + ".tagged")
+//      } else inputFiles.map(_.getAbsolutePath + ".tagged")
     }
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
-    println(lexiconUrlPrefix)
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
     val headerTagger = new HeaderTagger
     headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
