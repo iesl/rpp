@@ -18,10 +18,10 @@ fi
 CP=`cat $RPP_ROOT/CP.hack`
 
 root=$RPP_ROOT
-lexicons=file:///home/kate/research/lexicon
+lexicons=file://$1
 citeCRF="--reference-model-uri=file://$root/citationCRF.factorie"
 headerCRF="--header-tagger-model=$root/headerCRF.factorie"
-inputDir="--input-dir=$root/input"
-outputDir="--output-dir=$root/output/"
+inputDir="--input-dir=$2"
+outputDir="--output-dir=$3"
 
 java -Dfile.encoding=UTF8 -Dcc.factorie.app.nlp.lexicon.Lexicon=$lexicons -cp $CP -Xmx$memory "edu.umass.cs.iesl.rpp.BatchMain" $citeCRF $headerCRF $inputDir $outputDir
