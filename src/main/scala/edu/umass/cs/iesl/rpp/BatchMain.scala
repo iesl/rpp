@@ -123,17 +123,20 @@ object BatchMain {
 
     // FIXME need to get around this whole re-processing thing -- but how ...
     // TODO also add body text?
-    inputFiles.zip(outputFilenames).foreach { case (input, output) =>
+    inputFiles.zip(outputFilenames).take(5).foreach { case (input, output) =>
       println(s"processing: ${input.getAbsolutePath} --> $output")
       var annotator: Annotator = null
       try {
         annotator = Main.process(trainer, headerTagger, input.getAbsolutePath)
+        annotator.write(output+"-blah")
       } catch {
         case e: Exception => updateErrs(e)
       }
+
       if (annotator != null) {
         var fail = 0
         val headerTxt = Main.getHeaderLines(annotator).mkString("\n")
+        println(headerTxt)
         val headerDoc = new Document(headerTxt)
         DeterministicTokenizer.process(headerDoc)
         new Sentence(headerDoc.asSection, 0, headerDoc.tokens.size)
