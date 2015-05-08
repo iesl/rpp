@@ -128,6 +128,9 @@ object Token2BodyFeatureSequenceSvg {
     i=0;
     while (i < lineInfos.length) {
       {
+//        println("value of i is: " + i)
+//        println("lineInfos(i).page " + lineInfos(i).page)
+//        println("columns.get(lineInfos(i).page).get " + columns.get(lineInfos(i).page).get)
         val currentLineColumn: LayoutUtils.ColumnData = LayoutUtils.getCurrentLineColumn(lineInfos, i, columns.get(lineInfos(i).page).get, true, columnAcceptableErrorLeft, columnAcceptableErrorRight, lastLineColumn, verticalDistance.get(0).get.getKey.asInstanceOf[Int])
         lineSpanCount = updateLineSpanCounter(data, lineSpanCount + 1)
         val lineSpan: Span = data.getLineSpans/*.get*/(lineSpanCount)
@@ -323,7 +326,7 @@ object Token2BodyFeatureSequenceSvg {
         }
       }
       ({
-        i += 1; i - 1
+        i += 1;
       })
     }
   }

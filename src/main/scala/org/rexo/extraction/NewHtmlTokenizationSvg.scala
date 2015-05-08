@@ -197,7 +197,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
 
 
-    println("number of pages: " + parentElement.getChildren.size())
+//    println("number of pages: " + parentElement.getChildren.size())
 
     val lineBIndexPairSet = page.getBIndexPairSet(Single(SegmentCon("line")))
 
@@ -234,7 +234,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
     for( //this for iterates over pages
       currentPage <- groupedByLineContent.keys.toList.sorted
     ){
-      println("processing page: " + currentPage)
+//      println("processing page: " + currentPage)
       val lines:Set[Int] = groupedByLineContent.get(currentPage).get.keySet
 
       val keysIterator:Iterator[Int] = groupedByLineContent.get(currentPage).get.keysIterator
@@ -502,7 +502,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
 
 
-    println("number of pages: " + parentElement.getChildren.size())
+//    println("number of pages: " + parentElement.getChildren.size())
 
     val lineBIndexPairSet = page.getBIndexPairSet(Single(SegmentCon("line")))
 
@@ -1123,6 +1123,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   def getYCoordinate(node:Element, doc:Document):Double =
   {
     val coords2 = Annotator.getTransformedCoords(node, getTopPageAncestorV2(node,doc))
+
     val topPageElem = getTopPageElement(node,doc)
     val transfMatVector = getTransformationMatrixVectorV2(topPageElem)
     val pageNumber = NewHtmlTokenizationSvg.getPageNumber(node, doc) + 1
@@ -1139,7 +1140,9 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
     val currPageHeight = transfMatVector(5)  - previousOffset
 
     if(transfMatVector(3).toInt == -1) {
-      return (currPageHeight + coords2.ys(0) * (-1))
+      //commented because the coordinates already appear inverted
+//      return (currPageHeight + coords2.ys(0) * (-1))
+      return (currPageHeight + coords2.ys(0))
     }
     else
     {

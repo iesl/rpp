@@ -20,7 +20,7 @@ import scala.collection.mutable
 
 object LayoutSegmentFinderSvg {
   val NULL_PATTERN: scala.util.matching.Regex = null
-  val INTRODUCTION_PATTERN = new scala.util.matching.Regex("""^[#iIvVxX\s\.\d]*(I(?i:ntroduction)|I(?i:ntroduction and Motivation))""")
+  val INTRODUCTION_PATTERN = new scala.util.matching.Regex("""^[#iIvVxX\s\.\d]*(I(?i:ntroduction)|I(?i:ntroduction and Motivation))\s*""")
   val ABSTRACT_PATTERN = new scala.util.matching.Regex("""^[\s]*((A(?i:bstract))|((abstract)))[\s]*$""")
   val BIBLIOGRAPHY_PATTERN = new scala.util.matching.Regex("""^[#iIvVxX\d\.\s]{0,5}(R(?i:eferences)|B(?i:ibliography)|R(?i:eferences and Notes)|L(?i:iterature Cited)|(.*REFERENCES.*))\s*$""")
 
@@ -130,7 +130,7 @@ class LayoutSegmentFinderSvg {
     val biblioBoundaries: Array[Long] = lineListBoundaries(lineSpans)
     val biblio: NewHtmlTokenizationSvg = tokenization.getSubspanTokenization(biblioBoundaries(0).asInstanceOf[Int], biblioBoundaries(1).asInstanceOf[Int])
     val referenceData: RulesBibliographySegmentorSvg.ReferenceData = m_rulesBibSegmentor.segmentReferences(biblio)
-
+    subsections.put("featuresData", biblio.getProperty("referenceFeatures"))
 
 
     if (!referenceData.prologueList.isEmpty) {

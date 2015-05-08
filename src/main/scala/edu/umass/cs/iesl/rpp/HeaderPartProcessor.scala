@@ -101,7 +101,9 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
 
     val docs = {
+      //TODO: kzaporojets: undo it
       val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str), separator).toIndexedSeq
+//      val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str)).toIndexedSeq
 //      paperheader.process.DocProcessor(ds)
       ds.foreach(headerTagger.process)
       ds.toIndexedSeq
