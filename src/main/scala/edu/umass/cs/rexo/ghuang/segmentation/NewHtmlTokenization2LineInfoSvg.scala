@@ -3,6 +3,9 @@ package edu.umass.cs.rexo.ghuang.segmentation
 import org.rexo.base.{Instance, Pipe}
 import org.rexo.extraction.{NewHtmlTokenizationSvg, NewHtmlTokenization}
 import org.rexo.extra.types.Token
+import org.rexo.extra.extract.Span
+import org.rexo.span.CompositeSpan
+import edu.umass.cs.rexo.ghuang.segmentation.utils.LayoutUtils
 
 /**
  * Created by klimzaporojets on 11/24/14.
@@ -13,6 +16,24 @@ object NewHtmlTokenization2LineInfoSvg {
 
 //TODO: here is where information about div elements should be added from NewHtmlTokenization
 class NewHtmlTokenization2LineInfoSvg extends Pipe with Serializable {
+
+  def getBlockId(elem:Span):String = {
+    val realElem:Span = elem match {
+      case e: CompositeSpan if e.getSpans.size > 0 =>
+        e.getSpans(0).asInstanceOf[Span]
+      case _ => elem
+    }
+
+    val blockId = LayoutUtils.getProperty(realElem.asInstanceOf[Span], "divElement") match {
+      case null => -1
+      case (x, y) => x.toString.toInt
+    }
+
+    val pageNum =  LayoutUtils.getProperty(realElem.asInstanceOf[Span], "pageNum")
+
+    blockId + "_" +  pageNum.asInstanceOf[Double].intValue
+  }
+
   def pipe(carrier: Instance): Instance = {
     val htmlTokenization: NewHtmlTokenizationSvg = carrier.getData.asInstanceOf[NewHtmlTokenizationSvg]
     val lineInfos: collection.mutable.MutableList[LineInfo] = collection.mutable.MutableList[LineInfo]() // ArrayList[_] = new ArrayList[_]
@@ -24,6 +45,8 @@ class NewHtmlTokenization2LineInfoSvg extends Pipe with Serializable {
     while (ti < htmlTokenization.size) {
       {
         val token: Token = htmlTokenization.getToken(ti)
+
+
         val tokLineNum: Int = token.getNumericProperty("lineNum").asInstanceOf[Int]
         if (tokLineNum == 0) {
           //continue //todo: continue is not supported
@@ -36,6 +59,9 @@ class NewHtmlTokenization2LineInfoSvg extends Pipe with Serializable {
           }
           lineInfo = new LineInfo
           lineText = new StringBuffer(token.getText + " ")
+          val divElement:scala.Tuple2[Integer,Any] = LayoutUtils.getProperty(token, "divElement").asInstanceOf[scala.Tuple2[Integer, Any]]
+          lineInfo.blockId = divElement._1.toInt
+
           lineInfo.page = token.getNumericProperty("pageNum").asInstanceOf[Int]
           lineInfo.llx = token.getNumericProperty("llx").asInstanceOf[Int]
           lineInfo.lly = token.getNumericProperty("lly").asInstanceOf[Int]

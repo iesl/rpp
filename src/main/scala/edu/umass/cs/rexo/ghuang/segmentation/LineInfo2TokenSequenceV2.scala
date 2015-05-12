@@ -139,7 +139,7 @@ object LineInfo2TokenSequenceV2 {
               }
             }
             else if (firstIndentation(currColumn).getLeftX < entr.getKey.asInstanceOf[LayoutUtils.ColumnData].getLeftX) {
-              println("inside commented if")
+//              println("inside commented if")
             }
           }
         }
@@ -262,6 +262,8 @@ class LineInfo2TokenSequenceV2 extends Pipe with Serializable {
             //TODO: delete this toString later
             dataTokens(i).toString
           }
+          dataTokens(i).setProperty("blockId", oldData(i).blockId)
+          dataTokens(i).setProperty("page", oldData(i).page)
         }
         ({
           i += 1;
@@ -423,7 +425,7 @@ class LineInfo2TokenSequenceV2 extends Pipe with Serializable {
       columnsData.put(key, sortedCols)
       cols = LineInfo2TokenSequenceV2.getColumns(null, columnsData.get(key).get, pagesData.get(key).get, firstLine, false, indentationType, lineInfos)
       colsPerPage.put(key.asInstanceOf[Int], cols)
-      System.out.println("cols obtained")
+//      System.out.println("cols obtained")
     }
 
     //in case the indentations are in 0, it means that the pattern of the first line is not recognized, therefore
@@ -698,6 +700,7 @@ class LineInfo2TokenSequenceV2 extends Pipe with Serializable {
     var numBeginCapInitials: Int = 0
     var numPages: Int = 1
     var prevPage: Int = 0
+    var noFirstReferenceLine:Boolean = true
     var biblioTitleIndex: Int = -1
 
       var i: Int = 0
@@ -733,8 +736,10 @@ class LineInfo2TokenSequenceV2 extends Pipe with Serializable {
             if (squishedText.matches("^\\([0-9]+\\).*")) {
               lineInfos(i).presentFeatures.add("beginNumericBrackets")
             }
-            if (biblioTitleIndex > -1 && (i - biblioTitleIndex) == 1) {
+//            println("i is: " + i)
+            if (biblioTitleIndex > -1 && noFirstReferenceLine==true) {
               lineInfos(i).presentFeatures.add("firstReferenceLine")
+              noFirstReferenceLine = false
             }
             if (biblioTitleIndex == -1 && squishedText.matches("^[#iIvVxX\\d\\.\\s]{0,5}(R(?i:eferences)|B(?i:ibliography)|R(?i:eferencesandNotes)|L(?i:iteratureCited)|(.*REFERENCES.*))\\s*$")) {
               biblioTitleIndex = i

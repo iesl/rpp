@@ -40,7 +40,14 @@ object StructureProcessor extends Processor {
   val headerString = "header"
   val headerChar = 'h' 
   val biblioMarkerString = "biblio-marker"
-  val biblioMarkerChar = 'b' 
+  val biblioMarkerChar = 'b'
+
+  val prologMarkerString = "prologue-marker"
+  val prologMarkerChar = 'p'
+
+  val epilogueMarkerString = "epilogue-marker"
+  val epilogueMarkerChar = 'e'
+
   val figureMarkerString = "figure-marker"
   val figureMarkerChar = 'f' 
   val tableMarkerString = "table-marker"
@@ -119,7 +126,7 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
 
   }
 
-  private def getBlockId(elem:Span):String = {
+  def getBlockId(elem:Span):String = {
     val realElem:Span = elem match {
       case e: CompositeSpan if e.getSpans.size > 0 =>
         e.getSpans(0).asInstanceOf[Span]
@@ -136,11 +143,11 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
     blockId + "_" +  pageNum.asInstanceOf[Double].intValue
   }
 
-  private def isPartOfBody(elem:Span):Boolean = {
+  def isPartOfBody(elem:Span):Boolean = {
     !LayoutUtils.isPropertySet(elem, "isHeaderFooterLine") //isActiveFeature(elem,"isHeaderFooterLine");
   }
 
-  private def trimLineSpans(lineSpans: mutable.ArrayBuffer[Span]): ArrayBuffer[Span] = {
+  def trimLineSpans(lineSpans: mutable.ArrayBuffer[Span]): ArrayBuffer[Span] = {
 
     def trimStart(lineSpans: mutable.ArrayBuffer[Span]): mutable.ArrayBuffer[Span] = {
       if (!isPartOfBody(lineSpans.head)) {

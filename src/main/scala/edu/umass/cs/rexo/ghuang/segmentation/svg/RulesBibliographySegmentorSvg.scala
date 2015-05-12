@@ -127,6 +127,7 @@ class RulesBibliographySegmentorSvg {
     val rulesInputPipe: Pipe = transformFromCrfToRulesPipe()
     val inst: Instance = new Instance(htmlTokenization, null, null, null, rulesInputPipe)
     val predictedLabels: Sequence = transduce(inst.getData.asInstanceOf[Sequence])
+    htmlTokenization.setProperty("referenceFeatures",inst)
     val ret: RulesBibliographySegmentorSvg.ReferenceData = new RulesBibliographySegmentorSvg.ReferenceData
     val lineSpans: collection.mutable.MutableList[Span] = collection.mutable.MutableList[Span]()
     lineSpans.++=(htmlTokenization.getLineSpans)

@@ -20,6 +20,7 @@ class LineInfo {
   var lly: Int = 0
   var urx: Int = 0
   var ury: Int = 0
+  var blockId: Int = 0
   var font: String = ""
   var multibox: Boolean = false
   //the label such as I-Biblio, B-Biblio,.....
