@@ -1,16 +1,14 @@
 package edu.umass.cs.iesl.rpp
 
 import edu.umass.cs.iesl.bibie.TestCitationModel
-import edu.umass.cs.iesl.paperheader.crf._
-//import edu.umass.cs.iesl.paperheader.tagger._
+import edu.umass.cs.iesl.paperheader.tagger._
 import edu.umass.cs.iesl.xml_annotator._
-import scala.collection.mutable.{ArrayBuffer, Stack}
-import cc.factorie.app.nlp.{Document, Sentence, Token}
+import cc.factorie.app.nlp.{Document, Sentence}
 import cc.factorie.app.nlp.segment.DeterministicTokenizer
 import cc.factorie.util._
 import edu.umass.cs.iesl.bibie.CitationLabel
 import java.io.{File, PrintWriter}
-import java.nio.file.{Paths, Files}
+import java.nio.file.Paths
 
 
 /**
