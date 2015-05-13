@@ -6,7 +6,8 @@ import edu.umass.cs.iesl.xml_annotator.Annotator
 import scala.compat.Platform
 import Annotator._
 import edu.umass.cs.iesl.bibie._
-import edu.umass.cs.iesl.paperheader.tagger.HeaderTagger
+//import edu.umass.cs.iesl.paperheader.tagger.HeaderTagger
+import edu.umass.cs.iesl.paperheader.crf.HeaderTagger
 
 object Main {
 

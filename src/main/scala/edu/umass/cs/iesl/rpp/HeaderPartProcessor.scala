@@ -7,10 +7,10 @@ import scala.collection.immutable.HashMap
 import scala.collection.immutable.{IntMap, SortedSet}
 import scala.io.Source
 
-import edu.umass.cs.iesl.paperheader
+import edu.umass.cs.iesl.paperheader.crf._
 
-import edu.umass.cs.iesl.paperheader.tagger._
-import edu.umass.cs.iesl.paperheader.load._
+//import edu.umass.cs.iesl.paperheader.tagger._
+//import edu.umass.cs.iesl.paperheader.load._
 
 import edu.umass.cs.iesl.xml_annotator.Annotator
 
@@ -107,17 +107,24 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
     }}).mkString("\n\n") + "\n\n" + separator
 
 
-    val docs: IndexedSeq[Document] = {
-      //      println(s"HeaderPartProcessor: str=$str")
-      val ds = LoadTSV.fromSource(Source.fromString(str)).toIndexedSeq
-//      assert(ds.length > 0, "HeaderPartProcessor: failed to LoadTSV any docs")
-//      println(s"HeaderPartProcessor: Loaded ${ds.length}")
-//      ds.foreach(headerTagger.process)
-//      println("HeaderPartProcessor: got annotations:")
-//      ds.head.sections.flatMap(_.tokens).foreach(token => println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}"))
-//
-//      //      paperheader.process.DocProcessor(ds)
 
+//    val docs: IndexedSeq[Document] = {
+//      //      println(s"HeaderPartProcessor: str=$str")
+//      val ds = LoadTSV.fromSource(Source.fromString(str)).toIndexedSeq
+//      //      assert(ds.length > 0, "HeaderPartProcessor: failed to LoadTSV any docs")
+//      //      println(s"HeaderPartProcessor: Loaded ${ds.length}")
+//      //      ds.foreach(headerTagger.process)
+//      //      println("HeaderPartProcessor: got annotations:")
+//      //      ds.head.sections.flatMap(_.tokens).foreach(token => println(s"${token.string} ${token.attr[BioHeaderTag].categoryValue}"))
+//      //
+//      //      //      paperheader.process.DocProcessor(ds)
+//      ds
+//    }
+
+    val docs = {
+      //TODO: kzaporojets: undo it
+      val ds = new LoadTSV(withLabels=false).fromSource(Source.fromString(str), separator).toIndexedSeq
+      ds.foreach(headerTagger.process)
       ds.toIndexedSeq
     }
 

@@ -7,7 +7,7 @@ package edu.umass.cs.iesl.rpp
 import cc.factorie.app.nlp._
 import cc.factorie.util.namejuggler
 import edu.umass.cs.iesl.bibie._
-import edu.umass.cs.iesl.paperheader.tagger.HeaderTagSpanBuffer
+import edu.umass.cs.iesl.paperheader.crf.HeaderTagSpanBuffer
 import scala.collection.mutable.{ArrayBuffer, Stack, HashMap}
 
 class ReferenceField(val tag: String, val subfields: Set[String], val isTerminal: Boolean = false) {

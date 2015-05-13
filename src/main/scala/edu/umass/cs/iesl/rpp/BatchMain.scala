@@ -1,8 +1,8 @@
 package edu.umass.cs.iesl.rpp
 
 import edu.umass.cs.iesl.bibie.TestCitationModel
-//import edu.umass.cs.iesl.paperheader.crf._
-import edu.umass.cs.iesl.paperheader.tagger._
+import edu.umass.cs.iesl.paperheader.crf._
+//import edu.umass.cs.iesl.paperheader.tagger._
 import edu.umass.cs.iesl.xml_annotator._
 import scala.collection.mutable.{ArrayBuffer, Stack}
 import cc.factorie.app.nlp.{Document, Sentence, Token}
@@ -96,6 +96,8 @@ object BatchMain {
     opts.parse(args)
     val referenceModelUri = opts.referenceModelUri.value
     val headerTaggerModelFile = opts.headerTaggerModelFile.value
+
+    // loading inputs
     val inputFiles: Seq[File] = {
       if (opts.dataFilesFile.wasInvoked) scala.io.Source.fromFile(opts.dataFilesFile.value).getLines().map(fname => new File(fname)).toSeq
       else if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles
@@ -107,6 +109,8 @@ object BatchMain {
         inputFiles.map(_.getName).map(f => outputDir + f + ".tagged")
 //      } else inputFiles.map(_.getAbsolutePath + ".tagged")
     }
+
+    // loading models
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
     val headerTagger = new HeaderTagger
@@ -121,20 +125,24 @@ object BatchMain {
       else errAnalysis(key) = 1
     }
 
-    // FIXME need to get around this whole re-processing thing -- but how ...
+    // FIXME need to get around this whole re-processing thing; i.e. want FACTORIE doc so we can write XML easily
     // TODO also add body text?
-    inputFiles.zip(outputFilenames).take(5).foreach { case (input, output) =>
+    inputFiles.zip(outputFilenames).foreach { case (input, output) =>
       println(s"processing: ${input.getAbsolutePath} --> $output")
       var annotator: Annotator = null
+
+      /* segmentation */
       try {
         annotator = Main.process(trainer, headerTagger, input.getAbsolutePath)
-        annotator.write(output+"-blah")
+//        annotator.write(output+"-blah")
       } catch {
         case e: Exception => updateErrs(e)
       }
 
       if (annotator != null) {
         var fail = 0
+
+        /* annotate with paper-header */
         val headerTxt = Main.getHeaderLines(annotator).mkString("\n")
         println(headerTxt)
         val headerDoc = new Document(headerTxt)
@@ -147,6 +155,8 @@ object BatchMain {
             updateErrs(e)
             fail = 1
         }
+
+        /* annotate with bibie */
         val refs = Main.getReferencesWithBreaks(annotator)
         val refDocs = refs.map(ref => {
           val doc = new Document(ref)
@@ -155,6 +165,7 @@ object BatchMain {
           doc.tokens.foreach(t => t.attr += new CitationLabel("", t))
           doc
         })
+
         try {
           TestCitationModel.process(refDocs, trainer, print=false)
         } catch {
@@ -162,6 +173,8 @@ object BatchMain {
             updateErrs(e)
             fail = 1
         }
+
+        /* write to XML */
         var xml =  ""
         try {
           xml = XMLParser.docsToXML(headerDoc, refDocs)
