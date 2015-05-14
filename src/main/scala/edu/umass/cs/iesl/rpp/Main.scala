@@ -19,8 +19,8 @@ object Main {
       StructureProcessor,
       ReferencePartProcessor(trainer),
       CitationProcessor,
-      CitationReferenceLinkProcessor//,
-//      HeaderPartProcessor(headerTagger)
+      CitationReferenceLinkProcessor,
+      HeaderPartProcessor(headerTagger)
     )
 
     val annotator = l.foldLeft(Annotator(dom)) {
@@ -241,6 +241,7 @@ object Main {
     headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
 
     val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
+    getAuthorNames(annotator).map(l => println(l))
 
   }
 
