@@ -241,7 +241,9 @@ object Main {
     headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
 
     val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
-    getAuthorNames(annotator).map(l => println(l))
+    import HeaderPartProcessor._
+    getAuthorTokens(annotator).map(l => println(l))
+    getEmails(annotator).map(l => println(l))
 
   }
 

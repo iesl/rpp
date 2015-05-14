@@ -22,16 +22,7 @@ import scala.compat.Platform
 
 class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
   import Annotator._
-
-  val headerInstitution = "header-institution"
-  val headerAddress = "header-address"
-  val headerTitle = "header-title"
-  val headerAuthor = "header-author"
-  val headerTech = "header-tech"
-  val headerDate = "header-date"
-  val headerNote = "header-note"
-  val headerAbstract = "abstract"
-  val headerEmail = "header-email"
+  import HeaderPartProcessor._
 
   override def process(annotator: Annotator): Annotator =  {
 
@@ -102,15 +93,15 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
     val docs = headerSet.map(_._3)
 
     val typePairMap: HashMap[String, (String, Char)] = HashMap(
-      "institution" -> ("header-institution", 'i'),
-      "address" -> ("header-address", 'a'),
-      "title" -> ("header-title", 't'),
-      "author" -> ("header-author", 'a'),
-      "tech" -> ("header-tech", 't'),
-      "date" -> ("header-date", 'd'),
-      "note" -> ("header-note", 'n'),
-      "abstract" -> ("abstract", 'b'),
-      "email" -> ("header-email", 'e')
+      "institution" -> (headerInstitution, 'i'),
+      "address" -> (headerAddress, 'a'),
+      "title" -> (headerTitle, 't'),
+      "author" -> (headerAuthor, 'a'),
+      "tech" -> (headerTech, 't'),
+      "date" -> (headerDate, 'd'),
+      "note" -> (headerNote, 'n'),
+      "abstract" -> (headerAbstract, 'b'),
+      "email" -> (headerEmail, 'e')
     )
 
     val headerSeq: IndexedSeq[IndexedSeq[HeaderItem]] = headerSet.map(_._2).toIndexedSeq
@@ -120,7 +111,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         val headerItemSeq: IndexedSeq[HeaderItem] = headerSeq(docIdx)
         val indexPairMap: IndexedSeq[(Int, Int)] = headerItemSeq.map(_.indexPair)
         val typeLabelList = headerItemSeq.map(_.token).map(t => {
-          println("debug t: " + t.attr[BilouHeaderTag].categoryValue + ": " + t.toString)
+          println("HeaderPartProcessor: " + t.attr[BilouHeaderTag].categoryValue + ": " + t.toString)
           t.attr[BilouHeaderTag].categoryValue
         })
         typeLabelList.zipWithIndex.flatMap {
@@ -166,4 +157,40 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
 object HeaderPartProcessor {
   def apply(headerTagger: HeaderTagger): HeaderPartProcessor = new HeaderPartProcessor(headerTagger)
+
+  val headerInstitution = "header-institution"
+  val headerAddress = "header-address"
+  val headerTitle = "header-title"
+  val headerAuthor = "header-author"
+  val headerTech = "header-tech"
+  val headerDate = "header-date"
+  val headerNote = "header-note"
+  val headerAbstract = "abstract"
+  val headerEmail = "header-email"
+  val headerToken = "header-token"
+
+  import Annotator._
+
+  def getAuthorTokens(annotator: Annotator): Seq[Seq[String]] = {
+    val authorBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(headerAuthor)))
+    authorBIndexPairSet.toList.map(bIndexPair => {
+      val (blockIndex, charIndex) = bIndexPair
+      val authorSegment = annotator.getSegment(headerAuthor)(blockIndex, charIndex)
+      authorSegment.toList.flatMap { case (bi, labelMap) =>
+        labelMap.map { case (ci, label) =>
+          annotator.getTextMap(headerToken)(bi, ci).values.map(_._2).mkString("")
+        }
+      }
+    })
+  }
+
+  def getEmails(annotator: Annotator): Seq[String] = {
+    val emailBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(headerEmail)))
+    emailBIndexPairSet.toList.map(bIndexPair => {
+      val (blockIndex, charIndex) = bIndexPair
+      annotator.getTextMap(headerEmail)(blockIndex, charIndex).map(_._2).mkString("")
+    })
+  }
+
 }
+
