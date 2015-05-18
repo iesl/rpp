@@ -87,7 +87,7 @@ object LineProcessor extends Processor {
         }
     } toMap
 
-    annotator.annotate(List(lineString -> lineChar), Single(CharCon), table)
+    annotator.annotateWithIndexPairMap(List(lineString -> lineChar), Single(CharCon), table)
 
   }
 

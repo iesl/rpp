@@ -206,7 +206,7 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
           val blockIndex = blockIndexStr.take(blockIndexStr.indexOf('_')).toInt
           labelOp.map(l => (blockIndex, 0) -> l)
       }
-      annotator.annotate(List(annotation -> annoLetter), Single(SegmentCon(lineString)), table)
+      annotator.annotateWithIndexPairMap(List(annotation -> annoLetter), Single(SegmentCon(lineString)), table)
     }
 
     resAnnot

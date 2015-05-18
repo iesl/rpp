@@ -26,7 +26,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
   override def process(annotator: Annotator): Annotator =  {
 
-    case class HeaderItem(indexPair: (Int, Int), token: Token, x: Int, y: Int, fontSize: Int)
+    case class HeaderItem(index: Int, token: Token, x: Int, y: Int, fontSize: Int)
 
     def token2LabelMap(token: Token): IntMap[Label] = {
       if (token.stringStart + 1 == token.stringEnd) {
@@ -42,20 +42,19 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
     val rootElement = annotator.getDom().getRootElement
 
     //create index from (section idx) -> (bIndex, cIndex)
-    val headerBIndexPairSet: SortedSet[(Int, Int)] = annotator.getBIndexPairSet(Single(SegmentCon("header")))
-    val lineBIndexPairSet: SortedSet[(Int, Int)] = annotator.getBIndexPairSet(Range("header", SegmentCon("line")))
+    val headerBIndexSet: SortedSet[Int] = annotator.getBIndexSet(Single(SegmentCon("header")))
+    val lineBIndexSet: SortedSet[Int] = annotator.getBIndexSet(Range("header", SegmentCon("line")))
 
     //: (Map[(Int, Int), Label], IndexedSeq[HeaderItem])
-    val headerSet: Set[(Map[(Int, Int), Label], IndexedSeq[HeaderItem], Document)] = headerBIndexPairSet.map {
+    val headerSet: Set[(Map[Int, Label], IndexedSeq[HeaderItem], Document)] = headerBIndexSet.flatMap { case (index) =>
+      annotator.getText("header")(index) map { case (startIndex, rawText) =>
 
-      case (blockBIndex, charBIndex) =>
-        val textMap: IntMap[(Int, String)] = annotator.getTextMap("header")(blockBIndex, charBIndex)
-        val elementMap: IntMap[Element] = annotator.getElements("header")(blockBIndex, charBIndex)
+        val elementMap: IntMap[Element] = annotator.getElements("header")(index)
 
-        val indexPairMap: IntMap[(Int, Int)] = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet)
+        //val indexPairMap: IntMap[(Int, Int)] = Annotator.mkIndexPairMap(textMap, lineBIndexSet)
 
-
-        val text: String = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet)
+        val text: String = Annotator.mkTextWithBreaks(rawText, lineBIndexSet.map(_ - startIndex))
+        val breakMap = Annotator.mkBreakMap(rawText.size, lineBIndexSet.map(_ - startIndex))
 
         val doc = {
           val d = new Document(text)
@@ -65,11 +64,12 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         }
 
         val headerItemSeq: IndexedSeq[HeaderItem] = doc.tokens.map(token => {
-          val indexPair = indexPairMap(token.stringStart)
+          val index = breakMap(token.stringStart)
+          val indexPair = annotator.mkIndexPair(index)
           val e = elementMap(indexPair._1)
           val PositionGroup(xs, _, ys) = Annotator.getTransformedCoords(e, rootElement)
           HeaderItem(
-            indexPair,
+            index,
             token,
             xs(indexPair._2).toInt,
             ys(indexPair._2).toInt,
@@ -77,18 +77,18 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
           )
         }).toIndexedSeq
 
-        val indexPair2TokenLabelMap: Map[(Int, Int), Label] = headerItemSeq.flatMap(hi => token2LabelMap(hi.token)).map {
-          case (i, label) => indexPairMap(i) -> label
+        val index2TokenLabelMap: Map[Int, Label] = headerItemSeq.flatMap(hi => token2LabelMap(hi.token)).map {
+          case (i, label) => breakMap(i) -> label
         } toMap
 
-        (indexPair2TokenLabelMap, headerItemSeq, doc)
-
+        (index2TokenLabelMap, headerItemSeq, doc)
+      }
     }
 
 
-    val indexPair2TokenLabelMap: Map[(Int, Int), Label] = headerSet.flatMap(_._1).toMap
+    val index2TokenLabelMap: Map[Int, Label] = headerSet.flatMap(_._1).toMap
 
-    val annoWithTokens: Annotator = annotator.annotate(List("header-token" -> 't'), Single(CharCon), indexPair2TokenLabelMap)
+    val annoWithTokens: Annotator = annotator.annotate(List("header-token" -> 't'), Range("header", CharCon), index2TokenLabelMap)
 
     val docs = headerSet.map(_._3)
 
@@ -106,23 +106,23 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
     val headerSeq: IndexedSeq[IndexedSeq[HeaderItem]] = headerSet.map(_._2).toIndexedSeq
 
-    val indexTypeTriple2LabelList: List[((Int, Int, String), Label)] = docs.zipWithIndex.flatMap {
+    val indexTypeDub2LabelList: List[((Int, String), Label)] = docs.zipWithIndex.flatMap {
       case (doc, docIdx) =>
         val headerItemSeq: IndexedSeq[HeaderItem] = headerSeq(docIdx)
-        val indexPairMap: IndexedSeq[(Int, Int)] = headerItemSeq.map(_.indexPair)
+        val indexMap: IndexedSeq[Int] = headerItemSeq.map(_.index)
         val typeLabelList = headerItemSeq.map(_.token).map(t => {
-          println("HeaderPartProcessor: " + t.attr[BilouHeaderTag].categoryValue + ": " + t.toString)
+          println("paper-header output: " + t.attr[BilouHeaderTag].categoryValue + ": " + t.toString)
           t.attr[BilouHeaderTag].categoryValue
         })
         typeLabelList.zipWithIndex.flatMap {
           case (typeLabel, tokenIndex) =>
-            val (bIndex, cIndex) = indexPairMap(tokenIndex)
+            val totalIndex = indexMap(tokenIndex)
             val labelString = typeLabel.take(1)
             val typeKey = typeLabel.drop(2)
 
             typePairMap.get(typeKey).map {
               case (typeString, typeChar) =>
-                (bIndex, cIndex, typeString) -> (labelString match {
+                (totalIndex, typeString) -> (labelString match {
                   case "B" => B(typeChar)
                   case "I" => I
                   case "O" => O
@@ -133,20 +133,17 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         }
     } toList
 
-    type IISTrip = (Int, Int, String)
-    type StringLabelMap = Map[String, Label]
-
-    val tripLabelMap = indexTypeTriple2LabelList.toMap
+    val dubLabelMap = indexTypeDub2LabelList.toMap
 
     typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>
 
-        val  table = tripLabelMap.filter(p => {
+        val  table = dubLabelMap.filter(p => {
           val key = p._1
-          annoTypeName == key._3
+          annoTypeName == key._2
         }).map {
-          case ((blockIndex, charIndex, _), label) =>
-            (blockIndex, charIndex) -> label
+          case ((index, _), label) =>
+            index -> label
         }
 
         anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("header-token")), table)
@@ -168,29 +165,6 @@ object HeaderPartProcessor {
   val headerAbstract = "abstract"
   val headerEmail = "header-email"
   val headerToken = "header-token"
-
-  import Annotator._
-
-  def getAuthorTokens(annotator: Annotator): Seq[Seq[String]] = {
-    val authorBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(headerAuthor)))
-    authorBIndexPairSet.toList.map(bIndexPair => {
-      val (blockIndex, charIndex) = bIndexPair
-      val authorSegment = annotator.getSegment(headerAuthor)(blockIndex, charIndex)
-      authorSegment.toList.flatMap { case (bi, labelMap) =>
-        labelMap.map { case (ci, label) =>
-          annotator.getTextMap(headerToken)(bi, ci).values.map(_._2).mkString("")
-        }
-      }
-    })
-  }
-
-  def getEmails(annotator: Annotator): Seq[String] = {
-    val emailBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(headerEmail)))
-    emailBIndexPairSet.toList.map(bIndexPair => {
-      val (blockIndex, charIndex) = bIndexPair
-      annotator.getTextMap(headerEmail)(blockIndex, charIndex).map(_._2).mkString("")
-    })
-  }
 
 }
 

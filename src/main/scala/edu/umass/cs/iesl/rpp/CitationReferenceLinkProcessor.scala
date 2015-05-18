@@ -17,7 +17,7 @@ object CitationReferenceLinkProcessor extends Processor {
     val refMarkerString = ReferencePartProcessor.refMarkerString
     val citationString = CitationProcessor.citationString
 
-    val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(lineString)))
+    val lineBIndexSet = annotator.getBIndexSet(Single(SegmentCon(lineString)))
 
 
     def findMatches(text: String): List[Match] = {
@@ -51,30 +51,30 @@ object CitationReferenceLinkProcessor extends Processor {
     }
 
     val List(citationList, referenceList) = List(citationString, refMarkerString).map(annoTypeStr => {
-      val bIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(annoTypeStr)))
-      bIndexPairSet.toList.map {
-        case (blockBIndex, charBIndex) =>
-          val textMap = annotator.getTextMap(annoTypeStr)(blockBIndex, charBIndex)
-          val text = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet, ' ')
+      val bIndexSet = annotator.getBIndexSet(Single(SegmentCon(annoTypeStr)))
+      bIndexSet.toList.flatMap { case index =>
+        annotator.getText(annoTypeStr)(index) map { case (startIndex, rawText) =>
+          val text = Annotator.mkTextWithBreaks(rawText, lineBIndexSet.map(_ - startIndex), ' ')
           val strSet = findMatches(text).map(_.toString()).toSet
-          (text, strSet, (blockBIndex, charBIndex))
+          (text, strSet, index)
+        }
       } 
     })
 
     val refBIndexMap = referenceList.flatMap {
-      case (refText, refStrSet, refBIndexPair) =>
-        refStrSet.map(str => str -> refBIndexPair)
+      case (refText, refStrSet, refBIndex) =>
+        refStrSet.map(str => str -> refBIndex)
     } toMap
 
     val links = citationList.flatMap {
-      case (citText, citStrSet, citBIndexPair) =>
+      case (citText, citStrSet, citBIndex) =>
         citStrSet.filter(s => refBIndexMap.contains(s)).map(s => {
-          val refBIndexPair = refBIndexMap(s)
+          val refBIndex = refBIndexMap(s)
           Annotator.AnnotationLink(
             "citation-reference-link", 
             HashMap(
-              "cit" -> (citationString, citBIndexPair._1, citBIndexPair._2), 
-              "ref" -> (refMarkerString, refBIndexPair._1, refBIndexPair._2)
+              "cit" -> (citationString, citBIndex), 
+              "ref" -> (refMarkerString, refBIndex)
             )
           )
         })

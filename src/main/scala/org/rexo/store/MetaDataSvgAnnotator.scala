@@ -32,11 +32,11 @@ object MetaDataSvgAnnotator {
                               labelNames:Map[String,String]):Annotator =
   {
     val resAnnot = { 
-      val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
-      val table = lineBIndexPairSet.flatMap(indexPair => {
-        val blockIndex = indexPair._1
-        val charIndex = indexPair._2
-        val elements = annotator.getElements("line")(blockIndex, charIndex)
+      val lineBIndexSet = annotator.getBIndexSet(Single(SegmentCon("line")))
+      val table = lineBIndexSet.flatMap(index => {
+        val elements = annotator.getElements("line")(index)
+
+        val (blockIndex, charIndex) = annotator.mkIndexPair(index)
 
         val annotatorPage =  NewHtmlTokenizationSvg.getPageNumber(elements.get(blockIndex).get, annotator.getDom()) + 1
 
@@ -45,24 +45,24 @@ object MetaDataSvgAnnotator {
 //          if(valLabel.contains("-inside"))
           if(valLabel.contains(labelNames.get("inside").get))
           {
-            Some(indexPair -> I)
+            Some(index -> I)
           }
 //          else if (valLabel.contains("-begin"))
           else if (valLabel.contains(labelNames.get("begin").get))
           {
-            Some(indexPair -> B(annoData._2._2))
+            Some(index -> B(annoData._2._2))
           }
           else if (valLabel.contains("last"))
           {
-            Some(indexPair -> L)
+            Some(index -> L)
           }
           else if (valLabel.contains("unique"))
           {
-            Some(indexPair -> U(annoData._2._2))
+            Some(index -> U(annoData._2._2))
           }
           else if (valLabel.contains("other"))
           {
-            Some(indexPair -> O)
+            Some(index -> O)
           }
           else {
             throw new Exception("Error in svg annotator, no associated label found")
@@ -222,10 +222,10 @@ object MetaDataSvgAnnotator {
 
       val blockIdxToRawType:List[Tuple2[String, String]] = {
 
-        val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
-        lineBIndexPairSet.toList.map {
-          case (blockIndex, charIndex) =>
-            val elements = annotator.getElements("line")(blockIndex, charIndex)
+        val lineBIndexSet = annotator.getBIndexSet(Single(SegmentCon("line")))
+        lineBIndexSet.toList.map { case index =>
+            val elements = annotator.getElements("line")(index)
+            val (blockIndex, charIndex) = annotator.mkIndexPair(index)
 
             val annotatorPage =  NewHtmlTokenizationSvg.getPageNumber(elements.get(blockIndex).get, annotator.getDom()) + 1
             if(bIndexRaw.contains(blockIndex+"_"+annotatorPage) &&
@@ -271,22 +271,22 @@ object MetaDataSvgAnnotator {
 
       val blockIdxToRawType:List[Tuple2[String, String]] = {
 
-        val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon("line")))
-        lineBIndexPairSet.toList.map {
-          case (blockIndex, charIndex) =>
-            val elements = annotator.getElements("line")(blockIndex, charIndex)
+        val lineBIndexSet = annotator.getBIndexSet(Single(SegmentCon("line")))
+        lineBIndexSet.toList.map { case index =>
+          val elements = annotator.getElements("line")(index)
+          val (blockIndex, charIndex) = annotator.mkIndexPair(index)
 
-            val annotatorPage =  NewHtmlTokenizationSvg.getPageNumber(elements.get(blockIndex).get, annotator.getDom()) + 1
+          val annotatorPage =  NewHtmlTokenizationSvg.getPageNumber(elements.get(blockIndex).get, annotator.getDom()) + 1
 
-            if(bIndexRaw.contains(blockIndex+"_"+annotatorPage) &&
-                  bIndexRaw.get(blockIndex+"_"+annotatorPage).get.contains(annotation) )
-            {
-              (blockIndex+"_"+annotatorPage, bIndexRaw.get(blockIndex+"_"+annotatorPage).get)
-            }
-            else
-            {
-              (blockIndex+"_"+annotatorPage, "other")
-            }
+          if(bIndexRaw.contains(blockIndex+"_"+annotatorPage) &&
+                bIndexRaw.get(blockIndex+"_"+annotatorPage).get.contains(annotation) )
+          {
+            (blockIndex+"_"+annotatorPage, bIndexRaw.get(blockIndex+"_"+annotatorPage).get)
+          }
+          else
+          {
+            (blockIndex+"_"+annotatorPage, "other")
+          }
         }.toList
       }.asInstanceOf[List[Tuple2[String, String]]]
 

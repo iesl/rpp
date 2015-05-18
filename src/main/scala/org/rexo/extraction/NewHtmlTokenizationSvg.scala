@@ -199,19 +199,20 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
 //    println("number of pages: " + parentElement.getChildren.size())
 
-    val lineBIndexPairSet = page.getBIndexPairSet(Single(SegmentCon("line")))
+    val lineBIndexSet = page.getBIndexSet(Single(SegmentCon("line")))
 
     val grpByPage:List[Tuple3[Int,Int,IntMap[Element]]] =
-    lineBIndexPairSet.toList.zipWithIndex.map {
-      case (blockCharIndex, charIndex) =>
-        val elements = page.getElements("line")(blockCharIndex._1, blockCharIndex._2)
-        val currentPage = NewHtmlTokenizationSvg.getPageNumber(elements.get(blockCharIndex._1).get, page.getDom()) + 1
+    lineBIndexSet.toList.zipWithIndex.map {
+      case (lineIndex, i) =>
+        val elements = page.getElements("line")(lineIndex)
+        val (blockIndex, charIndex) = _annotator.mkIndexPair(lineIndex)
+        val currentPage = NewHtmlTokenizationSvg.getPageNumber(elements.get(blockIndex).get, page.getDom()) + 1
 //        println("current page number: " + )
 //        if(currentPage == pageNum){
 //          Map(charIndex -> elements)
 //        }
         //Map(currentPage -> Map(charIndex -> elements))
-        (currentPage, charIndex, elements)
+        (currentPage, i, elements)
 
 //        val currentPage =
     }
@@ -504,14 +505,15 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
 //    println("number of pages: " + parentElement.getChildren.size())
 
-    val lineBIndexPairSet = page.getBIndexPairSet(Single(SegmentCon("line")))
+    val lineBIndexSet = page.getBIndexSet(Single(SegmentCon("line")))
 
-    val groupedByLineContent:Map[Int, IntMap[Element]] = lineBIndexPairSet.toList.zipWithIndex.map {
-      case (blockCharIndex, charIndex) =>
-        val elements = page.getElements("line")(blockCharIndex._1, blockCharIndex._2)
-        println("current page number: " + getParent(elements.get(blockCharIndex._1).get, page.getDom()))
+    val groupedByLineContent:Map[Int, IntMap[Element]] = lineBIndexSet.toList.zipWithIndex.map {
+      case (lineBIndex, i) =>
+        val elements = page.getElements("line")(lineBIndex)
+        val (blockIndex, _) = _annotator.mkIndexPair(lineBIndex)
+        println("current page number: " + getParent(elements.get(blockIndex).get, page.getDom()))
         //        val currentPage =
-        Map(charIndex -> elements)
+        Map(i -> elements)
     }.flatten.toMap
 
 
@@ -786,10 +788,10 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
   private def findFontNames(): List[String] = {
     val fonts = {
-      val lineBIndexPairSet = _annotator.getBIndexPairSet(Single(SegmentCon("line")))
-      val fonts: Set[String] = lineBIndexPairSet.map {
-        case (blockIndex, charIndex) =>
-          val elements = _annotator.getElements("line")(blockIndex, charIndex)
+      val lineBIndexSet = _annotator.getBIndexSet(Single(SegmentCon("line")))
+      val fonts: Set[String] = lineBIndexSet.map {
+        case (index) =>
+          val elements = _annotator.getElements("line")(index)
           elements.map { x =>
             x._2.getAttribute("font-family").getValue
           }
@@ -1030,11 +1032,11 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
     val sizes = {
 
-      val lineBIndexPairSet = _annotator.getBIndexPairSet(Single(SegmentCon("line")))
+      val lineBIndexSet = _annotator.getBIndexSet(Single(SegmentCon("line")))
 
-      val sizes = lineBIndexPairSet.toList.map {
-        case (blockIndex, charIndex) =>
-          val elements = _annotator.getElements("line")(blockIndex, charIndex)
+      val sizes = lineBIndexSet.toList.map {
+        case (index) =>
+          val elements = _annotator.getElements("line")(index)
           elements.map { x =>
             val currVal = x._2.getAttribute("font-size").getValue
 
@@ -1087,11 +1089,11 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   private def findLargestFontSize(): Double = {
 
     val sizes = {
-      val lineBIndexPairSet = _annotator.getBIndexPairSet(Single(SegmentCon("line")))
+      val lineBIndexSet = _annotator.getBIndexSet(Single(SegmentCon("line")))
 
-      val sizes2 = lineBIndexPairSet.map {
-        case (blockIndex, charIndex) =>
-          val elements = _annotator.getElements("line")(blockIndex, charIndex)
+      val sizes2 = lineBIndexSet.map {
+        case (index) =>
+          val elements = _annotator.getElements("line")(index)
           elements.map{x=>
             val currVal = x._2.getAttribute("font-size").getValue
             if (currVal.indexOf("px") >= 0) {
@@ -1190,16 +1192,15 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   private def initHeaderFooterLineCounts(): Map[String, Int] = {
 
     val lines = {
-      val lineBIndexPairSet = _annotator.getBIndexPairSet(Single(SegmentCon("line")));
-      val lastLine:Int  = lineBIndexPairSet.size
+      val lineBIndexSet = _annotator.getBIndexSet(Single(SegmentCon("line")));
+      val lastLine:Int  = lineBIndexSet.size
       val firstLine:Int = 1
-      val res = lineBIndexPairSet.toList.zipWithIndex.map {
-        case (blockIndex, lineIndex) =>
-          val textMap = _annotator.getTextMap("line")(blockIndex._1, blockIndex._2)
+      val res = lineBIndexSet.toList.zipWithIndex.map {
+        case (lineBIndex, lineRelIndex) =>
+          val lineText = _annotator.getText("line")(lineBIndex).map(_._2).getOrElse("")
 
-          val lineText = textMap.values.map(_._2).mkString("")
-          val isTopOrBottomLine: Boolean = (lineIndex == firstLine || lineIndex == lastLine)
-          val firstTbox:Element = _annotator.getElements("line")(blockIndex._1, blockIndex._2).values.toList(0)
+          val isTopOrBottomLine: Boolean = (lineRelIndex == firstLine || lineRelIndex == lastLine)
+          val firstTbox:Element = _annotator.getElements("line")(lineBIndex).values.toList(0)
 //          val coords = getCoordinates(firstTbox, 0.0, 0.0)
 
           val coords2 = Annotator.getTransformedCoords(firstTbox, _annotator.getDom().getRootElement)//getTopPageAncestor(firstTbox,_annotator.getDom()))
