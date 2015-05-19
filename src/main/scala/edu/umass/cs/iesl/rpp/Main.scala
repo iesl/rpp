@@ -229,7 +229,6 @@ object Main {
     val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
     import HeaderPartProcessor._
     println { annotator.getAnnotationByTypeString(headerAuthor) }
-    annotator.getGroupedText(headerAuthor, headerToken).map(l => println(l))
     annotator.getTextByAnnotationType(headerEmail).map(l => println(l))
 
   }
