@@ -113,11 +113,11 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
     val lineString = LineProcessor.lineString
     val biblioMarkerString = StructureProcessor.biblioMarkerString
 
-    val refBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(biblioMarkerString)))
+    val refBIndexSet = annotator.getBIndexSet(Single(SegmentCon(biblioMarkerString)))
 
-    val lineBIndexPairSet = annotator.getBIndexPairSet(Range(biblioMarkerString, SegmentCon(lineString)))
+    val lineBIndexSet = annotator.getBIndexSet(Range(biblioMarkerString, SegmentCon(lineString)))
 
-    case class DPT(doc: Document, indexPairMap: IntMap[(Int, Int)], tokenLabelMap: Map[(Int, Int), Label])
+    case class DPT(doc: Document, breakMap: Map[Int, Int], tokenLabelMap: Map[Int, Label])
 
 
     val dptSeq = {
@@ -132,14 +132,14 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
         }
       }
 
-      val dpts = refBIndexPairSet.toSeq.map {
-        case (blockBIndex, charBIndex) =>
-          val textMap = annotator.getTextMap(biblioMarkerString)(blockBIndex, charBIndex)
-          val indexPairMap = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet) 
+      val dpts = refBIndexSet.toSeq.flatMap { case index =>
+        annotator.getText(biblioMarkerString)(index) map { case (startIndex, str) =>
+          val text = Annotator.mkTextWithBreaks(str, lineBIndexSet.map(_ - startIndex))
+          val breakMap = Annotator.mkBreakMap(str.size, lineBIndexSet.map(_ - startIndex)).map {
+            case (k, v) => (k, v + startIndex)
+          }
 
           val doc = {
-
-            val text = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet)
 
             val d = new Document(text)
             DeterministicTokenizer.process(d)
@@ -148,30 +148,31 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
               t.attr += new CitationLabel("", t)
             })
             d
+
           }
 
-          val indexPair2TokenLabelMap = doc.tokens.flatMap(token2LabelMap(_)).toMap.map {
-            case (tokId, label) => indexPairMap(tokId) -> label
+          val index2TokenLabelMap = doc.tokens.flatMap(token2LabelMap(_)).toMap.map {
+            case (tokId, label) => breakMap(tokId) -> label
           }
 
-          DPT(doc, indexPairMap, indexPair2TokenLabelMap)
+          DPT(doc, breakMap, index2TokenLabelMap)
+        }
       }
 
-//      TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
+      TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
       dpts 
       
     }
-
 
     val indexPair2TokenLabelMap = dptSeq.flatMap(_.tokenLabelMap).toMap
 
     val annoWithTokens = annotator.annotate(List(referenceTokenString -> referenceTokenChar), Single(CharCon), indexPair2TokenLabelMap)
 
-    val indexPair2typeLabelMapList = dptSeq.toList.flatMap {
-      case DPT(doc, indexPairMap, _) =>
+    val index2typeLabelMapList = dptSeq.toList.flatMap {
+      case DPT(doc, breakMap, _) =>
         doc.tokens.map(token => {
           val labelTypeStringList = token.attr[CitationLabel].categoryValue.split(":")
-          val indexPair = indexPairMap(token.stringStart)
+          val index = breakMap(token.stringStart)
           val typeLabelMap = labelTypeStringList.filter(!_.isEmpty).flatMap(labelTypeString => {
             val labelString = labelTypeString.take(1)
             val typeKey = labelTypeString.drop(2)
@@ -190,24 +191,23 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
 
           }).toMap
 
-          indexPair -> typeLabelMap
+          index -> typeLabelMap
         })
     } 
 
 
-    type IntPair = (Int, Int)
     type StringLabelMap = Map[String, Label]
 
-    def replaceBIWithUL(list: List[(IntPair, StringLabelMap)]): List[(IntPair, StringLabelMap)] = {
+    def replaceBIWithUL(list: List[(Int, StringLabelMap)]): List[(Int, StringLabelMap)] = {
 
       def loop(
           nextLabelMap: StringLabelMap, 
-          reverseList: List[(IntPair, StringLabelMap)]
-      ): List[(IntPair, StringLabelMap)] = {
+          reverseList: List[(Int, StringLabelMap)]
+      ): List[(Int, StringLabelMap)] = {
         reverseList match {
           case Nil => 
             List()
-          case (indexPair, typeLabelMap)::xs =>
+          case (index, typeLabelMap)::xs =>
             val _nextLabelMap = nextLabelMap ++ typeLabelMap
             val _typeLabelMap = typeLabelMap.map { case (typeString, label) => 
               (label, nextLabelMap(typeString)) match {
@@ -216,7 +216,7 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
                 case _ => (typeString -> label)
               }
             }
-            (indexPair -> _typeLabelMap)::loop(_nextLabelMap, xs)
+            (index -> _typeLabelMap)::loop(_nextLabelMap, xs)
         }
       }
 
@@ -229,7 +229,7 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
     }
 
 
-    val typeLabelMapMap = replaceBIWithUL(indexPair2typeLabelMapList).toMap
+    val typeLabelMapMap = replaceBIWithUL(index2typeLabelMapList).toMap
 
     typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>

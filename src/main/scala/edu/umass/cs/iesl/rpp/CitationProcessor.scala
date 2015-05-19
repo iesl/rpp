@@ -23,48 +23,56 @@ object CitationProcessor extends Processor {
     val bodyString = StructureProcessor.bodyString
 
 
-    val lineBIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(lineString)))
+    val lineBIndexSet = annotator.getBIndexSet(Single(SegmentCon(lineString)))
 
     val lastNameList = annotator.getTextByAnnotationType(refLastString).distinct
 
-    val pairList = List(headerString, bodyString).flatMap(annoTypeStr => {
-      val bIndexPairSet = annotator.getBIndexPairSet(Single(SegmentCon(annoTypeStr)))
-      bIndexPairSet.toList.map {
-        case (blockBIndex, charBIndex) =>
-          val textMap = annotator.getTextMap(annoTypeStr)(blockBIndex, charBIndex)
-          val indexPairMap = Annotator.mkIndexPairMap(textMap, lineBIndexPairSet)
-          val text = Annotator.mkTextWithBreaks(textMap, lineBIndexPairSet, ' ')
-          (text, indexPairMap)
-      } 
+    val textPairList = List(headerString, bodyString).flatMap(annoTypeStr => {
+      val bIndexSet = annotator.getBIndexSet(Single(SegmentCon(annoTypeStr)))
+      bIndexSet.toList.flatMap(index => {
+        annotator.getText(annoTypeStr)(index)
+      })
     })
 
 
-    val text = pairList.map(_._1).mkString(" ")
-    val indexPairMap = {
-      val indexPairMapList = pairList.map(_._2)
-      indexPairMapList.tail.foldLeft(indexPairMapList.head) {
-        case (indexPairMapAcc, indexPairMap) =>
-          val offset = indexPairMapAcc.lastKey + 2
-          indexPairMapAcc ++ indexPairMap.map(p => (p._1 + offset) -> p._2)
+    val text = textPairList.map { case (startIndex, str) => 
+      mkTextWithBreaks(str, lineBIndexSet.map(_ - startIndex), ' ')
+    } mkString(" ")
+
+    val breakMap: Map[Int, Int] = {
+
+      textPairList.foldLeft(Map[Int, Int]()) { case (mapAcc, (startIndex, str)) =>
+
+        val innerBreakMap = mkBreakMap(str.size, lineBIndexSet.map(_ - startIndex))
+        if (mapAcc.isEmpty) {
+          innerBreakMap.map(p => (p._1, p._2 + startIndex))
+        } else {
+          val jump = mapAcc.keySet.max + 2
+          mapAcc ++ innerBreakMap.map { case (breakIndex, i) =>
+            (breakIndex + jump) -> (i + startIndex)
+          }
+        }
       }
+
     }
 
 
-    val refMarkerCount = annotator.getBIndexPairSet(Single(SegmentCon(refMarkerString))).size
+    val refMarkerCount = annotator.getBIndexSet(Single(SegmentCon(refMarkerString))).size
 
     val matches = findCitations(refMarkerCount, text, lastNameList)
 
-    val table = matches.flatMap(m => {
+    val table: Map[Int, Label] = matches.flatMap(m => {
       if (m.start + 1 == m.end) {
-        List(indexPairMap(m.start) -> U(citationChar))
+        List(breakMap(m.start) -> U(citationChar))
       } else {
-        (indexPairMap(m.start) -> B(citationChar)) +: {
-          ((m.start + 1) until (m.end - 1)).filter(i => indexPairMap.contains(i)).map(i => {
-            (indexPairMap(i) -> I)
-          }) :+ (indexPairMap(m.end - 1) -> L)
+        (breakMap(m.start) -> B(citationChar)) +: {
+          ((m.start + 1) until (m.end - 1)).filter(i => breakMap.contains(i)).map(i => {
+            (breakMap(i) -> I)
+          }) :+ (breakMap(m.end - 1) -> L)
         }
       }
     }).toMap
+    
 
     annotator.annotate(List(citationString -> citationChar), Single(CharCon), table)
 

@@ -7,12 +7,12 @@ version := "0.1-SNAPSHOT"
 scalaVersion := "2.11.4"
 
 resolvers ++= Seq(
-  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+  //"Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
   //  "IESL repository" at "https://dev-iesl.cs.umass.edu/nexus/content/repositories/releases/",
   //  "IESL repository" at "https://dev-iesl.cs.umass.edu/nexus/content/repositories/snapshots/"
 )
 
-resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+resolvers += Resolver.mavenLocal
 
 libraryDependencies ++= Seq(
   "org.jdom" % "jdom2" % "2.0.5",
