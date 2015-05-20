@@ -18,8 +18,8 @@ object Main {
     val l = List(
       LineProcessor,
       StructureProcessor,
-      HeaderPartProcessor(headerTagger)//,
-      //ReferencePartProcessor(trainer),
+      HeaderPartProcessor(headerTagger),
+      ReferencePartProcessor(trainer)//,
       //CitationProcessor,
       //CitationReferenceLinkProcessor
     )
@@ -242,37 +242,96 @@ object Main {
       Annotator.mkTextWithBreaks(text, lineBIndexSet.map(_ - offset), ' ')
     }
 
-    annotator.getBIndexSetByAnnotationType("header").foreach(i => {
-      annotator.getRange("header")(i).foreach(headerRange => {
-        val (headerStart, headerEnd) = headerRange
-        println("<header>")
-        List(headerTitle, headerInstitution, headerAddress, headerEmail, headerDate, headerAbstract).foreach(annoType => {
-          val bIndexSet = annotator.getBIndexSetByAnnotationType(annoType).filter(ai => ai >= headerStart && ai <= headerEnd)
-          val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
-          annos.map(t => println("  <" + annoType + ">" + t.trim + "</" + annoType + ">"))
-        })
-
-        val _ = {
-          println("  <authors>")
-          val authorBIndexSet = annotator.getBIndexSetByAnnotationType(headerAuthor).filter(ai => ai >= headerStart && ai <= headerEnd)
-          authorBIndexSet.map(ai => {
-            println("    <person>")
-            val tokens = annotator.getRange(headerAuthor)(ai).toList.flatMap(authorRange => {
-              val tokenBIndexSet = annotator.getFilteredBIndexSet(headerAuthor, headerToken).filter(hti => hti >= authorRange._1 && hti <= authorRange._2)
-              tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak _))
-            })
-            tokens.foreach(t => println("      <person-token>" + t.trim + "</person-token>"))
-            println("    </person>")
-          })
-          println("  </authors>")
-        }
-
-        println("</header>")
+    annotator.getRangeSet("header").foreach(headerRange => {
+      println("<header>")
+      List(headerTitle, headerInstitution, headerAddress, headerEmail, headerDate, headerAbstract).foreach(annoType => {
+        val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(headerRange)
+        val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
+        annos.map(t => println("  <" + annoType + ">" + t.trim + "</" + annoType + ">"))
       })
+
+      println("  <authors>")
+      val authorBIndexSet = annotator.getBIndexSetWithinRange(headerAuthor)(headerRange)
+      authorBIndexSet.map(ai => {
+        println("    <person>")
+        val tokens = annotator.getRange(headerAuthor)(ai).toList.flatMap(authorRange => {
+          val tokenBIndexSet = annotator.getFilteredBIndexSetWithinRange(headerAuthor, headerToken)(authorRange)
+          tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak _))
+        })
+        tokens.foreach(t => println("      <person-token>" + t.trim + "</person-token>"))
+        println("    </person>")
+      })
+      println("  </authors>")
+
+      println("</header>")
     })
 
     annotator.getTextSet(headerEmail).map(l => println(l))
 
+    import ReferencePartProcessor._
+    println { annotator.getAnnotationByTypeString(refAuthorsString) }
+    println { annotator.getAnnotationByTypeString(refPersonString) }
+    println { annotator.getAnnotationByTypeString(refFirstString) }
+    println { annotator.getAnnotationByTypeString(refLastString) }
+
+
+    annotator.getRangeSet("reference").foreach(refsRange => {
+      println("<references>")
+      val refBIndexSet = annotator.getBIndexSetWithinRange("biblio-marker")(refsRange)
+      refBIndexSet.foreach(refIndex => {
+        println("  <reference>")
+
+
+        annotator.getRange("biblio-marker")(refIndex).map(refRange => { 
+          
+          List(
+            refTitleString
+          ).foreach(annoType => {
+            val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(refRange)
+            val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
+            annos.map(t => println("    <" + annoType + ">" + t.trim + "</" + annoType + ">"))
+          })
+
+
+          val authorsBIndexSet = annotator.getBIndexSetWithinRange(refAuthorsString)(refRange)
+          authorsBIndexSet.foreach(asi => { annotator.getRange(refAuthorsString)(asi).map(authorsRange => {
+            println("    <authors>")
+
+            val personBIndexSet = annotator.getBIndexSetWithinRange(refPersonString)(refRange)
+            personBIndexSet.foreach(pi => { annotator.getRange(refPersonString)(pi).map(personRange => {
+              println("      <person>")
+
+              List(
+                refFirstString, refLastString
+              ).foreach(annoType => {
+                val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(personRange)
+                val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
+                annos.map(t => println("        <" + annoType + ">" + t.trim + "</" + annoType + ">"))
+              })
+
+              println("      </person>")
+            })})
+
+
+            println("    </authors>")
+          })})
+
+
+          
+        
+        
+        
+        })
+
+
+
+
+
+        println("  </reference>")
+      })
+
+      println("</references>")
+    }) 
 
 
   }
