@@ -231,7 +231,7 @@ object Main {
 
 
 
-    //Example Header Queries 
+    //Example Queries 
 
     import HeaderPartProcessor._
     println { annotator.getAnnotationByTypeString(headerAuthor) }
@@ -257,16 +257,10 @@ object Main {
           val authorBIndexSet = annotator.getBIndexSetByAnnotationType(headerAuthor).filter(ai => ai >= headerStart && ai <= headerEnd)
           authorBIndexSet.map(ai => {
             println("    <person>")
-            //there are at least two ways to get tokens within an author.
-            //method one: get the range of the author and the get each token in that range
             val tokens = annotator.getRange(headerAuthor)(ai).toList.flatMap(authorRange => {
-              val tokenBIndexSet = annotator.getBIndexSetByAnnotationType(headerToken).filter(hti => hti >= authorRange._1 && hti <= authorRange._2)
+              val tokenBIndexSet = annotator.getFilteredBIndexSet(headerAuthor, headerToken).filter(hti => hti >= authorRange._1 && hti <= authorRange._2)
               tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak _))
             })
-            //method two: since author is annotated on the unit of author-token, we can get the token indexes using getSegment
-            //val tokens = (SortedSet[Int]() ++ annotator.getSegment(headerAuthor)(ai).keySet).toList.flatMap(tokenIndex => {
-            //  annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak _)
-            //})
             tokens.foreach(t => println("      <person-token>" + t.trim + "</person-token>"))
             println("    </person>")
           })
