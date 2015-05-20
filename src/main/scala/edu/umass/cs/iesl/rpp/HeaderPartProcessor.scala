@@ -133,7 +133,28 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         }
     } toList
 
-    val dubLabelMap = indexTypeDub2LabelList.toMap
+    def replaceIWithB(list: List[((Int, String), Label)]): List[((Int, String), Label)] = {
+      val name2Char = typePairMap.values.toMap
+      def loop(
+        prevTypeString: String,
+        lst: List[((Int, String), Label)]
+      ): List[((Int, String), Label)] = lst match {
+
+        case Nil => List()
+        case x::xs =>
+          val (xTypeString, xLabel) = x match { case (( _, typeString), label) => (typeString, label) }
+          if (xLabel == I && xTypeString != prevTypeString) {
+            val c = name2Char(xTypeString)
+            (x._1 -> B(c))::loop(xTypeString, xs)
+          } else {
+            x::loop(xTypeString, xs)
+          }
+
+      }
+      loop("", list)
+    }
+
+    val dubLabelMap = replaceIWithB(indexTypeDub2LabelList).toMap
 
     typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>

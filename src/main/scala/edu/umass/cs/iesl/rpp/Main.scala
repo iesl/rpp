@@ -7,6 +7,7 @@ import scala.compat.Platform
 import Annotator._
 import edu.umass.cs.iesl.bibie._
 import edu.umass.cs.iesl.paperheader.tagger.HeaderTagger
+import scala.collection.immutable.SortedSet
 
 object Main {
 
@@ -227,8 +228,55 @@ object Main {
     headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
 
     val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
+
+
+
+    //Example Header Queries 
+
     import HeaderPartProcessor._
     println { annotator.getAnnotationByTypeString(headerAuthor) }
+
+    def lineBreak(pair: (Int, String)) = {
+      val (offset, text) = pair
+      val lineBIndexSet = annotator.getBIndexSetByAnnotationType("line")
+      Annotator.mkTextWithBreaks(text, lineBIndexSet.map(_ - offset), ' ')
+    }
+
+    annotator.getBIndexSetByAnnotationType("header").foreach(i => {
+      annotator.getRange("header")(i).foreach(headerRange => {
+        val (headerStart, headerEnd) = headerRange
+        println("<header>")
+        List(headerTitle, headerInstitution, headerAddress, headerEmail, headerDate, headerAbstract).foreach(annoType => {
+          val bIndexSet = annotator.getBIndexSetByAnnotationType(annoType).filter(ai => ai >= headerStart && ai <= headerEnd)
+          val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
+          annos.map(t => println("  <" + annoType + ">" + t.trim + "</" + annoType + ">"))
+        })
+
+        val _ = {
+          println("  <authors>")
+          val authorBIndexSet = annotator.getBIndexSetByAnnotationType(headerAuthor).filter(ai => ai >= headerStart && ai <= headerEnd)
+          authorBIndexSet.map(ai => {
+            println("    <person>")
+            //there are at least two ways to get tokens within an author.
+            //method one: get the range of the author and the get each token in that range
+            val tokens = annotator.getRange(headerAuthor)(ai).toList.flatMap(authorRange => {
+              val tokenBIndexSet = annotator.getBIndexSetByAnnotationType(headerToken).filter(hti => hti >= authorRange._1 && hti <= authorRange._2)
+              tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak _))
+            })
+            //method two: since author is annotated on the unit of author-token, we can get the token indexes using getSegment
+            //val tokens = (SortedSet[Int]() ++ annotator.getSegment(headerAuthor)(ai).keySet).toList.flatMap(tokenIndex => {
+            //  annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak _)
+            //})
+            tokens.foreach(t => println("      <person-token>" + t.trim + "</person-token>"))
+            println("    </person>")
+          })
+          println("  </authors>")
+        }
+
+        println("</header>")
+      })
+    })
+
     annotator.getTextSet(headerEmail).map(l => println(l))
 
 
