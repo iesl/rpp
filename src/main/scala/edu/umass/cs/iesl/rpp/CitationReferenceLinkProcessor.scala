@@ -23,7 +23,7 @@ object CitationReferenceLinkProcessor extends Processor {
     def findMatches(text: String): List[Match] = {
       val numberStr = """[0-9]+"""
       val alphaNumericStr = """[a-zA-Z]{2,}[0-9]+"""
-      val lastNameStr = annotator.getTextByAnnotationType(refLastString).distinct.mkString("|")
+      val lastNameStr = annotator.getTextSet(refLastString).map(_._2).mkString("|")
 
       val bestMatchList = {
 
@@ -53,7 +53,7 @@ object CitationReferenceLinkProcessor extends Processor {
     val List(citationList, referenceList) = List(citationString, refMarkerString).map(annoTypeStr => {
       val bIndexSet = annotator.getBIndexSet(Single(SegmentCon(annoTypeStr)))
       bIndexSet.toList.flatMap { case index =>
-        annotator.getText(annoTypeStr)(index) map { case (startIndex, rawText) =>
+        annotator.getTextOption(annoTypeStr)(index) map { case (startIndex, rawText) =>
           val text = Annotator.mkTextWithBreaks(rawText, lineBIndexSet.map(_ - startIndex), ' ')
           val strSet = findMatches(text).map(_.toString()).toSet
           (text, strSet, index)

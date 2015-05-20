@@ -1197,7 +1197,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
       val firstLine:Int = 1
       val res = lineBIndexSet.toList.zipWithIndex.map {
         case (lineBIndex, lineRelIndex) =>
-          val lineText = _annotator.getText("line")(lineBIndex).map(_._2).getOrElse("")
+          val lineText = _annotator.getTextOption("line")(lineBIndex).map(_._2).getOrElse("")
 
           val isTopOrBottomLine: Boolean = (lineRelIndex == firstLine || lineRelIndex == lastLine)
           val firstTbox:Element = _annotator.getElements("line")(lineBIndex).values.toList(0)

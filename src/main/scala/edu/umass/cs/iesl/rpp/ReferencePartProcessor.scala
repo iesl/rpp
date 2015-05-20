@@ -133,7 +133,7 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
       }
 
       val dpts = refBIndexSet.toSeq.flatMap { case index =>
-        annotator.getText(biblioMarkerString)(index) map { case (startIndex, str) =>
+        annotator.getTextOption(biblioMarkerString)(index) map { case (startIndex, str) =>
           val text = Annotator.mkTextWithBreaks(str, lineBIndexSet.map(_ - startIndex))
           val breakMap = Annotator.mkBreakMap(str.size, lineBIndexSet.map(_ - startIndex)).map {
             case (k, v) => (k, v + startIndex)

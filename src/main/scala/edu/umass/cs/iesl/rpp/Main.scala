@@ -37,8 +37,8 @@ object Main {
       val (citationString, citIndex) = linkMap("cit")
       val (refMarkerString, refIndex) = linkMap("ref")
 
-      val citString = annotator.getText(citationString)(citIndex).map(_._2).getOrElse("")
-      val refString = annotator.getText(refMarkerString)(refIndex).map(_._2).getOrElse("")
+      val citString = annotator.getTextOption(citationString)(citIndex).map(_._2).getOrElse("")
+      val refString = annotator.getTextOption(refMarkerString)(refIndex).map(_._2).getOrElse("")
       (citString, refString)
 
     }).toSeq
@@ -54,12 +54,12 @@ object Main {
       val (citationString, citIndex) = linkMap("cit")
       val (refMarkerString, refIndex) = linkMap("ref")
 
-      val citString = annotator.getText(citationString)(citIndex).map(_._2).getOrElse("")
+      val citString = annotator.getTextOption(citationString)(citIndex).map(_._2).getOrElse("")
 
       val bibMarkerIndex = bibMarkIndexSeq.lastIndexWhere(_ <= refIndex)
       val bibMarkerTotalIndex = bibMarkIndexSeq(bibMarkerIndex)
 
-      annotator.getText("biblio-marker")(bibMarkerTotalIndex).map { case (startIndex, str) =>
+      annotator.getTextOption("biblio-marker")(bibMarkerTotalIndex).map { case (startIndex, str) =>
         val refString = mkTextWithBreaks(str, lineBIndexSet.map(_ - startIndex), '\n')
         (citString, refString)
       }
@@ -68,14 +68,14 @@ object Main {
   }
 
   def getReferences(annotator: Annotator): Seq[String] = {
-    annotator.getTextByAnnotationType("biblio-marker")
+    annotator.getTextSet("biblio-marker").map(_._2).toSeq
   }
 
   def getReferencesWithBreaks(annotator: Annotator): Seq[String] = {
     val biblioBIndexSet = annotator.getBIndexSet(Single(SegmentCon("biblio-marker")))
     val lineBIndexSet = annotator.getBIndexSet(Range("biblio-marker", SegmentCon("line")))
     biblioBIndexSet.toList.flatMap { case (index) =>
-      annotator.getText("biblio-marker")(index) map { case (startIndex, str) =>
+      annotator.getTextOption("biblio-marker")(index) map { case (startIndex, str) =>
         Annotator.mkTextWithBreaks(str, lineBIndexSet.map(_ - startIndex))
       }
     }
@@ -84,7 +84,7 @@ object Main {
 
   def getLinesOfReferences(annotator: Annotator): Seq[String] = {
     //this is possible in such a way because biblio-marker is constrained by line
-    annotator.getFilteredTextByAnnotationType("biblio-marker","line")
+    annotator.getFilteredTextSet("biblio-marker","line").map(_._2).toSeq
   }
 
   def getHeaderLines(annotator: Annotator): Seq[String] = {
@@ -92,7 +92,7 @@ object Main {
     val lineBIndexSet = annotator.getBIndexSet(Range("header", SegmentCon("line")))
 
     biblioBIndexSet.toList.flatMap { case (index) =>
-      annotator.getText("header")(index) map { case (startIndex, str) =>
+      annotator.getTextOption("header")(index) map { case (startIndex, str) =>
         Annotator.mkTextWithBreaks(str, lineBIndexSet.map(_ - startIndex))
       }
     }
@@ -102,7 +102,7 @@ object Main {
     val tagBIndexSet = annotator.getBIndexSet(Single(SegmentCon(tag)))
     val tagTokenBIndexSet = annotator.getBIndexSet(Range(tag, SegmentCon("reference-token")))
     tagTokenBIndexSet.foldLeft(List.empty[List[String]])((listAcc, tokenIndex) => {
-      val tagToken: String = annotator.getText("reference-token")(tokenIndex).map(_._2).getOrElse("")
+      val tagToken: String = annotator.getTextOption("reference-token")(tokenIndex).map(_._2).getOrElse("")
       if (tagBIndexSet.contains(tokenIndex)) {
         List(tagToken) :: listAcc
       } else {
@@ -165,7 +165,7 @@ object Main {
     val authorTokenBIndexSet = annotator.getBIndexSet(Range("header-author", SegmentCon("header-token")))
 
     authorTokenBIndexSet.foldLeft(List.empty[List[String]])((listAcc, tokenIndexPair) => {
-      val authorToken: String = annotator.getText("header-token")(tokenIndexPair).map(_._2).getOrElse("")
+      val authorToken: String = annotator.getTextOption("header-token")(tokenIndexPair).map(_._2).getOrElse("")
       if (authorBIndexSet.contains(tokenIndexPair)) {
         List(authorToken) :: listAcc
       } else {
@@ -175,7 +175,7 @@ object Main {
   }
 
   def getLines(annotator: Annotator): Seq[String] = {
-    annotator.getTextByAnnotationType("line")
+    annotator.getTextSet("line").map(_._2).toSeq
   }
 
 
@@ -184,7 +184,7 @@ object Main {
     annotator.annotationInfoMap.keys.flatMap(annoTypeString => {
       val bIndexPairSet = annotator.getBIndexSet(Single(SegmentCon(annoTypeString)))
       bIndexPairSet.toList.flatMap { case index =>
-        annotator.getText(annoTypeString)(index) map { case (startIndex, str) =>
+        annotator.getTextOption(annoTypeString)(index) map { case (startIndex, str) =>
           (annoTypeString, Annotator.mkTextWithBreaks(str, lineBIndexSet.map(_ - startIndex), ' ').trim())
         }
       }
@@ -202,7 +202,7 @@ object Main {
     val tagBIndexSet = annotator.getBIndexSet(Single(SegmentCon(tag)))
     val tagTokenBIndexSet = annotator.getBIndexSet(Range(tag, SegmentCon("header-token")))
     tagTokenBIndexSet.foldLeft(List.empty[List[String]])((listAcc, tokenBIndex) => {
-      val tagToken: String = annotator.getText("header-token")(tokenBIndex).map(_._2).getOrElse("")
+      val tagToken: String = annotator.getTextOption("header-token")(tokenBIndex).map(_._2).getOrElse("")
       if (tagBIndexSet.contains(tokenBIndex)) {
         List(tagToken) :: listAcc
       } else {
@@ -229,7 +229,9 @@ object Main {
     val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
     import HeaderPartProcessor._
     println { annotator.getAnnotationByTypeString(headerAuthor) }
-    annotator.getTextByAnnotationType(headerEmail).map(l => println(l))
+    annotator.getTextSet(headerEmail).map(l => println(l))
+
+
 
   }
 

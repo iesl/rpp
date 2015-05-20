@@ -47,7 +47,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
     //: (Map[(Int, Int), Label], IndexedSeq[HeaderItem])
     val headerSet: Set[(Map[Int, Label], IndexedSeq[HeaderItem], Document)] = headerBIndexSet.flatMap { case (index) =>
-      annotator.getText("header")(index) map { case (startIndex, rawText) =>
+      annotator.getTextOption("header")(index) map { case (startIndex, rawText) =>
 
         val elementMap: IntMap[Element] = annotator.getElements("header")(index)
 

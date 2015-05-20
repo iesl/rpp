@@ -25,12 +25,12 @@ object CitationProcessor extends Processor {
 
     val lineBIndexSet = annotator.getBIndexSet(Single(SegmentCon(lineString)))
 
-    val lastNameList = annotator.getTextByAnnotationType(refLastString).distinct
+    val lastNameList = annotator.getTextSet(refLastString).map(_._2).toList
 
     val textPairList = List(headerString, bodyString).flatMap(annoTypeStr => {
       val bIndexSet = annotator.getBIndexSet(Single(SegmentCon(annoTypeStr)))
       bIndexSet.toList.flatMap(index => {
-        annotator.getText(annoTypeStr)(index)
+        annotator.getTextOption(annoTypeStr)(index)
       })
     })
 
