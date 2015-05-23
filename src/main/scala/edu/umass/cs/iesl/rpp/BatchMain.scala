@@ -51,7 +51,7 @@ object BatchMain {
         pw.close()
       } catch {
         case e: Exception =>
-          println(e)
+          e.printStackTrace()
           badFiles += input
       }
     }
