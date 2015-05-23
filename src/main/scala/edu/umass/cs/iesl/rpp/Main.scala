@@ -212,8 +212,6 @@ object Main {
     }).reverse.map(_.reverse)
   }
 
-
-
   def main(args: Array[String]): Unit = {
 
     val referenceModelUri = args(0)
@@ -221,7 +219,8 @@ object Main {
     val inFilePath = args(2)
     val outFilePath = args(3)
 
-    val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
+    //    val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
+    val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
 
     val headerTagger = new HeaderTagger
@@ -231,7 +230,7 @@ object Main {
 
 
 
-    //Example Queries 
+    //Example Queries
 
     import HeaderPartProcessor._
     println { annotator.getAnnotationByTypeString(headerAuthor) }
@@ -282,8 +281,8 @@ object Main {
         println("  <reference>")
 
 
-        annotator.getRange("biblio-marker")(refIndex).map(refRange => { 
-          
+        annotator.getRange("biblio-marker")(refIndex).map(refRange => {
+
           List(
             refTitleString
           ).foreach(annoType => {
@@ -292,7 +291,6 @@ object Main {
             annos.map(t => println("    <" + annoType + ">" + t.trim + "</" + annoType + ">"))
           })
 
-
           val authorsBIndexSet = annotator.getBIndexSetWithinRange(refAuthorsString)(refRange)
           authorsBIndexSet.foreach(asi => { annotator.getRange(refAuthorsString)(asi).map(authorsRange => {
             println("    <authors>")
@@ -300,7 +298,6 @@ object Main {
             val personBIndexSet = annotator.getBIndexSetWithinRange(refPersonString)(refRange)
             personBIndexSet.foreach(pi => { annotator.getRange(refPersonString)(pi).map(personRange => {
               println("      <person>")
-
               List(
                 refFirstString, refLastString
               ).foreach(annoType => {
@@ -308,31 +305,15 @@ object Main {
                 val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
                 annos.map(t => println("        <" + annoType + ">" + t.trim + "</" + annoType + ">"))
               })
-
               println("      </person>")
             })})
-
-
             println("    </authors>")
           })})
-
-
-          
-        
-        
-        
         })
-
-
-
-
-
         println("  </reference>")
       })
-
       println("</references>")
-    }) 
-
+    })
 
   }
 

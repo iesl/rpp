@@ -111,7 +111,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         val headerItemSeq: IndexedSeq[HeaderItem] = headerSeq(docIdx)
         val indexMap: IndexedSeq[Int] = headerItemSeq.map(_.index)
         val typeLabelList = headerItemSeq.map(_.token).map(t => {
-          println("paper-header output: " + t.attr[BilouHeaderTag].categoryValue + ": " + t.toString)
+//          println("paper-header output: " + t.attr[BilouHeaderTag].categoryValue + ": " + t.toString)
           t.attr[BilouHeaderTag].categoryValue
         })
         typeLabelList.zipWithIndex.flatMap {

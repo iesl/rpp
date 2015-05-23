@@ -79,9 +79,7 @@ object StructureProcessor extends Processor {
   private def mkRDoc(annotator: Annotator) = {
     val dataDir:String = null
     val DICT_FILE:String = getClass.getResource("/words.txt").getPath
-
     val dictionary: EnglishDictionary = EnglishDictionary.createDefault(new File(dataDir, DICT_FILE))
-
     val tokenization: NewHtmlTokenizationSvg = NewHtmlTokenizationSvg.createNewHtmlTokenization(annotator, dictionary)
     val rdoc: RxDocumentSvg = new RxDocumentSvg
     rdoc.setTokenization(tokenization)
