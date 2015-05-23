@@ -85,7 +85,7 @@ object BatchMain {
     implicit var level = 1
     annotator.getRangeSet("header").foreach(headerRange => {
       xml.appendLine("<header>")
-      List(headerTitle, headerInstitution, headerAddress, headerEmail, headerDate, headerTech, headerNote, headerAbstract).foreach(annoType => {
+      List(headerTitle, headerAffiliation, headerAddress, headerEmail, headerDate, headerAbstract).foreach(annoType => {
         level += 1
         val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(headerRange)
         val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)

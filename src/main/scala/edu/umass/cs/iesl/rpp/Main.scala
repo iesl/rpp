@@ -243,7 +243,7 @@ object Main {
 
     annotator.getRangeSet("header").foreach(headerRange => {
       println("<header>")
-      List(headerTitle, headerInstitution, headerAddress, headerEmail, headerDate, headerAbstract).foreach(annoType => {
+      List(headerTitle, headerAffiliation, headerAddress, headerEmail, headerDate, headerAbstract).foreach(annoType => {
         val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(headerRange)
         val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
         annos.map(t => println("  <" + annoType + ">" + t.trim + "</" + annoType + ">"))
