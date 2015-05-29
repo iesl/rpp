@@ -59,7 +59,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
         val doc = {
           val d = new Document(text)
           DeterministicTokenizer.process(d)
-          d.tokens.foreach { token => token.attr += new HeaderLabel("O", token) }
+          d.tokens.foreach { token => token.attr += new HeaderLabel("I-other", token) }
           headerTagger.process(d)
           d
         }
