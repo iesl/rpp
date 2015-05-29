@@ -158,11 +158,8 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
           DPT(doc, breakMap, index2TokenLabelMap)
         }
       }
-
-      // TODO fold adding features back into bibie
-      val docs = dpts.map(_.doc).filter(_.tokens.size > 1)
-      docs.foreach(trainer.process)
-//      TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
+      
+      TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
 
       dpts
       
