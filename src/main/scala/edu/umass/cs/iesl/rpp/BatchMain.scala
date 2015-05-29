@@ -1,5 +1,7 @@
 package edu.umass.cs.iesl.rpp
 
+import java.net.URL
+
 import edu.umass.cs.iesl.bibie.TestCitationModel
 import edu.umass.cs.iesl.paperheader.tagger._
 import edu.umass.cs.iesl.xml_annotator._
@@ -34,8 +36,7 @@ object BatchMain {
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
 
-    val headerTagger = new HeaderTagger
-    headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
+    val headerTagger = new HeaderTagger(headerTaggerModelFile)
 
     val inputFilenames = new File(opts.inputDir.value).listFiles.map(_.getAbsolutePath)
     val outputFilenames = new File(opts.inputDir.value).listFiles.map(_.getName).map(fname => s"${opts.outputDir.value}/$fname.tagged")
