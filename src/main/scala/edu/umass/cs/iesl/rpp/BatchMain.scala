@@ -38,8 +38,11 @@ object BatchMain {
 
     val headerTagger = new HeaderTagger(headerTaggerModelFile)
 
-    val inputFilenames = new File(opts.inputDir.value).listFiles.map(_.getAbsolutePath)
-    val outputFilenames = new File(opts.inputDir.value).listFiles.map(_.getName).map(fname => s"${opts.outputDir.value}/$fname.tagged")
+    val inputFilenames =
+      if(opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles.map(_.getAbsolutePath).toSeq
+      else io.Source.fromFile(opts.dataFilesFile.value).getLines().toSeq
+
+    val outputFilenames = inputFilenames.map(fname => opts.outputDir.value + "/" + fname.replaceFirst(".*/(.*)$", "$1.tagged"))
 
     val badFiles = new scala.collection.mutable.ArrayBuffer[String]()
 
