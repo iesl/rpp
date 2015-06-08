@@ -19,9 +19,9 @@ object Main {
       LineProcessor,
       StructureProcessor,
       HeaderPartProcessor(headerTagger),
-      ReferencePartProcessor(trainer)//,
-      //CitationProcessor,
-      //CitationReferenceLinkProcessor
+      ReferencePartProcessor(trainer),
+      CitationProcessor,
+      CitationReferenceLinkProcessor
     )
 
     val annotator = l.foldLeft(Annotator(dom)) {
@@ -69,7 +69,7 @@ object Main {
   }
 
   def getReferences(annotator: Annotator): Seq[String] = {
-    annotator.getTextSet("biblio-marker").map(_._2).toSeq
+    annotator.getTextSeq("biblio-marker").map(_._2).toSeq
   }
 
   def getReferencesWithBreaks(annotator: Annotator): Seq[String] = {
@@ -85,7 +85,7 @@ object Main {
 
   def getLinesOfReferences(annotator: Annotator): Seq[String] = {
     //this is possible in such a way because biblio-marker is constrained by line
-    annotator.getFilteredTextSet("biblio-marker","line").map(_._2).toSeq
+    annotator.getFilteredTextSeq("biblio-marker","line").map(_._2).toSeq
   }
 
   def getHeaderLines(annotator: Annotator): Seq[String] = {
@@ -176,7 +176,7 @@ object Main {
   }
 
   def getLines(annotator: Annotator): Seq[String] = {
-    annotator.getTextSet("line").map(_._2).toSeq
+    annotator.getTextSeq("line").map(_._2).toSeq
   }
 
 
@@ -229,6 +229,20 @@ object Main {
     val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
 
 
+    annotator.getTextSeq("paragraph").map(_._2).zipWithIndex.map(p => {
+      val (str, i) = p
+      println(i + " -> ")
+      println(str)
+      println("---")
+    })
+
+    getReferencesWithBreaks(annotator).zipWithIndex.map(p => {
+      val (str, i) = p
+      println(i + " -> ")
+      println(str)
+      println("---")
+    })
+
 
     //Example Queries
 
@@ -265,7 +279,7 @@ object Main {
       println("</header>")
     })
 
-    annotator.getTextSet(headerEmail).map(l => println(l))
+    annotator.getTextSeq(headerEmail).map(l => println(l))
 
     import ReferencePartProcessor._
     println { annotator.getAnnotationByTypeString(refAuthorsString) }
