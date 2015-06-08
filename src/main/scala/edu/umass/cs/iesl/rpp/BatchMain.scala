@@ -36,7 +36,7 @@ object BatchMain {
     val inputFilenames =
       if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles.map(_.getAbsolutePath).toSeq
       else io.Source.fromFile(opts.dataFilesFile.value).getLines().toSeq
-    val outputFilenames = inputFilenames.map(fname => opts.outputDir.value + "/" + fname.replaceFirst(".*/(.*)$", "$1.tagged"))
+    val outputFilenames = inputFilenames.map(fname => opts.outputDir.value + "/" + fname.replaceFirst(".*/(.*)$", "$1.tagged.txt"))
     val badFiles = new scala.collection.mutable.ArrayBuffer[String]()
 
     inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
