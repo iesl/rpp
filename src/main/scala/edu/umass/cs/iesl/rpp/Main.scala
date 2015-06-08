@@ -54,30 +54,38 @@ object Main {
     // collect each query function's Seq[String] into a single string
     val outputSB = new StringBuilder()
     outputSB.append(s"\n;; -*- mode: outline -*-\n* ---- example queries: $inFilePath ----")
-
     outputSB.append("\n** ---- header lines ----")
     getHeaderLines(annotator).foreach(outputSB.append)
 
-    outputSB.append("\n** ---- references with breaks ----")
-    getReferencesWithBreaks(annotator).foreach(outputSB.append)
+    val references: Seq[String] = getReferences(annotator)
+    outputSB.append(s"\n** ---- references (${references.size}) ----")
+    references.foreach(s => {
+      outputSB.append("\n*** " + s)
+    })
 
     outputSB.append("\n** ---- done ----")
-
     outputSB.toString()
   }
 
 
   def printExampleQueries(annotator: Annotator, inFilePath: String) = {
     println(s"* ---- example queries: $inFilePath ----")
-
     println("** ---- header lines ----")
     getHeaderLines(annotator).foreach(println(_))
 
     println("** ---- references ----")
-    getReferences(annotator).foreach(println(_))
+    println(getReferences(annotator).size)
+    println(getReferences(annotator))
+    getReferences(annotator).foreach(s => {
+      println("*** " + s)
+    })
 
     println("** ---- references with breaks ----")
-    getReferencesWithBreaks(annotator).foreach(println(_))
+    println(getReferencesWithBreaks(annotator).size)
+    println(getReferencesWithBreaks(annotator))
+    getReferencesWithBreaks(annotator).foreach(s => {
+      println("*** " + s)
+    })
 
     println("** ---- lines of references ----")
     getLinesOfReferences(annotator).foreach(println(_))
