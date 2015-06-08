@@ -1,7 +1,5 @@
 package edu.umass.cs.iesl.rpp
 
-import java.net.URL
-
 import edu.umass.cs.iesl.bibie.TestCitationModel
 import edu.umass.cs.iesl.paperheader.tagger._
 import edu.umass.cs.iesl.xml_annotator._
@@ -9,11 +7,6 @@ import cc.factorie.util._
 import java.io.{File, PrintWriter}
 import java.nio.file.Paths
 
-
-/**
- * Created by kate on 3/24/15.
- *
- */
 
 class BatchOpts extends DefaultCmdOptions {
   val lexiconsUri = new CmdOption("lexicons-uri", "", "STRING", "URI to lexicons")
@@ -25,9 +18,11 @@ class BatchOpts extends DefaultCmdOptions {
   val dataFilesFile = new CmdOption("data-files-file", "", "STRING", "file containing a list of paths to data files, one per line")
 }
 
+
 object BatchMain {
+
   def main(args: Array[String]): Unit = {
-    println("args: " + args.mkString(", "))
+    println("main(): args: " + args.mkString(", "))
     val opts = new BatchOpts
     opts.parse(args)
     val referenceModelUri = opts.referenceModelUri.value
@@ -39,24 +34,28 @@ object BatchMain {
     val headerTagger = new HeaderTagger(headerTaggerModelFile)
 
     val inputFilenames =
-      if(opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles.map(_.getAbsolutePath).toSeq
+      if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles.map(_.getAbsolutePath).toSeq
       else io.Source.fromFile(opts.dataFilesFile.value).getLines().toSeq
-
     val outputFilenames = inputFilenames.map(fname => opts.outputDir.value + "/" + fname.replaceFirst(".*/(.*)$", "$1.tagged"))
-
     val badFiles = new scala.collection.mutable.ArrayBuffer[String]()
 
-    inputFilenames.zip(outputFilenames).foreach { case (input, output) =>
+    inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
       try {
-        val annotator = Main.process(trainer, headerTagger, input)
-        val xml = mkXML(annotator)
-        val pw = new PrintWriter(new File(output))
-        pw.write(xml)
+        println("processing: " + inputFile)
+        val annotator = Main.process(trainer, headerTagger, inputFile)
+        val pw = new PrintWriter(new File(outputFile))
+
+        val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
+
+        // mc temp: don't export XML b/c Main.process() isn't doing HeaderPartProcessor, etc.
+        //val outputStr = mkXML(annotator)
+
+        pw.write(outputStr)
         pw.close()
       } catch {
         case e: Exception =>
           e.printStackTrace()
-          badFiles += input
+          badFiles += inputFile
       }
     }
 
@@ -68,6 +67,10 @@ object BatchMain {
     }
   }
 
+
+  //  getHeaderLines(annotator).foreach(println(_))
+
+
   def mkXML(annotator: Annotator): String = {
     val xml = new StringBuilder()
     xml.appendLine("<document>")
@@ -76,6 +79,7 @@ object BatchMain {
     xml.appendLine("</document>")
     xml.toString()
   }
+
 
   def mkHeaderXML(annotator: Annotator): String = {
     import HeaderPartProcessor._
@@ -123,6 +127,7 @@ object BatchMain {
     xml.toString()
   }
 
+
   def mkReferenceXML(annotator: Annotator): String = {
     import ReferencePartProcessor._
     def lineBreak(pair: (Int, String)) = {
@@ -132,8 +137,8 @@ object BatchMain {
     }
     def normalTag(s: String): String = {
       val annoMap = Map(
-      "ref-first" -> "person-first",
-      "ref-last" -> "person-last"
+        "ref-first" -> "person-first",
+        "ref-last" -> "person-last"
       )
       if (annoMap.contains(s)) annoMap(s)
       else if (s.startsWith("ref-")) s.split("-").last
@@ -179,29 +184,33 @@ object BatchMain {
           }
 
           val authorsBIndexSet = annotator.getBIndexSetWithinRange(refAuthorsString)(refRange)
-          authorsBIndexSet.foreach(asi => { annotator.getRange(refAuthorsString)(asi).foreach(authorsRange => {
-            level += 1
-            xml.appendLine("<authors>")
-            val personBIndexSet = annotator.getBIndexSetWithinRange(refPersonString)(refRange)
-            personBIndexSet.foreach(pi => { annotator.getRange(refPersonString)(pi).foreach(personRange => {
+          authorsBIndexSet.foreach(asi => {
+            annotator.getRange(refAuthorsString)(asi).foreach(authorsRange => {
               level += 1
-              xml.appendLine("<person>")
-              List(
-                refFirstString, refMiddleString, refLastString
-              ).foreach(annoType => {
-                level += 1
-                val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(personRange)
-                val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
-                val xmlTag = normalTag(annoType)
-                annos.foreach(t => xml.appendLine("<" + xmlTag + ">" + t.trim + "</" + xmlTag + ">"))
-                level -= 1
+              xml.appendLine("<authors>")
+              val personBIndexSet = annotator.getBIndexSetWithinRange(refPersonString)(refRange)
+              personBIndexSet.foreach(pi => {
+                annotator.getRange(refPersonString)(pi).foreach(personRange => {
+                  level += 1
+                  xml.appendLine("<person>")
+                  List(
+                    refFirstString, refMiddleString, refLastString
+                  ).foreach(annoType => {
+                    level += 1
+                    val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(personRange)
+                    val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
+                    val xmlTag = normalTag(annoType)
+                    annos.foreach(t => xml.appendLine("<" + xmlTag + ">" + t.trim + "</" + xmlTag + ">"))
+                    level -= 1
+                  })
+                  xml.appendLine("</person>")
+                  level -= 1
+                })
               })
-              xml.appendLine("</person>")
+              xml.appendLine("</authors>")
               level -= 1
-            })})
-            xml.appendLine("</authors>")
-            level -= 1
-          })})
+            })
+          })
 
           val venueBIndexSet = annotator.getBIndexSetWithinRange(refVenueString)(refRange)
           venueBIndexSet.foreach { asi =>
@@ -230,8 +239,9 @@ object BatchMain {
     })
     xml.toString()
   }
-}
 
+
+}
 
 
 class ParallelOpts extends BatchOpts {
@@ -242,10 +252,12 @@ class ParallelOpts extends BatchOpts {
   val numCores = new CmdOption("num-cores", 1, "INT", "number of cores to use")
 }
 
+
 object ParallelInvoker {
+
   def cut[A](xs: Seq[A], n: Int) = {
     val m = xs.length
-    val targets = (0 to n).map { x => math.round((x.toDouble * m) / n).toInt}
+    val targets = (0 to n).map { x => math.round((x.toDouble * m) / n).toInt }
     def snip(xs: Seq[A], ns: Seq[Int], got: Seq[Seq[A]]): Seq[Seq[A]] = {
       if (ns.length < 2) got
       else {
@@ -255,6 +267,8 @@ object ParallelInvoker {
     }
     snip(xs, targets, Seq.empty)
   }
+
+
   def main(args: Array[String]): Unit = {
     import sys.process._
     implicit val random = new scala.util.Random(0)
@@ -296,6 +310,7 @@ object ParallelInvoker {
     println("done.")
   }
 }
+
 
 //    val inputFiles: Seq[File] = {
 //      // for distributed processing
