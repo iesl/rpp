@@ -43,15 +43,14 @@ object BatchMain {
       try {
         println("processing: " + inputFile)
         val annotator = Main.process(trainer, headerTagger, inputFile)
+        println("writing: " + outputFile)
         val pw = new PrintWriter(new File(outputFile))
-
+        // mc: outputting coarse segmentation information instead of XML (Main.process is only doing LineProcessor & StructureProcessor)
+        // val outputStr = mkXML(annotator)
         val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
-
-        // mc temp: don't export XML b/c Main.process() isn't doing HeaderPartProcessor, etc.
-        //val outputStr = mkXML(annotator)
-
         pw.write(outputStr)
         pw.close()
+        println("done")
       } catch {
         case e: Exception =>
           e.printStackTrace()

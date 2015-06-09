@@ -1,15 +1,32 @@
 package edu.umass.cs.iesl.rpp
 
 import java.io.File
-import org.jdom2.input.SAXBuilder
-import edu.umass.cs.iesl.xml_annotator.Annotator
-import scala.compat.Platform
-import Annotator._
+
 import edu.umass.cs.iesl.bibie._
 import edu.umass.cs.iesl.paperheader.tagger.HeaderTagger
-import scala.collection.immutable.SortedSet
+import edu.umass.cs.iesl.xml_annotator.Annotator
+import edu.umass.cs.iesl.xml_annotator.Annotator._
+import org.jdom2.input.SAXBuilder
 
 object Main {
+
+  def main(args: Array[String]): Unit = {
+    val referenceModelUri = args(0)
+    val headerTaggerModelFile = args(1)
+    val inFilePath = args(2)
+    val outFilePath = args(3)
+    val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
+    val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
+
+    val headerTagger = new HeaderTagger
+    headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
+
+    val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
+
+//    printExampleQueriesFromMain(annotator)
+    println(coarseOutputStrForAnnotator(annotator, inFilePath))
+  }
+
 
   def process(trainer: CitationCRFTrainer, headerTagger: HeaderTagger, inFilePath: String): Annotator = {
     val builder = new SAXBuilder()
@@ -17,11 +34,11 @@ object Main {
 
     val l = List(
       LineProcessor,
-      StructureProcessor,
-      HeaderPartProcessor(headerTagger),
-      ReferencePartProcessor(trainer),
-      CitationProcessor,
-      CitationReferenceLinkProcessor
+      StructureProcessor//,
+//      HeaderPartProcessor(headerTagger),
+//      ReferencePartProcessor(trainer),
+//      CitationProcessor,
+//      CitationReferenceLinkProcessor
     )
 
     val annotator = l.foldLeft(Annotator(dom)) {
@@ -31,6 +48,60 @@ object Main {
     annotator
   }
 
+
+  //
+  // output-related fuctions
+  //
+
+  def coarseOutputStrForAnnotator(annotator: Annotator, inFilePath: String): String = {
+    val outputSB = new StringBuilder()
+    outputSB.append(s"\n;; -*- mode: outline -*-\n* ---- example queries: $inFilePath ----")
+    outputSB.append("\n** ---- header lines ----")
+    getHeaderLines(annotator).foreach(outputSB.append)
+
+    val references: Seq[String] = getReferences(annotator)
+    outputSB.append(s"\n** ---- references (${references.size}) ----")
+    references.foreach(s => {
+      outputSB.append("\n*** " + s)
+    })
+
+    outputSB.append("\n** ---- done ----")
+    outputSB.toString()
+  }
+
+
+  def printExampleQueries(annotator: Annotator, inFilePath: String) = {
+    println(s"* ---- example queries: $inFilePath ----")
+    println("** ---- header lines ----")
+    getHeaderLines(annotator).foreach(println(_))
+
+    println("** ---- references ----")
+    println(getReferences(annotator).size)
+    println(getReferences(annotator))
+    getReferences(annotator).foreach(s => {
+      println("*** " + s)
+    })
+
+    println("** ---- references with breaks ----")
+    println(getReferencesWithBreaks(annotator).size)
+    println(getReferencesWithBreaks(annotator))
+    getReferencesWithBreaks(annotator).foreach(s => {
+      println("*** " + s)
+    })
+
+    println("** ---- lines of references ----")
+    getLinesOfReferences(annotator).foreach(println(_))
+
+    println("** ---- lines ----")
+    getLines(annotator).foreach(println(_))
+
+    println("** ---- done ----")
+  }
+
+
+  //
+  // various query functions
+  //
 
   def getCitationsAndRefMarkers(annotator: Annotator): Seq[(String, String)] = {
     annotator.annotationLinkSet.filter(_.name == "citation-reference-link").map(annoLink => {
@@ -44,6 +115,7 @@ object Main {
 
     }).toSeq
   }
+
 
   def getCitationsAndReferences(annotator: Annotator): Seq[(String, String)] = {
 
@@ -68,9 +140,11 @@ object Main {
     }).toSeq
   }
 
+
   def getReferences(annotator: Annotator): Seq[String] = {
     annotator.getTextSeq("biblio-marker").map(_._2).toSeq
   }
+
 
   def getReferencesWithBreaks(annotator: Annotator): Seq[String] = {
     val biblioBIndexSet = annotator.getBIndexSet(Single(SegmentCon("biblio-marker")))
@@ -85,8 +159,9 @@ object Main {
 
   def getLinesOfReferences(annotator: Annotator): Seq[String] = {
     //this is possible in such a way because biblio-marker is constrained by line
-    annotator.getFilteredTextSeq("biblio-marker","line").map(_._2).toSeq
+    annotator.getFilteredTextSeq("biblio-marker", "line").map(_._2).toSeq
   }
+
 
   def getHeaderLines(annotator: Annotator): Seq[String] = {
     val biblioBIndexSet = annotator.getBIndexSet(Single(SegmentCon("header")))
@@ -98,6 +173,7 @@ object Main {
       }
     }
   }
+
 
   def getCitationAnnotationsByTag(annotator: Annotator, tag: String): List[List[String]] = {
     val tagBIndexSet = annotator.getBIndexSet(Single(SegmentCon(tag)))
@@ -113,38 +189,37 @@ object Main {
   }
 
 
-
-//  def getAnnotatedReferences(annotator: Annotator): List[List[(String, String)]] = {
-//    val refTags = getAllAnnotationTypes(annotator).filter(t => t.startsWith("ref-"))
-//    val refTokenBIndexSet = annotator.getBIndexSet(Single(SegmentCon("reference-token")))
-//    val allAnnots = new scala.collection.mutable.ArrayBuffer[List[(String, String)]]()
-//    refTokenBIndexSet.toList.foreach {
-//      case (bi, ci) =>
-//        val annots = new scala.collection.mutable.ArrayBuffer[(String, String)]()
-//        val title = annotator.getTextMap("ref-title")(bi, ci).values.map(_._2).mkString("")
-//        val titlePair: (String, String) = ("ref-title", title)
-//        annots += titlePair
-//        allAnnots += annots.toList
-//    }
-////    refTokenBIndexSet.toList.foreach {
-////      case (bi, ci) =>
-////        val annots = new scala.collection.mutable.ArrayBuffer[(String, String)]()
-////        val titleSeg = annotator.getSegment("ref-title")(bi, ci)
-////
-//////        val title = titleSeg.toList.flatMap { case (bi, labelMap) =>
-//////            labelMap.map { case (ci, label) =>
-//////                annotator.getTextMap("ref-title")(bi, ci).values.map(_._2).mkString("")
-//////            }
-//////        }
-////        val titlePair: (String, String) = ("ref-title", title.mkString(" "))
-////        annots += titlePair
-//////        val titleTm = annotator.getTextMap("ref-title")(bi, ci)
-//////        val title: (String, String) = ("ref-title", titleTm.values.map(_._2).mkString(""))
-//////        annots += title
-////        allAnnots += annots.toList
-////    }
-//    allAnnots.toList
-//  }
+  //  def getAnnotatedReferences(annotator: Annotator): List[List[(String, String)]] = {
+  //    val refTags = getAllAnnotationTypes(annotator).filter(t => t.startsWith("ref-"))
+  //    val refTokenBIndexSet = annotator.getBIndexSet(Single(SegmentCon("reference-token")))
+  //    val allAnnots = new scala.collection.mutable.ArrayBuffer[List[(String, String)]]()
+  //    refTokenBIndexSet.toList.foreach {
+  //      case (bi, ci) =>
+  //        val annots = new scala.collection.mutable.ArrayBuffer[(String, String)]()
+  //        val title = annotator.getTextMap("ref-title")(bi, ci).values.map(_._2).mkString("")
+  //        val titlePair: (String, String) = ("ref-title", title)
+  //        annots += titlePair
+  //        allAnnots += annots.toList
+  //    }
+  ////    refTokenBIndexSet.toList.foreach {
+  ////      case (bi, ci) =>
+  ////        val annots = new scala.collection.mutable.ArrayBuffer[(String, String)]()
+  ////        val titleSeg = annotator.getSegment("ref-title")(bi, ci)
+  ////
+  //////        val title = titleSeg.toList.flatMap { case (bi, labelMap) =>
+  //////            labelMap.map { case (ci, label) =>
+  //////                annotator.getTextMap("ref-title")(bi, ci).values.map(_._2).mkString("")
+  //////            }
+  //////        }
+  ////        val titlePair: (String, String) = ("ref-title", title.mkString(" "))
+  ////        annots += titlePair
+  //////        val titleTm = annotator.getTextMap("ref-title")(bi, ci)
+  //////        val title: (String, String) = ("ref-title", titleTm.values.map(_._2).mkString(""))
+  //////        annots += title
+  ////        allAnnots += annots.toList
+  ////    }
+  //    allAnnots.toList
+  //  }
 
 
   //def getHeaderTokens(annotator: Annotator): Seq[Seq[String]] = {
@@ -175,6 +250,7 @@ object Main {
     }).reverse.map(_.reverse)
   }
 
+
   def getLines(annotator: Annotator): Seq[String] = {
     annotator.getTextSeq("line").map(_._2).toSeq
   }
@@ -199,6 +275,7 @@ object Main {
     } toSeq
   }
 
+
   def getHeaderAnnotationsByTag(annotator: Annotator, tag: String): List[List[String]] = {
     val tagBIndexSet = annotator.getBIndexSet(Single(SegmentCon(tag)))
     val tagTokenBIndexSet = annotator.getBIndexSet(Range(tag, SegmentCon("header-token")))
@@ -212,22 +289,12 @@ object Main {
     }).reverse.map(_.reverse)
   }
 
-  def main(args: Array[String]): Unit = {
 
-    val referenceModelUri = args(0)
-    val headerTaggerModelFile = args(1)
-    val inFilePath = args(2)
-    val outFilePath = args(3)
+  //
+  // printExampleQueriesFromMain
+  //
 
-    //    val lexiconUrlPrefix = "file://" + getClass.getResource("/lexicons").getPath()
-    val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
-    val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
-
-    val headerTagger = new HeaderTagger
-    headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
-
-    val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
-
+  def printExampleQueriesFromMain(annotator: Annotator) = {
 
     annotator.getTextSeq("paragraph").map(_._2).zipWithIndex.map(p => {
       val (str, i) = p
@@ -243,8 +310,6 @@ object Main {
       println("---")
     })
 
-
-    //Example Queries
 
     import HeaderPartProcessor._
     println { annotator.getAnnotationByTypeString(headerAuthor) }
@@ -282,10 +347,18 @@ object Main {
     annotator.getTextSeq(headerEmail).map(l => println(l))
 
     import ReferencePartProcessor._
-    println { annotator.getAnnotationByTypeString(refAuthorsString) }
-    println { annotator.getAnnotationByTypeString(refPersonString) }
-    println { annotator.getAnnotationByTypeString(refFirstString) }
-    println { annotator.getAnnotationByTypeString(refLastString) }
+    println {
+      annotator.getAnnotationByTypeString(refAuthorsString)
+    }
+    println {
+      annotator.getAnnotationByTypeString(refPersonString)
+    }
+    println {
+      annotator.getAnnotationByTypeString(refFirstString)
+    }
+    println {
+      annotator.getAnnotationByTypeString(refLastString)
+    }
 
 
     annotator.getRangeSet("reference").foreach(refsRange => {
@@ -306,29 +379,33 @@ object Main {
           })
 
           val authorsBIndexSet = annotator.getBIndexSetWithinRange(refAuthorsString)(refRange)
-          authorsBIndexSet.foreach(asi => { annotator.getRange(refAuthorsString)(asi).map(authorsRange => {
-            println("    <authors>")
+          authorsBIndexSet.foreach(asi => {
+            annotator.getRange(refAuthorsString)(asi).map(authorsRange => {
+              println("    <authors>")
 
-            val personBIndexSet = annotator.getBIndexSetWithinRange(refPersonString)(refRange)
-            personBIndexSet.foreach(pi => { annotator.getRange(refPersonString)(pi).map(personRange => {
-              println("      <person>")
-              List(
-                refFirstString, refLastString
-              ).foreach(annoType => {
-                val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(personRange)
-                val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
-                annos.map(t => println("        <" + annoType + ">" + t.trim + "</" + annoType + ">"))
+              val personBIndexSet = annotator.getBIndexSetWithinRange(refPersonString)(refRange)
+              personBIndexSet.foreach(pi => {
+                annotator.getRange(refPersonString)(pi).map(personRange => {
+                  println("      <person>")
+                  List(
+                    refFirstString, refLastString
+                  ).foreach(annoType => {
+                    val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(personRange)
+                    val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
+                    annos.map(t => println("        <" + annoType + ">" + t.trim + "</" + annoType + ">"))
+                  })
+                  println("      </person>")
+                })
               })
-              println("      </person>")
-            })})
-            println("    </authors>")
-          })})
+              println("    </authors>")
+            })
+          })
         })
         println("  </reference>")
       })
       println("</references>")
     })
-
   }
+
 
 }
