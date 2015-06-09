@@ -1142,9 +1142,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
     val currPageHeight = transfMatVector(5)  - previousOffset
 
     if(transfMatVector(3).toInt == -1) {
-      //commented because the coordinates already appear inverted
-//      return (currPageHeight + coords2.ys(0) * (-1))
-      return (currPageHeight + coords2.ys(0))
+      return (currPageHeight + coords2.ys(0) * (-1))
     }
     else
     {
