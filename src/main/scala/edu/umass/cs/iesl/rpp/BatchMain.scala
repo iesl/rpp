@@ -22,7 +22,7 @@ class BatchOpts extends DefaultCmdOptions {
 object BatchMain {
 
   def main(args: Array[String]): Unit = {
-    println("main(): args: " + args.mkString(", "))
+    println("* main(): args: " + args.mkString(", "))
     val opts = new BatchOpts
     opts.parse(args)
     val referenceModelUri = opts.referenceModelUri.value
@@ -41,24 +41,28 @@ object BatchMain {
 
     inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
       try {
-        println("processing: " + inputFile)
+        println("* processing: " + inputFile)
+        val startTimeMillis: Long = System.currentTimeMillis()
         val annotator = Main.process(trainer, headerTagger, inputFile)
-        println("writing: " + outputFile)
+        val endTimeMillis: Long = System.currentTimeMillis()
+
+        println("** writing: " + outputFile)
         val pw = new PrintWriter(new File(outputFile))
         // mc: outputting coarse segmentation information instead of XML (Main.process is only doing LineProcessor & StructureProcessor)
         // val outputStr = mkXML(annotator)
         val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
         pw.write(outputStr)
         pw.close()
-        println("done")
+        println(s"** done\t$inputFile\t${(endTimeMillis - startTimeMillis) / 1000.0}")
       } catch {
         case e: Exception =>
+          println(s"** failed\t$inputFile\t$e")
           e.printStackTrace()
           badFiles += inputFile
       }
     }
 
-    println(s"failed to process ${badFiles.length}/${inputFilenames.length} files.")
+    println(s"* failed to process ${badFiles.length}/${inputFilenames.length} files.")
     if (opts.logFile.wasInvoked) {
       val pw = new PrintWriter(new File(opts.logFile.value))
       badFiles.foreach(f => pw.write(f + "\n"))
