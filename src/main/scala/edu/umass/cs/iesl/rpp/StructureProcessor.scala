@@ -202,8 +202,16 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
       val table = resSlidingMap.flatMap {
         case (blockIndexStr, labelOp) =>
           val blockIndex = blockIndexStr.take(blockIndexStr.indexOf('_')).toInt
-          labelOp.map(l => (blockIndex, 0) -> l)
+          labelOp.flatMap(l => {
+            if (blockIndex < 0) {
+              None
+            } else {
+              Some((blockIndex, 0) -> l)
+            }
+          })
+
       }
+
       annotator.annotateWithIndexPairMap(List(annotation -> annoLetter), Single(SegmentCon(lineString)), table)
     }
 
