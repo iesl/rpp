@@ -191,8 +191,6 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
    */
   private def tokenizeLines(page:Annotator) {
 
-
-
     val parentElement = page.getDom().getRootElement
 
 
@@ -264,7 +262,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   //      var lly:Double = coords._2
         val coords2 = Annotator.getTransformedCoords(firstTbox, getTopPageAncestor(firstTbox, page.getDom()))
         var llx = coords2.xs(0)
-        var lly = getYCoordinate(firstTbox, page.getDom()) //= coords2._3(0)
+        var lly = coords2.ys(0)
 
   //      var llx:Double = getLlxV2(firstTbox)
   //      var lly:Double = getLlyV2(firstTbox)
@@ -296,9 +294,10 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   //          val coords = getCoordinates(tbox._2, 0.0, 0.0)
   //          val curLlx:Double = coords._1
   //          val curLly:Double = coords._2
-            val coords2 = Annotator.getTransformedCoords(tbox._2, getTopPageAncestor(tbox._2, page.getDom()))
+            val coords2 = Annotator.getTransformedCoords(tbox._2, page.getDom().getRootElement())
             val curLlx = coords2.xs(0)
-            val curLly = getYCoordinate(tbox._2, page.getDom()) //:Double = //coords2._3(0)
+            val curLly = coords2.ys(0)
+
 
   //          val curLlx = getLlxV2(tbox._2)
   //          val curLly = getLlyV2(tbox._2)
@@ -340,9 +339,10 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
   //          val coords = getCoordinates(tbox._2, 0.0, 0.0)
   //          val curLlx:Double = coords._1
   //          val curLly:Double = coords._2
-            val coords2 = Annotator.getTransformedCoords(tbox._2, getTopPageAncestor(tbox._2, page.getDom()))
+
+            val coords2 = Annotator.getTransformedCoords(tbox._2, page.getDom().getRootElement())
             val curLlx = coords2.xs(0)
-            val curLly = getYCoordinate(tbox._2, page.getDom()) //:Double = coords2._3(0)
+            val curLly = coords2.ys(0)
 
   //          val curLlx = getLlxV2(tbox._2)
   //          val curLly = getLlyV2(tbox._2)
@@ -1122,33 +1122,6 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
     }
   }
 
-  def getYCoordinate(node:Element, doc:Document):Double =
-  {
-    val coords2 = Annotator.getTransformedCoords(node, getTopPageAncestorV2(node,doc))
-
-    val topPageElem = getTopPageElement(node,doc)
-    val transfMatVector = getTransformationMatrixVectorV2(topPageElem)
-    val pageNumber = NewHtmlTokenizationSvg.getPageNumber(node, doc) + 1
-
-//    var previousPage = null;
-    var previousOffset = 0;
-
-    if(pageNumber>1)
-    {
-      val transfMatPrevVector = getTransformationMatrixVectorV2(doc.getRootElement.getChildren.get(pageNumber-2))
-      previousOffset = transfMatPrevVector(5).toInt
-    }
-
-    val currPageHeight = transfMatVector(5)  - previousOffset
-
-    if(transfMatVector(3).toInt == -1) {
-      return (currPageHeight - Math.abs(coords2.ys(0)))
-    }
-    else
-    {
-      return coords2.ys(0)
-    }
-  }
 
   def getTopPageElement(node:Element, doc:Document): Element =
   {
@@ -1203,7 +1176,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
           val coords2 = Annotator.getTransformedCoords(firstTbox, _annotator.getDom().getRootElement)//getTopPageAncestor(firstTbox,_annotator.getDom()))
           val llx = coords2.xs(0)
-          val lly = getYCoordinate(firstTbox, _annotator.getDom()) //coords2._3(0)
+          val lly = coords2.ys(0)
 
 //          val llx:Double = coords._1
 //          val lly:Double = coords._2
