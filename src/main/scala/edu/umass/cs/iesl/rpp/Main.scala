@@ -22,9 +22,7 @@ object Main {
     headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
 
     val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
-
-//    printExampleQueriesFromMain(annotator)
-    println(coarseOutputStrForAnnotator(annotator, inFilePath))
+    printExampleQueriesFromMain(annotator)
   }
 
 
@@ -67,35 +65,6 @@ object Main {
 
     outputSB.append("\n** ---- done ----")
     outputSB.toString()
-  }
-
-
-  def printExampleQueries(annotator: Annotator, inFilePath: String) = {
-    println(s"* ---- example queries: $inFilePath ----")
-    println("** ---- header lines ----")
-    getHeaderLines(annotator).foreach(println(_))
-
-    println("** ---- references ----")
-    println(getReferences(annotator).size)
-    println(getReferences(annotator))
-    getReferences(annotator).foreach(s => {
-      println("*** " + s)
-    })
-
-    println("** ---- references with breaks ----")
-    println(getReferencesWithBreaks(annotator).size)
-    println(getReferencesWithBreaks(annotator))
-    getReferencesWithBreaks(annotator).foreach(s => {
-      println("*** " + s)
-    })
-
-    println("** ---- lines of references ----")
-    getLinesOfReferences(annotator).foreach(println(_))
-
-    println("** ---- lines ----")
-    getLines(annotator).foreach(println(_))
-
-    println("** ---- done ----")
   }
 
 
