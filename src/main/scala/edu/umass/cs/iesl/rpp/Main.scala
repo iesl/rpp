@@ -32,11 +32,11 @@ object Main {
 
     val l = List(
       LineProcessor,
-      StructureProcessor//,
-//      HeaderPartProcessor(headerTagger),
-//      ReferencePartProcessor(trainer),
-//      CitationProcessor,
-//      CitationReferenceLinkProcessor
+      StructureProcessor,
+      HeaderPartProcessor(headerTagger),
+      ReferencePartProcessor(trainer),
+      CitationProcessor,
+      CitationReferenceLinkProcessor
     )
 
     val annotator = l.foldLeft(Annotator(dom)) {
