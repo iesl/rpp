@@ -20,6 +20,8 @@ class BatchOpts extends DefaultCmdOptions {
 
 
 object BatchMain {
+  
+  final val codec = "UTF-8" // TODO: cmd option?
 
   def main(args: Array[String]): Unit = {
     println("* main(): args: " + args.mkString(", "))
@@ -47,10 +49,10 @@ object BatchMain {
         val endTimeMillis: Long = System.currentTimeMillis()
 
         println("** writing: " + outputFile)
-        val pw = new PrintWriter(new File(outputFile))
+        val pw = new PrintWriter(new File(outputFile), codec)
         // mc: outputting coarse segmentation information instead of XML (Main.process is only doing LineProcessor & StructureProcessor)
-        // val outputStr = mkXML(annotator)
-        val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
+        //val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
+        val outputStr = MakeXML.mkXML(annotator) // previously mkXML(annotator)
         pw.write(outputStr)
         pw.close()
         println(s"** done\t$inputFile\t${(endTimeMillis - startTimeMillis) / 1000.0}")
@@ -74,6 +76,11 @@ object BatchMain {
   //  getHeaderLines(annotator).foreach(println(_))
 
 
+  /*
+   To ensure valid XML these methods have since been related with MakeXML
+   */
+  
+  @deprecated("Replaced with MakeXML.mkXML","June 18, 2015")
   def mkXML(annotator: Annotator): String = {
     val xml = new StringBuilder()
     xml.appendLine("<document>")
@@ -83,7 +90,7 @@ object BatchMain {
     xml.toString()
   }
 
-
+  @deprecated("Replaced with MakeXML.mkHeaderXML", "June 18, 2015")
   def mkHeaderXML(annotator: Annotator): String = {
     import HeaderPartProcessor._
     def lineBreak(pair: (Int, String)) = {
@@ -131,6 +138,7 @@ object BatchMain {
   }
 
 
+  @deprecated("Replaced with MakeXML.mkReferenceXML", "June 18, 2015")
   def mkReferenceXML(annotator: Annotator): String = {
     import ReferencePartProcessor._
     def lineBreak(pair: (Int, String)) = {
