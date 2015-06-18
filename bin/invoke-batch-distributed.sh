@@ -24,4 +24,7 @@ njobs="--num-jobs=$3"
 memPerJob="--mem=$4"
 ncores="--num-cores=$5"
 
-java -Dfile.encoding=UTF8 -cp $CP -Xmx$memory "edu.umass.cs.iesl.rpp.ParallelInvoker" $dir $ouputDir $njobs $memPerJob
+echo "dir: $dir"
+echo "outputDir: $outputDir"
+
+java -Dfile.encoding=UTF8 -cp $CP -Xmx$memory edu.umass.cs.iesl.rpp.ParallelInvoker $dir $outputDir $njobs $memPerJob
