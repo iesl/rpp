@@ -5,7 +5,7 @@ import edu.umass.cs.iesl.paperheader.tagger._
 import edu.umass.cs.iesl.xml_annotator._
 import cc.factorie.util._
 import java.io.{File, PrintWriter}
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 
 
 class BatchOpts extends DefaultCmdOptions {
@@ -281,7 +281,6 @@ object ParallelInvoker {
 
 
   def main(args: Array[String]): Unit = {
-    import sys.process._
     implicit val random = new scala.util.Random(0)
     val opts = new ParallelOpts
     opts.parse(args)
@@ -294,31 +293,60 @@ object ParallelInvoker {
     val files = new File(dataDir).listFiles().map(_.getPath)
     // divide files into njobs sets of equal size
     val dividedDocs = cut(scala.util.Random.shuffle(files), njobs)
-    //write filelists
-    val prefix = "tmp-filelist-"
-    val filenames = (0 until njobs).map(i => Paths.get(s"$prefix$i").toAbsolutePath.toString)
-    dividedDocs.zipWithIndex.foreach { case (doclist, idx) =>
-      val pw = new PrintWriter(filenames(idx))
-      doclist.foreach { fname => pw.println(fname) }
-      println(filenames(idx))
-      pw.close()
-    }
 
-    val cmds = filenames.map { filelist =>
-      val args = s"$filelist $outputDir"
-      val cmd = System.getenv("RPP_ROOT") + "/bin/process-batch-distributed.sh " + args
-      val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -v RPP_ROOT -j y -S /bin/sh $cmd"
-      qsubCmd
-    }
+    val fnamePrefix = "tmp-filelist-"
+    val fnames = (0 until njobs).map(i => Paths.get(s"$fnamePrefix$i").toAbsolutePath().toString)
+    dividedDocs.zipWithIndex.foreach{ case(doclist, idx) => {
+      val writer = new PrintWriter(fnames(idx))
+      doclist.foreach{fname => writer.println(fname)}
+      println(fnames(idx))
+      writer.close()
+    }}
 
-    cmds.par.foreach { cmd =>
-      println(cmd)
-      Process(cmd).run()
-    }
+    println(s"Distributed ${files.length} data files into ${njobs} sets of ${dividedDocs.map(_.length).min}-${dividedDocs.map(_.length).max} files")
 
-    //     remove created filelists
-    //    filenames.foreach { fname => Files.delete(Paths.get(fname)) }
-    println("done.")
+    val docsParam = DistributorParameter[String](opts.dataFilesFile, fnames)
+
+    val qs = new cc.factorie.util.QSubExecutor(mem, "edu.umass.cs.iesl.rpp.BatchMain", ncores)
+
+    val qsOpts = opts.writeInto(new BatchOpts)
+    qsOpts.dataFilesFile.invoke()
+
+    val distributor = new cc.factorie.util.JobDistributor(qsOpts, Seq(docsParam), qs.execute, 60)
+
+    val result = distributor.distribute
+    println(s"Finished running $result jobs")
+
+    // remove created filelists
+    fnames.foreach{fname => Files.delete(Paths.get(fname))}
+
+    println("Done")
+
+//    //write filelists
+//    val prefix = "tmp-filelist-"
+//    val filenames = (0 until njobs).map(i => Paths.get(s"$prefix$i").toAbsolutePath.toString)
+//    dividedDocs.zipWithIndex.foreach { case (doclist, idx) =>
+//      val pw = new PrintWriter(filenames(idx))
+//      doclist.foreach { fname => pw.println(fname) }
+//      println(filenames(idx))
+//      pw.close()
+//    }
+//
+//    val cmds = filenames.map { filelist =>
+//      val args = s"$filelist $outputDir"
+//      val cmd = System.getenv("RPP_ROOT") + "/bin/process-batch-distributed.sh " + args
+//      val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -v RPP_ROOT -j y -S /bin/sh $cmd"
+//      qsubCmd
+//    }
+//
+//    cmds.par.foreach { cmd =>
+//      println(cmd)
+//      Process(cmd).run()
+//    }
+//
+//    //     remove created filelists
+//    //    filenames.foreach { fname => Files.delete(Paths.get(fname)) }
+//    println("done.")
   }
 }
 
