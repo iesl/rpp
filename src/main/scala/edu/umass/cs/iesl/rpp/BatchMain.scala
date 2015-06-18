@@ -288,8 +288,8 @@ object ParallelInvoker {
     val ncores = opts.numCores.value
     val mem = opts.memPerJob.value
     val dataDir = opts.dir.value
-    val outputDir = opts.outputDir.value
-    assert(outputDir != "")
+//    val outputDir = opts.outputDir.value
+//    assert(outputDir != "")
     val files = new File(dataDir).listFiles().map(_.getPath)
     // divide files into njobs sets of equal size
     val dividedDocs = cut(scala.util.Random.shuffle(files), njobs)
