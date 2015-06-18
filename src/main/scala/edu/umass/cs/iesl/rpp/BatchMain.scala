@@ -19,11 +19,11 @@ class BatchOpts extends DefaultCmdOptions {
 }
 
 
-object BatchMain {
+object BatchMain extends HyperparameterMain {
   
   final val codec = "UTF-8" // TODO: cmd option?
 
-  def main(args: Array[String]): Unit = {
+  def evaluateParameters(args: Array[String]): Double = {
     println("* main(): args: " + args.mkString(", "))
     val opts = new BatchOpts
     opts.parse(args)
@@ -70,6 +70,7 @@ object BatchMain {
       badFiles.foreach(f => pw.write(f + "\n"))
       pw.close()
     }
+    badFiles.length
   }
 
 
@@ -315,7 +316,7 @@ object ParallelInvoker {
     val distributor = new cc.factorie.util.JobDistributor(qsOpts, Seq(docsParam), qs.execute, 60)
 
     val result = distributor.distribute
-    println(s"Finished running $result jobs")
+    println(s"Finished running $result jobs, ${result.sum}/${files.length} documents failed")
 
     // remove created filelists
     fnames.foreach{fname => Files.delete(Paths.get(fname))}
