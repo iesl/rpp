@@ -1,6 +1,6 @@
 #!/bin/bash
 
-memory=15g
+memory=2g
 
 if [ ! -f "$RPP_ROOT/CP.hack" ]
 then
@@ -18,13 +18,18 @@ fi
 CP=`cat $RPP_ROOT/CP.hack`
 
 root=$RPP_ROOT
-outputDir="--output=$2"
+lexicons=file:///iesl/canvas/ksilvers/lexicon
+citeCRF="--reference-model-uri=file://$root/citationCRF.factorie"
+headerCRF="--header-tagger-model=$root/headerCRF.factorie"
+outputDir="--output-dir=$2"
 dir="--dir=$1"
 njobs="--num-jobs=$3"
 memPerJob="--mem=$4"
 ncores="--num-cores=$5"
 
-echo "dir: $dir"
-echo "outputDir: $outputDir"
+echo "input dir: $dir"
+echo "output dir: $outputDir"
 
-java -Dfile.encoding=UTF8 -cp $CP -Xmx$memory edu.umass.cs.iesl.rpp.ParallelInvoker $dir $outputDir $njobs $memPerJob
+java -Dfile.encoding=UTF8 -Dcc.factorie.app.nlp.lexicon.Lexicon=$lexicons -cp $CP -Xmx$memory \
+edu.umass.cs.iesl.rpp.ParallelInvoker \
+$dir $outputDir $njobs $memPerJob $citeCRF $headerCRF
