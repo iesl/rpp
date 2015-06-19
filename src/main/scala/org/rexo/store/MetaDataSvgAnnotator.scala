@@ -78,28 +78,27 @@ object MetaDataSvgAnnotator {
     return resAnnot
   }
 
-  private def getParagraphIds(lines:List[Tuple2[String,String]], paragraphId:Int, beginLabel:String):List[Tuple3[Int,String,String]] =
-  {
-    val current =
-    {if(lines.head._2.contains(beginLabel))
-    //if(lines.head._2.contains("-begin"))
-    {
-      paragraphId+1
-    }
-    else
-    {
-      paragraphId
-    }
+  private def getParagraphIds(lines:List[Tuple2[String,String]], paragraphId:Int, beginLabel:String):List[Tuple3[Int,String,String]] = {
+
+    def loop(acc: List[Tuple3[Int,String,String]], lines:List[Tuple2[String,String]], paragraphId:Int, beginLabel:String):List[Tuple3[Int,String,String]] = {
+
+      val current = {
+        if(lines.head._2.contains(beginLabel)) {
+          paragraphId+1
+        } else {
+          paragraphId
+        }
+      }
+
+      if(lines.size == 1) {
+        ((current, lines.head._1, lines.head._2)::acc).reverse
+      } else {
+        loop((current, lines.head._1, lines.head._2)::acc, lines.tail, current,beginLabel)
+      }
     }
 
-    if(lines.size == 1)
-    {
-      return List((current, lines.head._1, lines.head._2))
-    }
-    else
-    {
-      return (current, lines.head._1, lines.head._2) +: getParagraphIds(lines.tail, current,beginLabel)
-    }
+    loop(List(), lines, paragraphId, beginLabel)
+
   }
 
   private def trimOthersInList(listTags:List[Tuple3[Int,String,String]]):List[Tuple3[Int,String,String]] =

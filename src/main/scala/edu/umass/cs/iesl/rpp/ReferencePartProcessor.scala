@@ -202,12 +202,14 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
     def replaceBIWithUL(list: List[(Int, StringLabelMap)]): List[(Int, StringLabelMap)] = {
 
       def loop(
+          acc: List[(Int, StringLabelMap)],
           nextLabelMap: StringLabelMap, 
           reverseList: List[(Int, StringLabelMap)]
       ): List[(Int, StringLabelMap)] = {
+
         reverseList match {
           case Nil => 
-            List()
+            acc
           case (index, typeLabelMap)::xs =>
             val _nextLabelMap = nextLabelMap ++ typeLabelMap
             val _typeLabelMap = typeLabelMap.map { case (typeString, label) => 
@@ -217,7 +219,9 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
                 case _ => (typeString -> label)
               }
             }
-            (index -> _typeLabelMap)::loop(_nextLabelMap, xs)
+            
+            loop((index -> _typeLabelMap)::acc ,_nextLabelMap, xs)
+
         }
       }
 
@@ -225,7 +229,7 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
         case (typeString, typeChar) => typeString -> B(typeChar)
       } toMap
 
-      loop(m, list.reverse).reverse
+      loop(List(), m, list.reverse)
 
     }
 
