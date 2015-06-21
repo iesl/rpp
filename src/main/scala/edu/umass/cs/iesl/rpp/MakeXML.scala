@@ -61,10 +61,13 @@ object MakeXML {
           tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak))
         })
         val name = tokens.mkString(" ")
-        val parts = cc.factorie.util.namejuggler.PersonNameParser.parseFullName(name)
-        personElement.addContent(new Element(PERSON_FIRST_TAG).addContent(parts.givenNames.mkString(" ")))
-        personElement.addContent(new Element(PERSON_LAST_TAG).addContent(parts.surNames.mkString(" ")))
-        authorsElement.addContent(personElement)
+        val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
+        if (partsOption.isDefined) {
+          val parts = partsOption.get
+          personElement.addContent(new Element(PERSON_FIRST_TAG).addContent(parts.givenNames.mkString(" ")))
+          personElement.addContent(new Element(PERSON_LAST_TAG).addContent(parts.surNames.mkString(" ")))
+          authorsElement.addContent(personElement)
+        }
       })
       headerElement.addContent(authorsElement)
     })

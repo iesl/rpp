@@ -2,6 +2,7 @@ package edu.umass.cs.iesl.rpp
 
 import edu.umass.cs.iesl.bibie.TestCitationModel
 import edu.umass.cs.iesl.paperheader.tagger._
+import edu.umass.cs.iesl.rpp
 import edu.umass.cs.iesl.xml_annotator._
 import cc.factorie.util._
 import java.io.{File, PrintWriter}
@@ -122,12 +123,15 @@ object BatchMain extends HyperparameterMain {
           tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak _))
         })
         val name = tokens.mkString(" ")
-        val parts = cc.factorie.util.namejuggler.PersonNameParser.parseFullName(name)
-        level += 1
-        xml.appendLine(s"<person-first>${parts.givenNames.mkString(" ")}</person-first>")
-        xml.appendLine(s"<person-last>${parts.surNames.mkString(" ")}</person-last>")
-        // TODO middle name, prefixes/suffixes
-        level -= 1
+        val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
+        if (partsOption.isDefined) {
+          val parts = partsOption.get
+          level += 1
+          xml.appendLine(s"<person-first>${parts.givenNames.mkString(" ")}</person-first>")
+          xml.appendLine(s"<person-last>${parts.surNames.mkString(" ")}</person-last>")
+          // TODO middle name, prefixes/suffixes
+          level -= 1
+        }
         xml.appendLine("</person>")
         level -= 1
       })
