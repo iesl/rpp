@@ -23,7 +23,7 @@ object CitationReferenceLinkProcessor extends Processor {
     def findMatches(text: String): List[Match] = {
       val numberStr = """[0-9]+"""
       val alphaNumericStr = """[a-zA-Z]{2,}[0-9]+"""
-      val lastNameStr = annotator.getTextSeq(refLastString).map(_._2).mkString("|")
+      val lastNameStr = annotator.getTextSeq(refLastString).map(_._2.escapeRegex).mkString("|")
 
       val bestMatchList = {
 

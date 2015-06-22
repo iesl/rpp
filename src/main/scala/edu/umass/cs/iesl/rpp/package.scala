@@ -1,5 +1,7 @@
 package edu.umass.cs.iesl
 
+import java.util.regex.Pattern
+
 /**
  * @author Kate Silverstein 
  *         created on 5/22/15
@@ -10,4 +12,7 @@ package object rpp {
     def appendLine(line: String)(implicit level: Int = 0): Unit = sb.append(levelIndent(level) + line + "\n")
   }
 
+  implicit class StringExtras(str: String) {
+    def escapeRegex = Pattern.quote(str)
+  }
 }

@@ -83,7 +83,7 @@ object CitationProcessor extends Processor {
 
     val numberStr = """[0-9]{1,3}"""
     val alphaNumericStr = """[a-zA-Z]{2,}[0-9]+"""
-    val authorNameStr = lastNameList.mkString("|")
+    val authorNameStr = lastNameList.map(_.escapeRegex).mkString("|")
       
     val numBrackRegex = ("""(\[(""" + numberStr + """[ ,;]*)+\])""").r
     val numParenRegex = ("""(\((""" + numberStr + """[ ,;]*)+\))""").r
