@@ -1,28 +1,16 @@
 package edu.umass.cs.iesl.rpp
 
-import org.jdom2.Element
-
-import scala.collection.immutable.HashMap
-
-import scala.collection.immutable.{IntMap, SortedSet}
-import scala.io.Source
-
+import cc.factorie.app.nlp.{Document, Token}
+import cc.factorie.app.nlp.segment.DeterministicTokenizer
 import edu.umass.cs.iesl.paperheader.tagger._
-import edu.umass.cs.iesl.paperheader.load._
-
 import edu.umass.cs.iesl.xml_annotator.Annotator
 
-import cc.factorie.app.nlp.{Document, Sentence}
-import cc.factorie.app.nlp.segment.DeterministicTokenizer
-
-import cc.factorie.app.nlp.Token
-
-import scala.compat.Platform
+import scala.collection.immutable.{HashMap, IntMap, SortedSet}
 
 
 class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
-  import Annotator._
-  import HeaderPartProcessor._
+  import edu.umass.cs.iesl.rpp.HeaderPartProcessor._
+  import edu.umass.cs.iesl.xml_annotator.Annotator._
 
   override def process(annotator: Annotator): Annotator =  {
 
@@ -161,7 +149,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
                 })
             }
         }
-    } toList
+    }.toIndexedSeq.sortBy((f) => f._1._1).toList// toList
 
     def replaceIWithB(list: List[((Int, String), Label)]): List[((Int, String), Label)] = {
       val name2Char = typePairMap.values.toMap
