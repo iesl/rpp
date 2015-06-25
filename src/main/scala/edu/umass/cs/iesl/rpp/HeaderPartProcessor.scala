@@ -9,10 +9,11 @@ import scala.collection.immutable.{HashMap, IntMap, SortedSet}
 
 
 class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
+
   import edu.umass.cs.iesl.rpp.HeaderPartProcessor._
   import edu.umass.cs.iesl.xml_annotator.Annotator._
 
-  override def process(annotator: Annotator): Annotator =  {
+  override def process(annotator: Annotator): Annotator = {
 
     case class HeaderItem(index: Int, token: Token, x: Int, y: Int, fontSize: Int)
 
@@ -81,55 +82,56 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
     val docs = headerSet.map(_._3)
 
-//    'abstract',
-//    'address',
-//    'affiliation',
-//    'author',
-//    'copyright',
-//    'date',
-//    'dedication',
-//    'degree',
-//    'email'
-//    'entitle',
-//    'grant',
-//    'intro',
-//    'keyword',
-//    'note',
-//    'phone',
-//    'pubnum',
-//    'reference',
-//    'submission',
-//    'title',
-//    'web',
+    //    'abstract',
+    //    'address',
+    //    'affiliation',
+    //    'author',
+    //    'copyright',
+    //    'date',
+    //    'dedication',
+    //    'degree',
+    //    'email'
+    //    'entitle',
+    //    'grant',
+    //    'intro',
+    //    'keyword',
+    //    'note',
+    //    'phone',
+    //    'pubnum',
+    //    'reference',
+    //    'submission',
+    //    'title',
+    //    'web',
 
     val typePairMap: HashMap[String, (String, Char)] = HashMap(
-      "abstract" -> (headerAbstract, 'b'),
-      "address" -> (headerAddress, 'a'),
-      "affiliation" -> (headerAffiliation, 'a'),
-      "author" -> (headerAuthor, 'a'),
-      "date" -> (headerDate, 'd'),
-      "email" -> (headerEmail, 'e'),
-      "title" -> (headerTitle, 't')
+      "abstract" ->(headerAbstract, 'b'),
+      "address" ->(headerAddress, 'r'),
+      "affiliation" ->(headerAffiliation, 'f'),
+      "author" ->(headerAuthor, 'a'),
+      "date" ->(headerDate, 'd'),
+      "email" ->(headerEmail, 'e'),
+      "title" ->(headerTitle, 't')
 
-//      "institution" -> (headerInstitution, 'i'),
-//      "address" -> (headerAddress, 'a'),
-//      "title" -> (headerTitle, 't'),
-//      "author" -> (headerAuthor, 'a'),
-//      "tech" -> (headerTech, 't'),
-//      "date" -> (headerDate, 'd'),
-//      "note" -> (headerNote, 'n'),
-//      "abstract" -> (headerAbstract, 'b'),
-//      "email" -> (headerEmail, 'e')
+      //      "institution" -> (headerInstitution, 'i'),
+      //      "address" -> (headerAddress, 'a'),
+      //      "title" -> (headerTitle, 't'),
+      //      "author" -> (headerAuthor, 'a'),
+      //      "tech" -> (headerTech, 't'),
+      //      "date" -> (headerDate, 'd'),
+      //      "note" -> (headerNote, 'n'),
+      //      "abstract" -> (headerAbstract, 'b'),
+      //      "email" -> (headerEmail, 'e')
     )
 
     val headerSeq: IndexedSeq[IndexedSeq[HeaderItem]] = headerSet.map(_._2).toIndexedSeq
 
-    val indexTypeDub2LabelList: List[((Int, String), Label)] = docs.zipWithIndex.flatMap {
+    // Map from Indices in SVG to (label (B,I,etc), tag)
+    val index2label = docs.zipWithIndex.flatMap {
       case (doc, docIdx) =>
         val headerItemSeq: IndexedSeq[HeaderItem] = headerSeq(docIdx)
         val indexMap: IndexedSeq[Int] = headerItemSeq.map(_.index)
         val typeLabelList = headerItemSeq.map(_.token).map(t => {
-//          println("paper-header output: " + t.attr[HeaderLabel].categoryValue + ": " + t.toString)
+          //          println("paper-header output: " + t.attr[HeaderLabel].categoryValue + ": " + t.toString)
           t.attr[HeaderLabel].categoryValue
         })
         typeLabelList.zipWithIndex.flatMap {
@@ -140,54 +142,72 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 
             typePairMap.get(typeKey).map {
               case (typeString, typeChar) =>
-                (totalIndex, typeString) -> (labelString match {
+                totalIndex ->(labelString match {
                   case "B" => B(typeChar)
                   case "I" => I
                   case "O" => O
                   case "L" => L
                   case "U" => U(typeChar)
-                })
+                }, typeString)
             }
         }
-    }.toIndexedSeq.sortBy((f) => f._1._1).toList// toList
+    }.toIndexedSeq.sortBy((f) => f._1) // TODO: It's unclear if this needs to be Int -> Iterable[(String, Label)] rather than Int -> (String, Label)
 
-    def replaceIWithB(list: List[((Int, String), Label)]): List[((Int, String), Label)] = {
-      val name2Char = typePairMap.values.toMap
-      def loop(
-        prevTypeString: String,
-        lst: List[((Int, String), Label)]
-      ): List[((Int, String), Label)] = lst match {
+    val name2Char = typePairMap.values.toMap
 
-        case Nil => List()
-        case x::xs =>
-          val (xTypeString, xLabel) = x match { case (( _, typeString), label) => (typeString, label) }
-          if (xLabel == I && xTypeString != prevTypeString) {
-            val c = name2Char(xTypeString)
-            (x._1 -> B(c))::loop(xTypeString, xs)
+    def replaceIBLabels(labels: Seq[(Label, String)]) = {
+      val prevLabels = Seq((I, "")) ++ labels
+      labels.zip(prevLabels).map {
+        case (current, previous) =>
+          if (current._1 == I && previous._1 == I && current._2 != previous._2) {
+            (B(name2Char(current._2)), current._2)
           } else {
-            x::loop(xTypeString, xs)
+            current
           }
-
       }
-      loop("", list)
     }
 
-    val dubLabelMap = replaceIWithB(indexTypeDub2LabelList).toMap
+    def addLU(labels: Seq[(Label, String)]) = {
+      val nextLabels = labels.drop(1) ++ Seq((null, ""))
+      labels.zip(nextLabels).map {
+        case (current, next) =>
+          current._1 match {
+            case I =>
+              next._1 match {
+                case B(_) =>
+                  (L, current._2)
+                case null =>
+                  (L, current._2)
+                case _ =>
+                  current
+              }
+            case B(c) =>
+              next._1 match {
+                case B(_) =>
+                  (U(c), current._2)
+                case null =>
+                  (U(c), current._2)
+                case _ =>
+                  current
+              }
+            case _ =>
+              current
+          }
+      }
+    }
+
+    val indices = index2label.map(_._1)
+    val unconstrainedLabels = index2label.map(_._2)
+    val repIB = replaceIBLabels(unconstrainedLabels)
+    val labels = addLU(repIB)
+
+    val zipped = indices.zip(labels)
 
     typePairMap.values.foldLeft(annoWithTokens) {
       case (anno, (annoTypeName, annoTypeAbbrev)) =>
-
-        val  table = dubLabelMap.filter(p => {
-          val key = p._1
-          annoTypeName == key._2
-        }).map {
-          case ((index, _), label) =>
-            index -> label
-        }
-
+        val table = zipped.filter(_._2._2 == annoTypeName).toMap.mapValues(_._1)
         anno.annotate(List(annoTypeName -> annoTypeAbbrev), Single(SegmentCon("header-token")), table)
     }
-
   }
 }
 
@@ -207,4 +227,3 @@ object HeaderPartProcessor {
   //  val headerTech = "header-tech"
   //  val headerNote = "header-note"
 }
-
