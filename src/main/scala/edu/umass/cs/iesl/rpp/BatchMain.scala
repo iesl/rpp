@@ -1,11 +1,12 @@
 package edu.umass.cs.iesl.rpp
 
+import java.util.concurrent._
+
 import edu.umass.cs.iesl.bibie.TestCitationModel
 import edu.umass.cs.iesl.paperheader.tagger._
-import edu.umass.cs.iesl.rpp
 import edu.umass.cs.iesl.xml_annotator._
 import cc.factorie.util._
-import java.io.{File, PrintWriter}
+import java.io.{FilenameFilter, File, PrintWriter}
 import java.nio.file.{Files, Paths}
 
 
@@ -21,11 +22,11 @@ class BatchOpts extends DefaultCmdOptions {
 
 
 object BatchMain extends HyperparameterMain {
-  
+
   final val codec = "UTF-8" // TODO: cmd option?
 
   def evaluateParameters(args: Array[String]): Double = {
-    println("* main(): args: " + args.mkString(", "))
+    println(s"* main(): args: ${args.mkString(", ")}")
     val opts = new BatchOpts
     opts.parse(args)
     val referenceModelUri = opts.referenceModelUri.value
@@ -37,29 +38,57 @@ object BatchMain extends HyperparameterMain {
     val headerTagger = new HeaderTagger(headerTaggerModelFile)
 
     val inputFilenames =
-      if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles.map(_.getAbsolutePath).toSeq
+      if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles(new FilenameFilter() {
+        override def accept(parent: File, name: String) = name.toLowerCase.endsWith(".svg")
+      }).map(_.getAbsolutePath).toSeq
       else io.Source.fromFile(opts.dataFilesFile.value).getLines().toSeq
     val outputFilenames = inputFilenames.map(fname => opts.outputDir.value + "/" + fname.replaceFirst(".*/(.*)$", "$1.tagged.txt"))
     val badFiles = new scala.collection.mutable.ArrayBuffer[String]()
 
     inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
-      try {
-        println("* processing: " + inputFile)
-        val startTimeMillis: Long = System.currentTimeMillis()
-        val annotator = Main.process(trainer, headerTagger, inputFile)
-        val endTimeMillis: Long = System.currentTimeMillis()
 
-        println("** writing: " + outputFile)
+      val startTimeMillis: Long = System.currentTimeMillis()
+      def deltaSecs(): Long = {
+        (System.currentTimeMillis() - startTimeMillis) / 1000
+      }
+
+      try {
+        println(s"* processing\t$inputFile")
+
+        // start the processing pipeline, using a separate thread to cancel long-running files. NB: this approach
+        // is flawed and needs more work. it works for many long-running files, BUT NOT ALL, apparently because called
+        // code does not check for the cancel() state. it is mysterious why it *does* work. TODO investigate, say via
+        // http://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
+        val executor: ExecutorService = Executors.newSingleThreadExecutor()
+        val processFuture: Future[Annotator] = executor.submit(new Callable[Annotator]() {
+          override def call(): Annotator = {
+            Main.process(trainer, headerTagger, inputFile)
+          }
+        })
+        try {
+          processFuture.get(5, TimeUnit.MINUTES) // TODO instead of hard-coding, pass timeout as a command line option
+        } catch {
+          case e: TimeoutException =>
+            println(s"** TimeoutException\t$inputFile\t${deltaSecs()}")
+            processFuture.cancel(true)
+        }
+        executor.shutdownNow()
+
+        // processing done
+        println(s"** writing\t$outputFile\t${deltaSecs()}")
         val pw = new PrintWriter(new File(outputFile), codec)
-        // mc: outputting coarse segmentation information instead of XML (Main.process is only doing LineProcessor & StructureProcessor)
-        //val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
+        val annotator = processFuture.get()
+
+        // for debugging coarse segmentation, use this line instead of xml one to print basic information:
+//        val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
         val outputStr = MakeXML.mkXML(annotator) // previously mkXML(annotator)
+
         pw.write(outputStr)
         pw.close()
-        println(s"** done\t$inputFile\t${(endTimeMillis - startTimeMillis) / 1000.0}")
+        println(s"** done\t$inputFile\t${deltaSecs()}")
       } catch {
         case e: Exception =>
-          println(s"** failed\t$inputFile\t$e")
+          println(s"** failed\t$e\t${deltaSecs()}")
           e.printStackTrace()
           badFiles += inputFile
       }
@@ -72,188 +101,6 @@ object BatchMain extends HyperparameterMain {
       pw.close()
     }
     badFiles.length
-  }
-
-
-  //  getHeaderLines(annotator).foreach(println(_))
-
-
-  /*
-   To ensure valid XML these methods have since been related with MakeXML
-   */
-  
-  @deprecated("Replaced with MakeXML.mkXML","June 18, 2015")
-  def mkXML(annotator: Annotator): String = {
-    val xml = new StringBuilder()
-    xml.appendLine("<document>")
-    xml.append(mkHeaderXML(annotator))
-    xml.append(mkReferenceXML(annotator))
-    xml.appendLine("</document>")
-    xml.toString()
-  }
-
-  @deprecated("Replaced with MakeXML.mkHeaderXML", "June 18, 2015")
-  def mkHeaderXML(annotator: Annotator): String = {
-    import HeaderPartProcessor._
-    def lineBreak(pair: (Int, String)) = {
-      val (offset, text) = pair
-      val lineBIndexSet = annotator.getBIndexSetByAnnotationType("line")
-      Annotator.mkTextWithBreaks(text, lineBIndexSet.map(_ - offset), ' ')
-    }
-    def normalTag(s: String): String = if (s == "abstract") s else s.split("-").last
-    val xml = new StringBuilder()
-    implicit var level = 1
-    annotator.getRangeSet("header").foreach(headerRange => {
-      xml.appendLine("<header>")
-      List(headerTitle, headerAffiliation, headerAddress, headerEmail, headerDate, headerAbstract).foreach(annoType => {
-        level += 1
-        val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(headerRange)
-        val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
-        annos.foreach(t => xml.appendLine("<" + normalTag(annoType) + ">" + t.trim + "</" + normalTag(annoType) + ">"))
-        level -= 1
-      })
-      level += 1
-      xml.appendLine("<authors>")
-      val authorBIndexSet = annotator.getBIndexSetWithinRange(headerAuthor)(headerRange)
-      authorBIndexSet.foreach(ai => {
-        level += 1
-        xml.appendLine("<person>")
-        val tokens = annotator.getRange(headerAuthor)(ai).toList.flatMap(authorRange => {
-          val tokenBIndexSet = annotator.getFilteredBIndexSetWithinRange(headerAuthor, headerToken)(authorRange)
-          tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak _))
-        })
-        val name = tokens.mkString(" ")
-        val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
-        if (partsOption.isDefined) {
-          val parts = partsOption.get
-          level += 1
-          xml.appendLine(s"<person-first>${parts.givenNames.mkString(" ")}</person-first>")
-          xml.appendLine(s"<person-last>${parts.surNames.mkString(" ")}</person-last>")
-          // TODO middle name, prefixes/suffixes
-          level -= 1
-        }
-        xml.appendLine("</person>")
-        level -= 1
-      })
-      xml.appendLine("</authors>")
-      level -= 1
-      xml.appendLine("</header>")
-    })
-    xml.toString()
-  }
-
-
-  @deprecated("Replaced with MakeXML.mkReferenceXML", "June 18, 2015")
-  def mkReferenceXML(annotator: Annotator): String = {
-    import ReferencePartProcessor._
-    def lineBreak(pair: (Int, String)) = {
-      val (offset, text) = pair
-      val lineBIndexSet = annotator.getBIndexSetByAnnotationType("line")
-      Annotator.mkTextWithBreaks(text, lineBIndexSet.map(_ - offset), ' ')
-    }
-    def normalTag(s: String): String = {
-      val annoMap = Map(
-        "ref-first" -> "person-first",
-        "ref-last" -> "person-last"
-      )
-      if (annoMap.contains(s)) annoMap(s)
-      else if (s.startsWith("ref-")) s.split("-").last
-      else s
-    }
-    val xml = new StringBuilder()
-    implicit var level = 1
-    annotator.getRangeSet("reference").foreach(refsRange => {
-      xml.appendLine("<references>")
-      val refBIndexSet = annotator.getBIndexSetWithinRange("biblio-marker")(refsRange)
-      refBIndexSet.foreach(refIndex => {
-        level += 1
-        xml.appendLine("<reference>")
-        annotator.getRange("biblio-marker")(refIndex).foreach(refRange => {
-
-          List(
-            refTitleString, refMarkerString, referenceIdString
-          ).foreach(annoType => {
-            level += 1
-            val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(refRange)
-            val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
-            val xmlTag = normalTag(annoType)
-            annos.foreach(t => xml.appendLine("<" + xmlTag + ">" + t.trim + "</" + xmlTag + ">"))
-            level -= 1
-          })
-
-          val dateBIndexSet = annotator.getBIndexSetWithinRange(refDateString)(refRange)
-          dateBIndexSet.foreach { asi =>
-            annotator.getRange(refDateString)(asi).foreach { dateRange =>
-              level += 1
-              xml.appendLine("<date>")
-              List(refYearString, refMonthString).foreach { annoType =>
-                level += 1
-                val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(dateRange)
-                val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
-                val xmlTag = normalTag(annoType)
-                annos.foreach(t => xml.appendLine(s"<$xmlTag>${t.trim}</$xmlTag>"))
-                level -= 1
-              }
-              xml.appendLine("</date>")
-              level -= 1
-            }
-          }
-
-          val authorsBIndexSet = annotator.getBIndexSetWithinRange(refAuthorsString)(refRange)
-          authorsBIndexSet.foreach(asi => {
-            annotator.getRange(refAuthorsString)(asi).foreach(authorsRange => {
-              level += 1
-              xml.appendLine("<authors>")
-              val personBIndexSet = annotator.getBIndexSetWithinRange(refPersonString)(refRange)
-              personBIndexSet.foreach(pi => {
-                annotator.getRange(refPersonString)(pi).foreach(personRange => {
-                  level += 1
-                  xml.appendLine("<person>")
-                  List(
-                    refFirstString, refMiddleString, refLastString
-                  ).foreach(annoType => {
-                    level += 1
-                    val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(personRange)
-                    val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
-                    val xmlTag = normalTag(annoType)
-                    annos.foreach(t => xml.appendLine("<" + xmlTag + ">" + t.trim + "</" + xmlTag + ">"))
-                    level -= 1
-                  })
-                  xml.appendLine("</person>")
-                  level -= 1
-                })
-              })
-              xml.appendLine("</authors>")
-              level -= 1
-            })
-          })
-
-          val venueBIndexSet = annotator.getBIndexSetWithinRange(refVenueString)(refRange)
-          venueBIndexSet.foreach { asi =>
-            annotator.getRange(refVenueString)(asi).foreach { venueRange =>
-              level += 1
-              xml.appendLine("<venue>")
-              List(
-                refJournalString, refBooktitleString, refOrganizationString, refAddressString, refVolumeString, refPagesString
-              ).foreach { annoType =>
-                level += 1
-                val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(venueRange)
-                val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak _)).take(1)
-                val xmlTag = normalTag(annoType)
-                annos.foreach(t => xml.appendLine("<" + xmlTag + ">" + t.trim + "</" + xmlTag + ">"))
-                level -= 1
-              }
-              xml.appendLine("</venue>")
-              level -= 1
-            }
-          }
-        })
-        xml.appendLine("</reference>")
-        level -= 1
-      })
-      xml.appendLine("</references>")
-    })
-    xml.toString()
   }
 
 
@@ -292,172 +139,35 @@ object ParallelInvoker {
     val ncores = opts.numCores.value
     val mem = opts.memPerJob.value
     val dataDir = opts.dir.value
-//    val outputDir = opts.outputDir.value
-//    assert(outputDir != "")
     val files = new File(dataDir).listFiles().map(_.getPath)
+
     // divide files into njobs sets of equal size
     val dividedDocs = cut(scala.util.Random.shuffle(files), njobs)
 
     val fnamePrefix = "tmp-filelist-"
     val fnames = (0 until njobs).map(i => Paths.get(s"$fnamePrefix$i").toAbsolutePath().toString)
-    dividedDocs.zipWithIndex.foreach{ case(doclist, idx) => {
+    dividedDocs.zipWithIndex.foreach { case (doclist, idx) => {
       val writer = new PrintWriter(fnames(idx))
-      doclist.foreach{fname => writer.println(fname)}
+      doclist.foreach { fname => writer.println(fname) }
       println(fnames(idx))
       writer.close()
-    }}
+    }
+    }
 
     println(s"Distributed ${files.length} data files into ${njobs} sets of ${dividedDocs.map(_.length).min}-${dividedDocs.map(_.length).max} files")
 
     val docsParam = DistributorParameter[String](opts.dataFilesFile, fnames)
-
     val qs = new cc.factorie.util.QSubExecutor(mem, "edu.umass.cs.iesl.rpp.BatchMain", ncores)
-
     val qsOpts = opts.writeInto(new BatchOpts)
     qsOpts.dataFilesFile.invoke()
 
     val distributor = new cc.factorie.util.JobDistributor(qsOpts, Seq(docsParam), qs.execute, 60)
-
     val result = distributor.distribute
     println(s"Finished running $result jobs, ${result.sum}/${files.length} documents failed")
 
     // remove created filelists
-    fnames.foreach{fname => Files.delete(Paths.get(fname))}
+    fnames.foreach { fname => Files.delete(Paths.get(fname)) }
 
     println("Done")
-
-//    //write filelists
-//    val prefix = "tmp-filelist-"
-//    val filenames = (0 until njobs).map(i => Paths.get(s"$prefix$i").toAbsolutePath.toString)
-//    dividedDocs.zipWithIndex.foreach { case (doclist, idx) =>
-//      val pw = new PrintWriter(filenames(idx))
-//      doclist.foreach { fname => pw.println(fname) }
-//      println(filenames(idx))
-//      pw.close()
-//    }
-//
-//    val cmds = filenames.map { filelist =>
-//      val args = s"$filelist $outputDir"
-//      val cmd = System.getenv("RPP_ROOT") + "/bin/process-batch-distributed.sh " + args
-//      val qsubCmd = s"qsub -pe blake $ncores -sync y -l mem_token=${mem}G -v RPP_ROOT -j y -S /bin/sh $cmd"
-//      qsubCmd
-//    }
-//
-//    cmds.par.foreach { cmd =>
-//      println(cmd)
-//      Process(cmd).run()
-//    }
-//
-//    //     remove created filelists
-//    //    filenames.foreach { fname => Files.delete(Paths.get(fname)) }
-//    println("done.")
   }
 }
-
-
-//    val inputFiles: Seq[File] = {
-//      // for distributed processing
-//      if (opts.dataFilesFile.wasInvoked) scala.io.Source.fromFile(opts.dataFilesFile.value).getLines().map(fname => new File(fname)).toSeq
-//      // for normal processing
-//      else if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles
-//      else Seq()
-//    }
-//    val outputFilenames: Seq[String] = {
-//      val outputDir = opts.outputDir.value
-//      inputFiles.map(_.getName).map(f => s"$outputDir/$f.tagged")
-//    }
-//    val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
-//    println("lexiconUrlPrefix: " + lexiconUrlPrefix)
-//    val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
-//    val headerTagger = new HeaderTagger
-//    headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
-//    var failCount = 0
-//    val totalCount = inputFiles.length
-//    val errAnalysis = new scala.collection.mutable.HashMap[String, Int]()
-//
-//    def updateErrs[E<:Exception](e: E): Unit = {
-//      val key = e.getClass.getCanonicalName
-//      if (errAnalysis.contains(key)) errAnalysis(key) += 1
-//      else errAnalysis(key) = 1
-//    }
-//
-//    // TODO also add body text?
-//    inputFiles.zip(outputFilenames).foreach { case (input, output) =>
-//      println(s"processing: ${input.getAbsolutePath} --> $output")
-//      val annotator = Main.process(trainer, headerTagger, input.getAbsolutePath).write(output)
-//    }
-
-
-//      var annotator: Annotator = null
-//
-//      /* segmentation */
-//      try {
-//        annotator = Main.process(trainer, headerTagger, input.getAbsolutePath)
-////        annotator.write(output+"-blah")
-//      } catch {
-//        case e: Exception => updateErrs(e)
-//      }
-//
-//      if (annotator != null) {
-//        var fail = 0
-//
-//        /* annotate with paper-header */
-//        val headerTxt = Main.getHeaderLines(annotator).mkString("\n")
-//        println(headerTxt)
-//        val headerDoc = new Document(headerTxt)
-//        DeterministicTokenizer.process(headerDoc)
-//        new Sentence(headerDoc.asSection, 0, headerDoc.tokens.size)
-//        try {
-//          headerTagger.process(headerDoc)
-//        } catch {
-//          case e: Exception =>
-//            updateErrs(e)
-//            fail = 1
-//        }
-//
-//        /* annotate with bibie */
-//        val refs = Main.getReferencesWithBreaks(annotator)
-//        val refDocs = refs.map(ref => {
-//          val doc = new Document(ref)
-//          DeterministicTokenizer.process(doc)
-//          new Sentence(doc.asSection, 0, doc.tokens.size)
-//          doc.tokens.foreach(t => t.attr += new CitationLabel("", t))
-//          doc
-//        })
-//
-//        try {
-//          TestCitationModel.process(refDocs, trainer, print=false)
-//        } catch {
-//          case e: Exception =>
-//            updateErrs(e)
-//            fail = 1
-//        }
-//
-//        /* write to XML */
-//        var xml =  ""
-//        try {
-//          xml = XMLParser.docsToXML(headerDoc, refDocs)
-//          scala.xml.XML.loadString(xml)
-//        } catch {
-//          case e: Exception =>
-//            updateErrs(e)
-//            fail = 1
-//        }
-//        if (fail == 0) {
-//          val pw = new PrintWriter(new File(output))
-//          pw.write(xml)
-//          pw.close()
-//        } else {
-//          failCount += 1
-//        }
-//      } else {
-//        failCount += 1
-//      }
-
-//    }
-
-//    println(s"processed ${totalCount - failCount} out of $totalCount files ($failCount failures)")
-//    println("exceptions:")
-//    errAnalysis.foreach {
-//      case (name, ct) => println(s"$name $ct")
-//    }
