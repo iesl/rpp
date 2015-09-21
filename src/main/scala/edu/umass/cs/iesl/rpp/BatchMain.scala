@@ -8,7 +8,7 @@ import edu.umass.cs.iesl.xml_annotator._
 import cc.factorie.util._
 import java.io.{FilenameFilter, File, PrintWriter}
 import java.nio.file.{Files, Paths}
-
+import java.net.URL
 
 class BatchOpts extends DefaultCmdOptions {
   val lexiconsUri = new CmdOption("lexicons-uri", "", "STRING", "URI to lexicons")
@@ -35,7 +35,7 @@ object BatchMain extends HyperparameterMain {
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
 
-    val headerTagger = new HeaderTagger(headerTaggerModelFile)
+    val headerTagger = new HeaderTagger(new URL(headerTaggerModelFile))
 
     val inputFilenames =
       if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles(new FilenameFilter() {
