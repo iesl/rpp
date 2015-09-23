@@ -46,6 +46,23 @@ object Main {
     annotator
   }
 
+  /* Just segment into header, body, citations; no tagging, no trained models */
+  def segment(inFilePath: String): Annotator = {
+    val builder = new SAXBuilder()
+    val dom = builder.build(new File(inFilePath))
+
+    val l = List(
+      LineProcessor,
+      StructureProcessor
+    )
+
+    val annotator = l.foldLeft(Annotator(dom)) {
+      case (annoAcc, pro) => pro.process(annoAcc)
+    }
+
+    annotator
+  }
+
 
   //
   // output-related fuctions

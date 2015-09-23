@@ -18,8 +18,8 @@ class BatchOpts extends DefaultCmdOptions {
   val inputDir = new CmdOption("input-dir", "", "STRING", "path to dir of input files")
   val logFile = new CmdOption("log-file", "", "STRING", "write logging info to this file")
   val dataFilesFile = new CmdOption("data-files-file", "", "STRING", "file containing a list of paths to data files, one per line")
+  val mode = new CmdOption("mode", "tag", "STRING", "Mode: segment or tag")
 }
-
 
 object BatchMain extends HyperparameterMain {
 
@@ -29,13 +29,6 @@ object BatchMain extends HyperparameterMain {
     println(s"* main(): args: ${args.mkString(", ")}")
     val opts = new BatchOpts
     opts.parse(args)
-    val referenceModelUri = opts.referenceModelUri.value
-    val headerTaggerModelFile = opts.headerTaggerModelFile.value
-
-    val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
-    val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
-
-    val headerTagger = new HeaderTagger(new URL(headerTaggerModelFile))
 
     val inputFilenames =
       if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles(new FilenameFilter() {
@@ -44,6 +37,13 @@ object BatchMain extends HyperparameterMain {
       else io.Source.fromFile(opts.dataFilesFile.value).getLines().toSeq
     val outputFilenames = inputFilenames.map(fname => opts.outputDir.value + "/" + fname.replaceFirst(".*/(.*)$", "$1.tagged.txt"))
     val badFiles = new scala.collection.mutable.ArrayBuffer[String]()
+
+    /* For tagging only (not segmenting)? */
+    val referenceModelUri = opts.referenceModelUri.value
+    val headerTaggerModelFile = opts.headerTaggerModelFile.value
+    val lexiconUrlPrefix = if(opts.mode.value == "tag") getClass.getResource("/lexicons").toString else ""
+    val trainer = if(opts.mode.value == "tag") TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix) else null
+    val headerTagger = if(opts.mode.value == "tag") new HeaderTagger(new URL(headerTaggerModelFile)) else null
 
     inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
 
@@ -61,8 +61,10 @@ object BatchMain extends HyperparameterMain {
         // http://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
         val executor: ExecutorService = Executors.newSingleThreadExecutor()
         val processFuture: Future[Annotator] = executor.submit(new Callable[Annotator]() {
-          override def call(): Annotator = {
-            Main.process(trainer, headerTagger, inputFile)
+          override def call(): Annotator = opts.mode.value match {
+            case "tag" => Main.process(trainer, headerTagger, inputFile)
+            case "segment" => Main.segment(inputFile)
+            case m => throw new Error(s"Unrecognized mode `$m'")
           }
         })
         try {
@@ -80,8 +82,8 @@ object BatchMain extends HyperparameterMain {
         val annotator = processFuture.get()
 
         // for debugging coarse segmentation, use this line instead of xml one to print basic information:
-//        val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
-        val outputStr = MakeXML.mkXML(annotator) // previously mkXML(annotator)
+        val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
+//        val outputStr = MakeXML.mkXML(annotator) // previously mkXML(annotator)
 
         pw.write(outputStr)
         pw.close()
