@@ -18,7 +18,7 @@ fi
 CP=`cat $RPP_ROOT/CP.hack`
 
 root=$RPP_ROOT
-lexicons=file:///iesl/canvas/ksilvers/lexicon
+lexicons=file:///iesl/canvas/strubell/rpp/lexicon
 citeCRF="--reference-model-uri=file://$root/citationCRF.factorie"
 headerCRF="--header-tagger-model=$root/headerCRF.factorie"
 outputDir="--output-dir=$2"
