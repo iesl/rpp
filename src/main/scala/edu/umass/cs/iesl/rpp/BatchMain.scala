@@ -35,7 +35,7 @@ object BatchMain extends HyperparameterMain {
         override def accept(parent: File, name: String) = name.toLowerCase.endsWith(".svg")
       }).map(_.getAbsolutePath).toSeq
       else io.Source.fromFile(opts.dataFilesFile.value).getLines().toSeq
-    val outputFilenames = inputFilenames.map(fname => opts.outputDir.value + "/" + fname.replaceFirst(".*/(.*)$", "$1.tagged.txt"))
+    val outputFilenames = inputFilenames.map(fname => opts.outputDir.value + "/" + fname.replaceFirst(".*/(.*)$", "$1." + (if(opts.mode.value == "tag") "tagged" else "segmented") + ".txt"))
     val badFiles = new scala.collection.mutable.ArrayBuffer[String]()
 
     /* For tagging only (not segmenting)? */
