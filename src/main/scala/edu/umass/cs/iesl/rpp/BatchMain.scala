@@ -82,8 +82,10 @@ object BatchMain extends HyperparameterMain {
         val annotator = processFuture.get()
 
         // for debugging coarse segmentation, use this line instead of xml one to print basic information:
-        val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
-//        val outputStr = MakeXML.mkXML(annotator) // previously mkXML(annotator)
+        val outputStr = opts.mode.value match{
+          case "tag" => MakeXML.mkXML(annotator) // previously mkXML(annotator)
+          case "segment" => Main.coarseOutputStrForAnnotator(annotator, inputFile)
+        }
 
         pw.write(outputStr)
         pw.close()

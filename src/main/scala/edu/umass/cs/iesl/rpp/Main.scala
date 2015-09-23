@@ -65,22 +65,16 @@ object Main {
 
 
   //
-  // output-related fuctions
+  // output-related functions
   //
 
   def coarseOutputStrForAnnotator(annotator: Annotator, inFilePath: String): String = {
     val outputSB = new StringBuilder()
-    outputSB.append(s"\n;; -*- mode: outline -*-\n* ---- example queries: $inFilePath ----")
-    outputSB.append("\n** ---- header lines ----")
+    outputSB.append("#Header\n")
     getHeaderLines(annotator).foreach(outputSB.append)
-
     val references: Seq[String] = getReferences(annotator)
-    outputSB.append(s"\n** ---- references (${references.size}) ----")
-    references.foreach(s => {
-      outputSB.append("\n*** " + s)
-    })
-
-    outputSB.append("\n** ---- done ----")
+    outputSB.append(s"\n#References")
+    references.foreach(s => outputSB.append("\n" + s))
     outputSB.toString()
   }
 
