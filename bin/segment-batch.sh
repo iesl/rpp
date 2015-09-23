@@ -22,6 +22,6 @@ root=$RPP_ROOT
 #citeCRF="--reference-model-uri=file://$root/citationCRF.factorie"
 #headerCRF="--header-tagger-model=$root/headerCRF.factorie"
 input="--data-files-file=$1"
-outputDir="--output-dir=$2"
+output="--output-dir=$2"
 
 java -Dfile.encoding=UTF8 -cp $CP -Xmx$memory "edu.umass.cs.iesl.rpp.BatchMain" --mode=segment $input $output
