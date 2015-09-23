@@ -19,7 +19,7 @@ object Main {
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
 
     val headerTagger = new HeaderTagger
-    headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
+    headerTagger.deserialize(new java.io.FileInputStream(headerTaggerModelFile))
 
     val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
     printExampleQueriesFromMain(annotator)
