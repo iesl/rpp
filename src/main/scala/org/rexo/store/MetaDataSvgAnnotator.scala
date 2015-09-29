@@ -128,7 +128,7 @@ object MetaDataSvgAnnotator {
       val pageNumber:Int = currentToken.getProperty("pageNum").asInstanceOf[Double].toInt
       val tokTail = toks.tail
       val pair = (tokenBlockId + "_" + pageNumber) -> labels.get(lId).toString
-      val newLId = if(perLine && hasSameLine(currentToken, tokTail.head)) lId else lId + 1
+      val newLId = if(toks.length > 1 && perLine && hasSameLine(currentToken, tokTail.head)) lId else lId + 1
 //      println(s"labels(${tokenBlockId}_$pageNumber)=${labels.get(lId)}: ${currentToken.getText}")
 
       /* Known bug where the last column in a two-column pdf is cut off, don't want to throw an exception if newLId == labels.size */
