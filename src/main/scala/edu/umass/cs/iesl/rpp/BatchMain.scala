@@ -49,7 +49,7 @@ object BatchMain extends HyperparameterMain {
 
       val startTimeMillis: Long = System.currentTimeMillis()
       def deltaSecs(): Long = {
-        (System.currentTimeMillis() - startTimeMillis) / 1000
+        (System.currentTimeMillis() - startTimeMillis) / 1000.0
       }
 
       try {
@@ -71,7 +71,7 @@ object BatchMain extends HyperparameterMain {
           processFuture.get(5, TimeUnit.MINUTES) // TODO instead of hard-coding, pass timeout as a command line option
         } catch {
           case e: TimeoutException =>
-            println(s"** TimeoutException\t$inputFile\t${deltaSecs()}")
+            println(s"** TimeoutException\t$inputFile\t${deltaSecs()} seconds")
             processFuture.cancel(true)
         }
         executor.shutdownNow()
@@ -89,10 +89,10 @@ object BatchMain extends HyperparameterMain {
 
         pw.write(outputStr)
         pw.close()
-        println(s"** done\t$inputFile\t${deltaSecs()}")
+        println(s"** done\t$inputFile\t${deltaSecs()} seconds")
       } catch {
         case e: Exception =>
-          println(s"** failed\t$e\t${deltaSecs()}")
+          println(s"** failed\t$e\t${deltaSecs()} seconds")
           e.printStackTrace()
           badFiles += inputFile
       }
