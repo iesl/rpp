@@ -392,6 +392,7 @@ class LineInfo2TokenSequenceV2 extends Pipe with Serializable {
           lineInfos(i).presentFeatures.add("closeFirstMargin")
         }
         if(colsPerPage(lineInfos(i).page).contains(1) &&
+          colsPerPage(lineInfos(i).page)(1).nonEmpty &&
           colsPerPage(lineInfos(i).page)(1).head != None &&
           colsPerPage(lineInfos(i).page)(1).head.getLeftX <= lineInfos(i).llx &&
           colsPerPage(lineInfos(i).page)(1).head.getLeftX >= lineInfos(i).llx - 2){
