@@ -50,9 +50,7 @@ object BatchMain extends HyperparameterMain {
     inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
 
       val startTimeMillis: Long = System.currentTimeMillis()
-      def deltaSecs(): Long = {
-        (System.currentTimeMillis() - startTimeMillis) / 1000.0
-      }
+      def deltaSecs = (System.currentTimeMillis() - startTimeMillis) / 1000.0
 
       try {
         println(s"* processing\t$inputFile")
@@ -73,13 +71,13 @@ object BatchMain extends HyperparameterMain {
           processFuture.get(5, TimeUnit.MINUTES) // TODO instead of hard-coding, pass timeout as a command line option
         } catch {
           case e: TimeoutException =>
-            println(s"** TimeoutException\t$inputFile\t${deltaSecs()} seconds")
+            println(s"** TimeoutException\t$inputFile\t${deltaSecs} seconds")
             processFuture.cancel(true)
         }
         executor.shutdownNow()
 
         // processing done
-        println(s"** writing\t$outputFile\t${deltaSecs()}")
+        println(s"** writing\t$outputFile\t${deltaSecs}")
         val pw = new PrintWriter(new File(outputFile), codec)
         val annotator = processFuture.get()
 
@@ -91,17 +89,17 @@ object BatchMain extends HyperparameterMain {
 
         pw.write(outputStr)
         pw.close()
-        println(s"** done\t$inputFile\t${deltaSecs()} seconds")
+        println(s"** done\t$inputFile\t${deltaSecs} seconds")
       } catch {
         case e: Exception =>
-          println(s"** failed\t$e\t${deltaSecs()} seconds")
+          println(s"** failed\t$e\t${deltaSecs} seconds")
           e.printStackTrace()
           badFiles += inputFile
       }
     }
 
     println(s"* failed to process ${badFiles.length}/${inputFilenames.length} files.")
-    println(s"* Total time to process: ${System.currentTimeMillis()-startTime / 1000.0} seconds")
+    println(s"* Total time to process: ${(System.currentTimeMillis()-startTime) / 1000.0} seconds")
     if (opts.logFile.wasInvoked) {
       val pw = new PrintWriter(new File(opts.logFile.value))
       badFiles.foreach(f => pw.write(f + "\n"))
