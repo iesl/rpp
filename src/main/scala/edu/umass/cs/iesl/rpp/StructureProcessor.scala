@@ -6,7 +6,6 @@ import java.io._
 import com.typesafe.scalalogging.Logger
 import org.slf4j.LoggerFactory
 import org.rexo.extraction.NewHtmlTokenizationSvg
-import org.rexo.pipeline.components.RxDocument
 
 import org.rexo.pipeline.components.svg.{RxDocumentSvg, RxPipelineSvg}
 import edu.umass.cs.rexo.ghuang.segmentation.svg.SegmentationFilterSvg
