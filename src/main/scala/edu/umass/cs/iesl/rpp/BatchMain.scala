@@ -163,6 +163,7 @@ object ParallelInvoker {
     }}
 
     println(s"Distributed ${files.length} data files into ${njobs} sets of ${dividedDocs.map(_.length).min}-${dividedDocs.map(_.length).max} files")
+    println(s"$ncores cores, ${mem}gb memory each")
 
     val docsParam = DistributorParameter[String](opts.dataFilesFile, fnames)
     val qs = new cc.factorie.util.QSubExecutor(mem, "edu.umass.cs.iesl.rpp.BatchMain", ncores)
