@@ -71,19 +71,18 @@ class LayoutSegmentFinderSvg {
       else {
         val js: JournalSegmenter = JournalSegmenter.getSegmenter(lineSpans.toList)
         if (js == null) {
-          logger.log(Level.WARNING, "Did not find abstract or introduction")
-          //          throw HeaderNotFoundException.apply("did not find 'abstract' or 'introduction'")
-        } else {
-          subList = js.getAbstract(lineSpans)
-          if (subList.isEmpty) {
-            logger.log(Level.WARNING, "Did not find abstract or introduction")
-            //          HeaderNotFoundException.apply("did not find 'abstract' or 'introduction'")
-          }
-          else {
-            headerLineList ++= subList
-            lineSpans = lineSpans.takeRight(lineSpans.size - subList.size)
-            subList.clear
-          }
+//          logger.log(Level.WARNING, "Did not find abstract or introduction")
+          throw HeaderNotFoundException("Did not find 'abstract' or 'introduction'")
+        }
+        subList = js.getAbstract(lineSpans)
+        if (subList.isEmpty) {
+//          logger.log(Level.WARNING, "Did not find abstract or introduction")
+          throw HeaderNotFoundException("Did not find 'abstract' or 'introduction'")
+        }
+        else {
+          headerLineList.++=(subList)
+          lineSpans = lineSpans.takeRight(lineSpans.size - subList.size)
+          subList.clear
         }
       }
     }
