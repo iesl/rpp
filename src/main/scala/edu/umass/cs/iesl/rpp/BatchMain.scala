@@ -148,9 +148,7 @@ object ParallelInvoker {
     val files =
       if(opts.dir.wasInvoked)
         new File(dataDir).listFiles().map(_.getPath)
-      else{
-        io.Source.fromFile(opts.dataFilesFile.value).getLines().toArray
-      }
+      else io.Source.fromFile(opts.dataFilesFile.value).getLines().toArray
 
     // divide files into njobs sets of equal size
     val dividedDocs = cut(scala.util.Random.shuffle(files), njobs)
