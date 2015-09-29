@@ -145,7 +145,12 @@ object ParallelInvoker {
     val ncores = opts.numCores.value
     val mem = opts.memPerJob.value
     val dataDir = opts.dir.value
-    val files = new File(dataDir).listFiles().map(_.getPath)
+    val files =
+      if(opts.dir.wasInvoked)
+        new File(dataDir).listFiles().map(_.getPath)
+      else{
+        io.Source.fromFile(opts.dataFilesFile.value).getLines().toArray
+      }
 
     // divide files into njobs sets of equal size
     val dividedDocs = cut(scala.util.Random.shuffle(files), njobs)
@@ -157,8 +162,7 @@ object ParallelInvoker {
       doclist.foreach { fname => writer.println(fname) }
       println(fnames(idx))
       writer.close()
-    }
-    }
+    }}
 
     println(s"Distributed ${files.length} data files into ${njobs} sets of ${dividedDocs.map(_.length).min}-${dividedDocs.map(_.length).max} files")
 
