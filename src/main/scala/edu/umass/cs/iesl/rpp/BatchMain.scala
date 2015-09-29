@@ -45,6 +45,8 @@ object BatchMain extends HyperparameterMain {
     val trainer = if(opts.mode.value == "tag") TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix) else null
     val headerTagger = if(opts.mode.value == "tag") new HeaderTagger(new URL(headerTaggerModelFile)) else null
 
+    val startTime = System.currentTimeMillis()
+
     inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
 
       val startTimeMillis: Long = System.currentTimeMillis()
@@ -99,6 +101,7 @@ object BatchMain extends HyperparameterMain {
     }
 
     println(s"* failed to process ${badFiles.length}/${inputFilenames.length} files.")
+    println(s"* Total time to process: ${System.currentTimeMillis()-startTime / 1000.0} seconds")
     if (opts.logFile.wasInvoked) {
       val pw = new PrintWriter(new File(opts.logFile.value))
       badFiles.foreach(f => pw.write(f + "\n"))
