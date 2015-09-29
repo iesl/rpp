@@ -9,6 +9,7 @@ import org.rexo.referencetagging.{ReferencesNotFoundException, HeaderNotFoundExc
 
 //import old.base.extract.Span
 import scala.collection.{mutable, TraversableOnce}
+import java.util.logging.{Logger, Level}
 
 /**
  * Created by klimzaporojets on 9/25/14.
@@ -24,6 +25,9 @@ object LayoutSegmentFinder {
   val BIBLIOGRAPHY_PATTERN = new scala.util.matching.Regex("""^[#iIvVxX\d\.\s]{0,5}(R(?i:eferences)|B(?i:ibliography)|R(?i:eferences and Notes)|L(?i:iterature Cited)|(.*REFERENCES.*))\s*$""")
 }
 class LayoutSegmentFinder {
+
+  val logger = Logger.getLogger("LayoutSegmentFinder")
+
   private[segmentation] var m_rulesBibSegmentor: RulesBibliographySegmentor = new RulesBibliographySegmentor;
 
 
@@ -108,7 +112,8 @@ class LayoutSegmentFinder {
       subsections.put("bodyTokenization", body)
     }
     else {
-      throw new ReferencesNotFoundException("did not find reference section")
+      logger.log(Level.WARNING, "Did not find references section")
+//      throw new ReferencesNotFoundException("did not find reference section")
     }
 
     val referenceLines:mutable.MutableList[Span] = mutable.MutableList[Span]()

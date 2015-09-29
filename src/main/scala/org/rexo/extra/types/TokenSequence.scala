@@ -59,7 +59,7 @@ object TokenSequence {
 class TokenSequence extends PipeOutputAccumulator with Sequence with Serializable {
 
 
-  var tokens: collection.mutable.ArrayBuffer[Token] = collection.mutable.ArrayBuffer[Token]()
+  var tokens = collection.mutable.ArrayBuffer[Token]()
   private var properties: PropertyList = null
 
   def size: Int = {
@@ -88,7 +88,7 @@ class TokenSequence extends PipeOutputAccumulator with Sequence with Serializabl
     return tokens(i)
   }
 
-  def get(i: Int): AnyRef = {
+  def get(i: Int): Token = {
     return tokens(i)
   }
 

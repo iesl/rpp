@@ -1,7 +1,5 @@
 package org.rexo.pipeline.components.svg
 
-import org.rexo.pipeline.components.svg.RxDocumentSvg
-
 /**
  * Created by klimzaporojets on 9/25/14.
  */
@@ -23,10 +21,7 @@ object RxFilterSvd {
 abstract trait RxFilterSvd {
   def accept(rdoc: RxDocumentSvg): Int
 
-//  def acceptSvd(rdo: RxDocumentSvd): Int
-
   def init(pipeline: RxPipelineSvg): Int
-
 
 }
 

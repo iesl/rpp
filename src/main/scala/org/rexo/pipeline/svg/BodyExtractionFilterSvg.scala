@@ -37,7 +37,7 @@ class BodyExtractionFilterSvg extends AbstractFilterSvg {
 //    pipes.add(new NewHtmlTokenization2TokenSequence)
 //    pipes.add(new Token2BodyFeatureSequence)
 
-    pipes.+=(new Token2BodyFeatureSequenceSvg)
+    pipes += new Token2BodyFeatureSequenceSvg
     val sp: SerialPipes = new SerialPipes(pipes)
     _bodyExtractor = new RulesExtractor(sp)
 
@@ -98,7 +98,7 @@ class BodyExtractionFilterSvg extends AbstractFilterSvg {
         segmentations.put("bodyLabels", predictedLabels)
       }
     }
-    return true
+    true
   }
 
   private def checkReference(tokens: NewHtmlTokenizationSvg, predictedTags: Sequence): String = {
@@ -108,44 +108,38 @@ class BodyExtractionFilterSvg extends AbstractFilterSvg {
     var seenTitle: Boolean = false
     var warning: String = ""
     var previousTag: String = ""
-//    {
-      var i: Int = 0
-      while (i < predictedTags.size) {
-        {
-          val tag: String = predictedTags.get(i).toString
-          var truncateHere: Boolean = false
-          if (previousTag.startsWith("ref-marker") && !tag.startsWith("ref-marker")) {
-            seenMarker = true
-          }
-          if (previousTag.startsWith("author") && !tag.startsWith("author")) {
-            seenAuthors = true
-          }
-          if (previousTag.startsWith("title") && !tag.startsWith("title")) {
-            seenTitle = true
-          }
-          val newMarker: Boolean = (tag.startsWith("ref-marker") && !previousTag.startsWith("ref-marker"))
-          if ((seenMarker || seenAuthors || seenTitle) && newMarker) {
-            truncateHere = true
-            warning = warning + "duplicate ref-marker;"
-          }
-          val newAuthor: Boolean = (tag.startsWith("author") && !previousTag.startsWith("author"))
-          if (seenAuthors && newAuthor) {
-            truncateHere = true
-            warning = warning + "duplicate authors;"
-          }
-          val newTitle: Boolean = (tag.startsWith("title") && !previousTag.startsWith("title"))
-          if (seenTitle && newTitle) {
-            truncateHere = true
-            warning = warning + "duplicate title;"
-          }
-          previousTag = tag
-        }
-        ({
-          i += 1; i - 1
-        })
+    var i = 0
+    while (i < predictedTags.size) {
+      val tag = predictedTags.get(i).toString
+      var truncateHere: Boolean = false
+      if (previousTag.startsWith("ref-marker") && !tag.startsWith("ref-marker")) {
+        seenMarker = true
       }
-//    }
-    return warning
+      if (previousTag.startsWith("author") && !tag.startsWith("author")) {
+        seenAuthors = true
+      }
+      if (previousTag.startsWith("title") && !tag.startsWith("title")) {
+        seenTitle = true
+      }
+      val newMarker: Boolean = tag.startsWith("ref-marker") && !previousTag.startsWith("ref-marker")
+      if ((seenMarker || seenAuthors || seenTitle) && newMarker) {
+        truncateHere = true
+        warning = warning + "duplicate ref-marker;"
+      }
+      val newAuthor: Boolean = tag.startsWith("author") && !previousTag.startsWith("author")
+      if (seenAuthors && newAuthor) {
+        truncateHere = true
+        warning = warning + "duplicate authors;"
+      }
+      val newTitle: Boolean = tag.startsWith("title") && !previousTag.startsWith("title")
+      if (seenTitle && newTitle) {
+        truncateHere = true
+        warning = warning + "duplicate title;"
+      }
+      previousTag = tag
+      i += 1
+    }
+    warning
   }
 
 }

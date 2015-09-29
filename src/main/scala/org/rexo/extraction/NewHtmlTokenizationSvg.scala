@@ -191,15 +191,13 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
    */
   private def tokenizeLines(page:Annotator) {
 
-    val parentElement = page.getDom().getRootElement
-
-
+//    val parentElement = page.getDom().getRootElement
 
 //    println("number of pages: " + parentElement.getChildren.size())
 
     val lineBIndexSet = page.getBIndexSet(Single(SegmentCon("line")))
 
-    val grpByPage:List[Tuple3[Int,Int,IntMap[Element]]] =
+    val grpByPage:List[(Int,Int,IntMap[Element])] =
     lineBIndexSet.toList.zipWithIndex.map {
       case (lineIndex, i) =>
         val elements = page.getElements("line")(lineIndex)
@@ -218,7 +216,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
 //    print(grpByPage)
 
-    val grpBy:Map[Int,List[Tuple3[Int,Int,IntMap[Element]]]] = grpByPage.groupBy(_._1)
+    val grpBy:Map[Int,List[(Int,Int,IntMap[Element])]] = grpByPage.groupBy(_._1)
 
     val grpBy2 = grpBy.map(x=>
         Map(x._1->x._2.filter(y=> y._1==x._1).groupBy(_._2))
@@ -282,7 +280,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
           _constructionInfo.textofs += lineText.length
           val paginationToken: StringSpan = new StringSpan(_constructionInfo._docText, lineStartOfs, _constructionInfo.textofs)
           paginationToken.setNumericProperty("isHeaderFooterLine", 1.0)
-          var tboxI: Iterator[_] = tboxList.iterator
+          val tboxI: Iterator[_] = tboxList.iterator
           var locUrx: Double = -1
           var locUry: Double = -1
           var locLlx: Double = -1
@@ -319,12 +317,12 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
               locLly = curLly
             }
           }
-          paginationToken.setProperty("llx", locLlx.toDouble)
-          paginationToken.setProperty("lly", locLly.toDouble)
-          paginationToken.setProperty("urx", locUrx.toDouble)
-          paginationToken.setProperty("ury", locUry.toDouble)
+          paginationToken.setProperty("llx", locLlx)
+          paginationToken.setProperty("lly", locLly)
+          paginationToken.setProperty("urx", locUrx)
+          paginationToken.setProperty("ury", locUry)
           paginationToken.setProperty("pageNum", currentPage.toDouble) //pageNum.toDouble)
-          paginationToken.setProperty("divElement", tboxList.iterator.next().asInstanceOf[(Int,Element)])
+          paginationToken.setProperty("divElement", tboxList.iterator.next())
 
           _lineSpans.+=(paginationToken.asInstanceOf[Span])
         }
@@ -359,7 +357,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
             _constructionInfo.fontSize = getFontSize(tbox._2)
             _constructionInfo.fontName = getFontFamily(tbox._2)
-            var boxText: String = tbox._2.getText
+            val boxText: String = tbox._2.getText
 
 
             _constructionInfo._docText.append(boxText)
@@ -511,7 +509,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
       case (lineBIndex, i) =>
         val elements = page.getElements("line")(lineBIndex)
         val (blockIndex, _) = _annotator.mkIndexPair(lineBIndex)
-        println("current page number: " + getParent(elements.get(blockIndex).get, page.getDom()))
+//        println("current page number: " + getParent(elements.get(blockIndex).get, page.getDom()))
         //        val currentPage =
         Map(i -> elements)
     }.flatten.toMap
@@ -601,22 +599,21 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
             locLly = curLly
           }
         }
-        paginationToken.setProperty("llx", locLlx.toDouble)
-        paginationToken.setProperty("lly", locLly.toDouble)
-        paginationToken.setProperty("urx", locUrx.toDouble)
-        paginationToken.setProperty("ury", locUry.toDouble)
+        paginationToken.setProperty("llx", locLlx)
+        paginationToken.setProperty("lly", locLly)
+        paginationToken.setProperty("urx", locUrx)
+        paginationToken.setProperty("ury", locUry)
         paginationToken.setProperty("pageNum", pageNum.toDouble)
-        paginationToken.setProperty("divElement", tboxList.iterator.next().asInstanceOf[(Int,Element)])
+        paginationToken.setProperty("divElement", tboxList.iterator.next())
 
         _lineSpans.+=(paginationToken.asInstanceOf[Span])
       }
       else
       {
-        var tboxI: Iterator[_] = tboxList.iterator
-        tboxI = tboxList.iterator
+        val tboxI = tboxList.iterator
         var firstTokenInLine: Boolean = true
         while (tboxI.hasNext) {
-          val tbox: (Int, Element) = tboxI.next.asInstanceOf[(Int, Element)] //asInstanceOf[Element]
+          val tbox = tboxI.next()
 
           //          val coords = getCoordinates(tbox._2, 0.0, 0.0)
           //          val curLlx:Double = coords._1
@@ -640,7 +637,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
           _constructionInfo.fontSize = getFontSize(tbox._2)
           _constructionInfo.fontName = getFontFamily(tbox._2)
-          var boxText: String = tbox._2.getText
+          val boxText = tbox._2.getText
 
 
           _constructionInfo._docText.append(boxText)
@@ -722,7 +719,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
             val lineEndp: Boolean = !lexer.hasNext && !tboxI.hasNext
             if (lineEndp && (tokenText.trim == "-")) {
               if (size > 1) {
-                val lastToken: StringSpan = this.get(this.size - 1)./*asInstanceOf[Option[Any]].get.*/asInstanceOf[StringSpan]
+                val lastToken: StringSpan = this.get(this.size - 1).asInstanceOf[StringSpan]
                 lastToken.setNumericProperty("split-lhs", 1)
                 token.setNumericProperty("split-hyphen", 1)
                 _constructionInfo._preHyphToken = lastToken
@@ -752,7 +749,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
           }
           _constructionInfo.textofs += boxText.length
         }
-        _lineSpans.+=(lineCompositeSpan.asInstanceOf[Span]) //.add(lineCompositeSpan)
+        _lineSpans += lineCompositeSpan.asInstanceOf[Span]
 
       }//end of else
     }
@@ -806,10 +803,8 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
     div.getAttribute("font-family").getValue
   }
 
-  private def getPageNumber(div:Element):Int =
-  {
+  private def getPageNumber(div:Element):Int = {
     val found = regPageNumber.findAllIn(div.getAttribute("id").getValue)
-    found.hasNext
     return found.group("page").toInt
   }
 
@@ -829,11 +824,6 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
       return 0.0
     }
     val foundX = regLlx.findAllIn(element.getAttribute("x").getValue)
-//    if(foundX.isEmpty)
-//    {
-//      return 0.0
-//    }1
-    foundX.hasNext
     val newCoordLlx = foundX.group("llx").toDouble
     return newCoordLlx
   }
@@ -849,7 +839,6 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 //    {
 //      return 0.0
 //    }
-    foundY.hasNext
     val newCoordLly = foundY.group("top").toDouble
     return newCoordLly
   }
@@ -997,7 +986,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
         val llx: Double = getLlxTranslate(coordLlx, transformationVector) //getLlx(firstTbox).toInt
         llx
     }
-    return llx;
+    llx
   }
   private def getLlyV2(element:Element):Double = {
 
@@ -1016,25 +1005,16 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
         val lly: Double = getLlyTranslate(coordLly, transformationVector) //getLlx(firstTbox).toInt
         lly
     }
-
-    return lly;
+    lly
   }
 
-
-  private def getWidth(element:Element):Double =
-  {
-    val width = element.getAttribute("data-canvas-width").getDoubleValue
-    return width;
-  }
+  private def getWidth(element:Element):Double = element.getAttribute("data-canvas-width").getDoubleValue
 
 
-  private def findNormalFontSizeSvg(/*xmlDoc: Document*/):Double = {
-
+  private def findNormalFontSizeSvg(/*xmlDoc: Document*/): Double = {
     val sizes = {
-
       val lineBIndexSet = _annotator.getBIndexSet(Single(SegmentCon("line")))
-
-      val sizes = lineBIndexSet.toList.map {
+      lineBIndexSet.toList.flatMap{
         case (index) =>
           val elements = _annotator.getElements("line")(index)
           elements.map { x =>
@@ -1044,34 +1024,28 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
               currVal.substring(0, currVal.indexOf("px"))
             } else currVal
           }
-      }.flatten
-      sizes
-
+      }
     }.groupBy(_.toString).mapValues(_.count(x => true))
-
-    val sortsizes = sizes.toList.sortBy(-_._2)
-    sortsizes(0)._1.toDouble
-
+    sizes.toList.maxBy(_._2)._1.toDouble
   }
 
   private def findNormalFontSize(xmlDoc:Iterable[Element]): Double = {
-    val counts: util.HashMap[Double, Integer] = new util.HashMap[Double, Integer]
-    for(currElem <- xmlDoc)
-    {
+    val counts = new util.HashMap[Double, Int]
+    for(currElem <- xmlDoc){
       val fontSize:Double = getFontSize(currElem)
       var count: Int = 1
       if (counts.containsKey(fontSize)) {
-        count = count + (counts.get(fontSize).asInstanceOf[Integer]).intValue
+        count = count + counts.get(fontSize)
       }
-      counts.put(fontSize, new Integer(count))
+      counts.put(fontSize, count)
     }
 
     var mostCommonSize: Double = -1
-    var maxCount: Integer = new Integer(-1)
+    var maxCount = -1
     val sizeI: java.util.Iterator[Double] = counts.keySet.iterator
     while (sizeI.hasNext) {
       val size: Double = sizeI.next
-      val count: Integer = counts.get(size).asInstanceOf[Integer]
+      val count = counts.get(size)
       if (count.compareTo(maxCount) > 0) {
         maxCount = count
         mostCommonSize = size
@@ -1084,14 +1058,11 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
       return -1
     }
   }
-  //
 
   private def findLargestFontSize(): Double = {
-
     val sizes = {
       val lineBIndexSet = _annotator.getBIndexSet(Single(SegmentCon("line")))
-
-      val sizes2 = lineBIndexSet.map {
+      lineBIndexSet.flatMap {
         case (index) =>
           val elements = _annotator.getElements("line")(index)
           elements.map{x=>
@@ -1100,14 +1071,9 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
               currVal.substring(0, currVal.indexOf("px"))
             } else currVal
           }
-      }.flatten
-      sizes2
+      }
     }
-
-    val sortsizes2 = sizes.toList.sortBy(- _.toDouble)
-
-    sortsizes2(0).toDouble
-
+    sizes.map(_.toDouble).max
   }
 
   def getTopAncestor(node:Element): Element =
@@ -1135,35 +1101,25 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
     }
   }
 
-  def getTopPageAncestor(node:Element, doc:Document): Element =
-  {
-    if(node.getParentElement!=null)
-    {
-      return getTopPageAncestor(node.getParentElement, doc)
-    }
+  def getTopPageAncestor(node:Element, doc:Document): Element = {
+    if(node.getParentElement != null)
+      getTopPageAncestor(node.getParentElement, doc)
     else
-    {
-      return node
-    }
+      node
   }
 
-  def getTopPageAncestorV2(node:Element, doc:Document): Element =
-  {
+  def getTopPageAncestorV2(node:Element, doc:Document): Element = {
     //TODO: top, but within the page
     if(node.getParent.getParent!=doc.getRootElement)
-    {
-      return getTopPageAncestorV2(node.getParentElement, doc)
-    }
+      getTopPageAncestorV2(node.getParentElement, doc)
     else
-    {
-      return node
-    }
+      node
   }
 
   private def initHeaderFooterLineCounts(): Map[String, Int] = {
 
     val lines = {
-      val lineBIndexSet = _annotator.getBIndexSet(Single(SegmentCon("line")));
+      val lineBIndexSet = _annotator.getBIndexSet(Single(SegmentCon("line")))
       val lastLine:Int  = lineBIndexSet.size
       val firstLine:Int = 1
       val res = lineBIndexSet.toList.zipWithIndex.map {
@@ -1192,23 +1148,17 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
     lines
   }
 
-  def getLineSpans: mutable.ArrayBuffer[Span] = {
-    return _lineSpans
-  }
-  //
+  def getLineSpans: mutable.ArrayBuffer[Span] =  _lineSpans
+
   def getFormattedText: String = {
-    val stringBuffer: StringBuffer = new StringBuffer();
-    {
-      var i: Int = 0
-      while (i < _lineSpans.size) {
-        {
-          val span: Span = _lineSpans(i)
-          stringBuffer.append(span.getText).append("\n")
-        }
-        i += 1;
-      }
+    val stringBuffer = new StringBuffer()
+    var i = 0
+    while (i < _lineSpans.size) {
+      val span = _lineSpans(i)
+      stringBuffer.append(span.getText).append("\n")
+      i += 1
     }
-    return stringBuffer.toString
+    stringBuffer.toString
   }
 
   def getSubspanTokenization(startIdx: Int, endIdx: Int): NewHtmlTokenizationSvg = {
@@ -1225,72 +1175,64 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
 
 
     while (!haveToBreak && i < size) {
-      {
-        val span: Span = getToken(i).asInstanceOf[Span]
-        if (!foundStart) {
-          if (startIdx <= span.getStartIdx) {
-            subTokens.+=(span)
-            foundStart = true
-            if (activeSpanList != null && activeSpanList.size > 0) {
-              subActiveSpans.+=(activeSpanList(i))
-            }
+      val span = getToken(i).asInstanceOf[Span]
+      if (!foundStart) {
+        if (startIdx <= span.getStartIdx) {
+          subTokens += span
+          foundStart = true
+          if (activeSpanList != null && activeSpanList.size > 0) {
+            subActiveSpans += activeSpanList(i)
           }
-        }
-        else if (!foundEnd) {
-          if (span.getStartIdx >= endIdx) {
-            foundEnd = true
-          }
-          else {
-            subTokens.+=(span)
-            if (activeSpanList != null && activeSpanList.size > 0) {
-              subActiveSpans.+=(activeSpanList.get(i).get)
-            }
-          }
-        }
-        else {
-          haveToBreak = true
         }
       }
-      i = i + 1;
+      else if (!foundEnd) {
+        if (span.getStartIdx >= endIdx) {
+          foundEnd = true
+        }
+        else {
+          subTokens += span
+          if (activeSpanList != null && activeSpanList.size > 0) {
+            subActiveSpans += activeSpanList(i)
+          }
+        }
+      }
+      else haveToBreak = true
+      i += 1
     }
 
-    haveToBreak = false;
+    haveToBreak = false
     foundStart = false
     foundEnd = false
 
     tt = System.currentTimeMillis()
-    i = 0;
+    i = 0
     while (!haveToBreak && i < _lineSpans.size) {
-      {
-        val span: Span = _lineSpans(i)
-        if (!foundStart) {
-          if (startIdx <= span.getStartIdx) {
-            lines.+=(span)
-            foundStart = true
-          }
-        }
-        else if (!foundEnd) {
-          if (span.getStartIdx >= endIdx) {
-            foundEnd = true
-          }
-          else {
-            lines.+=(span)
-          }
-        }
-        else {
-          haveToBreak = true
+      val span = _lineSpans(i)
+      if (!foundStart) {
+        if (startIdx <= span.getStartIdx) {
+          lines += span
+          foundStart = true
         }
       }
-      i += 1;
+      else if (!foundEnd) {
+        if (span.getStartIdx >= endIdx) {
+          foundEnd = true
+        }
+        else {
+          lines += span
+        }
+      }
+      else {
+        haveToBreak = true
+      }
+      i += 1
     }
 
-    return new NewHtmlTokenizationSvg(_document, subTokens.toArray /*.asInstanceOf[Array[Span]]*/,
+    new NewHtmlTokenizationSvg(_document, subTokens.toArray /*.asInstanceOf[Array[Span]]*/,
       subActiveSpans, lines)
   }
-  def getActiveSpanList: mutable.MutableList[Span] = {
-    return activeSpanList
-  }
-  //
+  def getActiveSpanList: mutable.MutableList[Span] = activeSpanList
+
   def subspan(firstToken: Int, lastToken: Int): Span = {
     val firstSpan: StringSpan = getToken(firstToken).asInstanceOf[StringSpan]
     val startIdx: Int = firstSpan.getStartIdx
@@ -1302,17 +1244,13 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
       val lastSpan: StringSpan = getToken(lastToken - 1).asInstanceOf[StringSpan]
       endIdx = lastSpan.getEndIdx
     }
-    return new StringSpan(_document, startIdx, endIdx)
+    new StringSpan(_document, startIdx, endIdx)
   }
-  //
-  def getSpan(i: Int): Span = {
-    return getToken(i).asInstanceOf[Span]
-  }
-  //
-  def getDocument: AnyRef = {
-    return _document
-  }
+
+  def getSpan(i: Int): Span = getToken(i).asInstanceOf[Span]
+
+  def getDocument = _document
   private var activeSpanList: mutable.MutableList[Span] = mutable.MutableList()
-  private var trailingWS: Pattern = Pattern.compile("\\s+$")
+  private val trailingWS: Pattern = Pattern.compile("\\s+$")
 
 }

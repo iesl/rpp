@@ -19,7 +19,7 @@ object ReferenceExtractionFilterSvg {
 }
 
 class ReferenceExtractionFilterSvg extends AbstractFilterSvg {
-  private var log = Logger(LoggerFactory.getLogger("ScalaTagger"))
+  private val log = Logger(LoggerFactory.getLogger("ReferenceExtractionFilterSvg"))
 
   //TODO: check what type this should be ?? Look into Factorie
   private var _referencesExtractor: Any = null

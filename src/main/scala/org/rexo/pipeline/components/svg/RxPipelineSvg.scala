@@ -1,15 +1,7 @@
 package org.rexo.pipeline.components.svg
 
-//import java.util.{HashMap, LinkedList, Iterator, Map}
-//import scala.Predef.Map
-//import org.rexo.pipeline.components.RxFilterSvd.ReturnCode
-import scala.Iterator
-import org.rexo.pipeline.components.{RxDocumentSource}
 import org.rexo.pipeline.components.svg.RxFilterSvd.ReturnCode
 
-/**
- * Created by klimzaporojets on 9/25/14.
- */
 /**
  * @author asaunders
  */
@@ -17,11 +9,11 @@ class RxPipelineSvg {
   /**
    *
    */
-  private var _scopeMap: collection.mutable.Map[Any, Any] =  collection.mutable.Map[Any, Any]() //new HashMap[_, _]
-  private var _standardFilterList: collection.mutable.MutableList[Any] = collection.mutable.MutableList[Any]() //LinkedList[_] = new LinkedList[_]
-  private var _errorFilterList: collection.mutable.MutableList[Any] = collection.mutable.MutableList[Any]() //LinkedList[_] = new LinkedList[_]
-  private var _epilogueFilterList: collection.mutable.MutableList[Any] = collection.mutable.MutableList[Any]() //  LinkedList[_] = new LinkedList[_]
-  private var _workingFilterList: collection.mutable.MutableList[Any] = collection.mutable.MutableList[Any]() // LinkedList[_] = _standardFilterList
+  private val _scopeMap = collection.mutable.Map[Any, Any]() //new HashMap[_, _]
+  private var _standardFilterList = collection.mutable.MutableList[RxFilterSvd]() //LinkedList[_] = new LinkedList[_]
+  private var _errorFilterList = collection.mutable.MutableList[RxFilterSvd]() //LinkedList[_] = new LinkedList[_]
+  private var _epilogueFilterList = collection.mutable.MutableList[RxFilterSvd]() //  LinkedList[_] = new LinkedList[_]
+  private var _workingFilterList = collection.mutable.MutableList[RxFilterSvd]() // LinkedList[_] = _standardFilterList
 
   //  def this() {
 //    this()
@@ -59,15 +51,14 @@ class RxPipelineSvg {
     var returnCode: Int = ReturnCode.OK
     var iteration: Int = 1
     while (returnCode != ReturnCode.ABORT_SESSION) {
-      getScope("session").put("metric.corpus.iteration.documents.succeeded.integer", new Integer(0))
+      getScope("session").put("metric.corpus.iteration.documents.succeeded.integer", 0)
       val iter: Iterator[_] = _documentSource.iterator
       returnCode = execute(iter)
       if (!continuous.booleanValue) {
         return // is return ok ?? // break //todo: break is not supported
       }
-      getScope("session").put("metric.corpus.iteration.integer", new Integer(({
-        iteration += 1; iteration
-      })))
+      iteration += 1
+      getScope("session").put("metric.corpus.iteration.integer", iteration)
     }
   }
 
@@ -77,7 +68,7 @@ class RxPipelineSvg {
       val rdoc: RxDocumentSvg = iter.next.asInstanceOf[RxDocumentSvg]
       returnCode = execute(rdoc)
     }
-    return returnCode
+    returnCode
   }
 
   def executeSvd(rdoc: RxDocumentSvg): Int = {
@@ -87,9 +78,9 @@ class RxPipelineSvg {
     rdoc.setScope("global", getScope("global"))
     //    {
     var haveToBreak = false
-    val filterIter: Iterator[_] = _standardFilterList.iterator
+    val filterIter = _standardFilterList.iterator
     while (!haveToBreak && filterIter.hasNext) {
-      val nextFilter: RxFilterSvd = filterIter.next.asInstanceOf[RxFilterSvd]
+      val nextFilter: RxFilterSvd = filterIter.next()
       returnCode = nextFilter.accept(rdoc)
       if (returnCode == ReturnCode.ABORT_PAPER || returnCode == ReturnCode.ABORT_SESSION) {
         haveToBreak = true //break //todo: break is not supported
@@ -98,18 +89,18 @@ class RxPipelineSvg {
     //    }
     if (returnCode != ReturnCode.OK && returnCode != ReturnCode.ABORT_SESSION) {
       {
-        val filterIter: Iterator[_] = _errorFilterList.iterator
+        val filterIter = _errorFilterList.iterator
         while (filterIter.hasNext) {
-          val errorFilter: RxFilterSvd = filterIter.next.asInstanceOf[RxFilterSvd]
+          val errorFilter: RxFilterSvd = filterIter.next
           errorFilter.accept(rdoc)
         }
       }
     }
     if (returnCode != ReturnCode.ABORT_SESSION) {
       {
-        val filterIter: Iterator[_] = _epilogueFilterList.iterator
+        val filterIter = _epilogueFilterList.iterator
         while (filterIter.hasNext) {
-          val element: RxFilterSvd = filterIter.next.asInstanceOf[RxFilterSvd]
+          val element: RxFilterSvd = filterIter.next
           element.accept(rdoc)
         }
       }
@@ -129,34 +120,32 @@ class RxPipelineSvg {
 
   def execute(rdoc: RxDocumentSvg): Int = {
     var returnCode: Int = ReturnCode.OK
-    rdoc.getScope("document").++=(getScope("document")) // putAll(getScope("document"))
+    rdoc.getScope("document") ++= getScope("document")
     rdoc.setScope("session", getScope("session"))
     rdoc.setScope("global", getScope("global"))
-//    {
-      var haveToBreak = false
-      val filterIter: Iterator[_] = _standardFilterList.iterator
-      while (!haveToBreak && filterIter.hasNext) {
-        val nextFilter: RxFilterSvd = filterIter.next.asInstanceOf[RxFilterSvd]
-        returnCode = nextFilter.accept(rdoc)
-        if (returnCode == ReturnCode.ABORT_PAPER || returnCode == ReturnCode.ABORT_SESSION) {
-          haveToBreak = true //break //todo: break is not supported
-        }
+    var haveToBreak = false
+    val filterIter = _standardFilterList.iterator
+    while (!haveToBreak && filterIter.hasNext) {
+      val nextFilter = filterIter.next()
+      returnCode = nextFilter.accept(rdoc)
+      if (returnCode == ReturnCode.ABORT_PAPER || returnCode == ReturnCode.ABORT_SESSION) {
+        haveToBreak = true
       }
-//    }
+    }
     if (returnCode != ReturnCode.OK && returnCode != ReturnCode.ABORT_SESSION) {
       {
-        val filterIter: Iterator[_] = _errorFilterList.iterator
+        val filterIter = _errorFilterList.iterator
         while (filterIter.hasNext) {
-          val errorFilter: RxFilterSvd = filterIter.next.asInstanceOf[RxFilterSvd]
+          val errorFilter: RxFilterSvd = filterIter.next()
           errorFilter.accept(rdoc)
         }
       }
     }
     if (returnCode != ReturnCode.ABORT_SESSION) {
       {
-        val filterIter: Iterator[_] = _epilogueFilterList.iterator
+        val filterIter = _epilogueFilterList.iterator
         while (filterIter.hasNext) {
-          val element: RxFilterSvd = filterIter.next.asInstanceOf[RxFilterSvd]
+          val element: RxFilterSvd = filterIter.next()
           element.accept(rdoc)
         }
       }
@@ -171,27 +160,27 @@ class RxPipelineSvg {
         _documentSource.closeDocument(rdoc)
       }
     }
-    return returnCode
+    returnCode
   }
 
   def addStandardFilters: RxPipelineSvg = {
     _workingFilterList = _standardFilterList
-    return this
+    this
   }
 
   def addErrorFilters: RxPipelineSvg = {
     _workingFilterList = _errorFilterList
-    return this
+    this
   }
 
   def addEpilogueFilters: RxPipelineSvg = {
     _workingFilterList = _epilogueFilterList
-    return this
+    this
   }
 
   def addPrologueFilters: RxPipelineSvg = {
     _workingFilterList = _epilogueFilterList
-    return this
+    this
   }
 
   /**
@@ -199,9 +188,9 @@ class RxPipelineSvg {
    * @return
    */
   def add(f: RxFilterSvd): RxPipelineSvg = {
-    _workingFilterList.+=(f) //.add(f)
+    _workingFilterList += f
     f.init(this)
-    return this
+    this
   }
 
   override def toString: String = {
@@ -209,7 +198,7 @@ class RxPipelineSvg {
     returnStringBuffer.append("{ standard: ")
     var filterIter = _standardFilterList.iterator
     while (filterIter.hasNext ) {
-      val filter: RxFilterSvd = filterIter.next.asInstanceOf[RxFilterSvd]
+      val filter: RxFilterSvd = filterIter.next()
       returnStringBuffer.append(filter.toString)
       returnStringBuffer.append(" | ")
     }
@@ -224,11 +213,10 @@ class RxPipelineSvg {
     returnStringBuffer.append("} || ")
     returnStringBuffer.append("{ epilogue: ")
 
-      //val filterIter: Iterator[_] = _epilogueFilterList.iterator
     filterIter = _epilogueFilterList.iterator
 
     while (filterIter.hasNext) {
-        val filter: RxFilterSvd = filterIter.next.asInstanceOf[RxFilterSvd]
+        val filter: RxFilterSvd = filterIter.next()
         returnStringBuffer.append(filter.toString)
         returnStringBuffer.append(" | ")
       }
@@ -236,16 +224,15 @@ class RxPipelineSvg {
     returnStringBuffer.append(" } || ")
     returnStringBuffer.append("{ error: ")
 
-//      val filterIter: Iterator[_] = _errorFilterList.iterator
     filterIter = _errorFilterList.iterator
       while (filterIter.hasNext) {
-        val filter: RxFilterSvd = filterIter.next.asInstanceOf[RxFilterSvd]
+        val filter: RxFilterSvd = filterIter.next()
         returnStringBuffer.append(filter.toString)
         returnStringBuffer.append(" | ")
       }
 
     returnStringBuffer.append("}")
-    return returnStringBuffer.toString
+    returnStringBuffer.toString
   }
 
   private var _documentSource: RxDocumentSourceSvg = null

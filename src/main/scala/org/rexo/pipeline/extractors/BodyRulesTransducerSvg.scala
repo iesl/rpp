@@ -6,9 +6,7 @@ import scala.collection.mutable
 import org.rexo.extra.extract.Span
 import edu.umass.cs.rexo.ghuang.segmentation.utils.LayoutUtils
 
-/**
- * Created by klimzaporojets on 10/2/14.
- */
+
 /**
  * Created by klimzaporojets on 8/4/14.
  */

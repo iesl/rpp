@@ -7,16 +7,12 @@ import org.rexo.pipeline.components.RxDocument
 import org.rexo.pipeline.components.RxFilter.ReturnCode
 import org.rexo.extraction.{CRFOutputFormatter, NewHtmlTokenization}
 import scala.collection.mutable
-import org.jdom2.Element
 import org.rexo.extra.types.{PropertyHolder, Sequence}
 import org.rexo.pipeline.extractors.{BodyRulesTransducer, RulesExtractor}
 import org.rexo.base.pipe.SerialPipes
 import org.rexo.base.{Instance, Pipe}
 
 
-/**
- * Created by klimzaporojets on 10/2/14.
- */
 /**
  * @author klimzaporojets
  *         Analogous to ReferenceExtractionFilter, but for extracting the sections from body.
@@ -122,7 +118,6 @@ class BodyExtractionFilter extends AbstractFilter {
     var seenTitle: Boolean = false
     var warning: String = ""
     var previousTag: String = ""
-//    {
       var i: Int = 0
       while (i < predictedTags.size) {
         {
@@ -158,8 +153,7 @@ class BodyExtractionFilter extends AbstractFilter {
           i += 1; i - 1
         })
       }
-//    }
-    return warning
+    warning
   }
 
 }

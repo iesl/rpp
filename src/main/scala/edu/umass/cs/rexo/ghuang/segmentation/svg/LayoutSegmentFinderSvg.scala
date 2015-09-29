@@ -1,9 +1,11 @@
 package edu.umass.cs.rexo.ghuang.segmentation.svg
 
-import org.rexo.extraction.{NewHtmlTokenizationSvg, NewHtmlTokenization}
+import java.util.logging.{Logger, Level}
+
+import org.rexo.extraction.NewHtmlTokenizationSvg
 import org.rexo.extra.extract.Span
 import org.rexo.extra.types.PropertyHolder
-import edu.umass.cs.rexo.ghuang.segmentation.{JournalSegmenter, RulesBibliographySegmentor}
+import edu.umass.cs.rexo.ghuang.segmentation.JournalSegmenter
 
 //import old.base.types.PropertyHolder
 import org.rexo.referencetagging.{ReferencesNotFoundException, HeaderNotFoundException}
@@ -11,9 +13,7 @@ import org.rexo.referencetagging.{ReferencesNotFoundException, HeaderNotFoundExc
 //import old.base.extract.Span
 import scala.collection.mutable
 
-/**
- * Created by klimzaporojets on 9/25/14.
- */
+
 /**
  * Author: saunders Created Nov 9, 2005 Copyright (C) Univ. of Massachusetts Amherst, Computer Science Dept.
  */
@@ -28,25 +28,18 @@ object LayoutSegmentFinderSvg {
 
 class LayoutSegmentFinderSvg {
 
-  private[segmentation] var m_rulesBibSegmentor: RulesBibliographySegmentorSvg = new RulesBibliographySegmentorSvg;
+  val logger = Logger.getLogger("LayoutSegmentFinder")
+
+  private[segmentation] var m_rulesBibSegmentor: RulesBibliographySegmenterSvg = new RulesBibliographySegmenterSvg;
 
   def markup(tokenization: NewHtmlTokenizationSvg): collection.mutable.Map[String, Any] = {
     return getSubsections(tokenization)
   }
 
-  /**
-   *
-   * @param tokenization
-   * @throws HeaderNotFoundException
-   * @throws ReferencesNotFoundException
-   * @throws ReferenceParsingException
-   */
   protected def getSubsections(tokenization: NewHtmlTokenizationSvg): collection.mutable.Map[String, Any ] = {
     val subsections: collection.mutable.Map[String, Any] = collection.mutable.Map[String, Any]()
 
-
-
-    var lineSpans: collection.mutable.MutableList[Span] = collection.mutable.MutableList[Span]()
+    var lineSpans = collection.mutable.MutableList[Span]()
     //this is added insted of assigning tokenization.getLineSpans in previous line
     lineSpans.++=(tokenization.getLineSpans.toList)
 
@@ -78,11 +71,14 @@ class LayoutSegmentFinderSvg {
       else {
         val js: JournalSegmenter = JournalSegmenter.getSegmenter(lineSpans.toList)
         if (js == null) {
-          throw HeaderNotFoundException.apply("did not find 'abstract' or 'introduction'")
+          logger.log(Level.WARNING, "Did not find abstract or introduction")
+          //          throw HeaderNotFoundException.apply("did not find 'abstract' or 'introduction'")
         }
         subList = js.getAbstract(lineSpans)
         if (subList.isEmpty) {
-          HeaderNotFoundException.apply("did not find 'abstract' or 'introduction'")
+          logger.log(Level.WARNING, "Did not find abstract or introduction")
+
+//          HeaderNotFoundException.apply("did not find 'abstract' or 'introduction'")
         }
         else {
           headerLineList.++=(subList)
@@ -97,7 +93,7 @@ class LayoutSegmentFinderSvg {
     val bodyLines: mutable.MutableList[Span] = mutable.MutableList[Span]()
     subList = findMatchingLines(lineSpans, LayoutSegmentFinderSvg.NULL_PATTERN,
                                   LayoutSegmentFinderSvg.BIBLIOGRAPHY_PATTERN, Integer.MAX_VALUE, Integer.MAX_VALUE)
-    while (!subList.isEmpty) {
+    while (subList.nonEmpty) {
       bodyLines.++=(subList)
       lineSpans = lineSpans.takeRight(lineSpans.size - subList.size)
       subList.clear
@@ -105,18 +101,19 @@ class LayoutSegmentFinderSvg {
                   LayoutSegmentFinderSvg.BIBLIOGRAPHY_PATTERN, Integer.MAX_VALUE, Integer.MAX_VALUE)
     }
 
-    if (!bodyLines.isEmpty) {
+    if (bodyLines.nonEmpty) {
       val bodyTokenBoundaries: Array[Long] = lineListBoundaries(bodyLines)
       val body: NewHtmlTokenizationSvg = tokenization.getSubspanTokenization(bodyTokenBoundaries(0).asInstanceOf[Int], bodyTokenBoundaries(1).asInstanceOf[Int])
       subsections.put("bodyTokenization", body)
     }
     else {
-      throw new ReferencesNotFoundException("did not find reference section")
+//      logger.log(Level.WARNING, "Did not find body section")
+      throw new ReferencesNotFoundException("Did not find body section")
     }
 
     val referenceLines:mutable.MutableList[Span] = mutable.MutableList[Span]()
-    referenceLines.++=(lineSpans)
-    if(!referenceLines.isEmpty)
+    referenceLines ++= lineSpans
+    if(referenceLines.nonEmpty)
     {
       val referenceTokenBoundaries:Array[Long] = lineListBoundaries(referenceLines)
       val references:NewHtmlTokenizationSvg = tokenization.getSubspanTokenization(referenceTokenBoundaries(0).asInstanceOf[Int], referenceTokenBoundaries(1).asInstanceOf[Int])
@@ -124,16 +121,16 @@ class LayoutSegmentFinderSvg {
     }
     else
     {
-      throw new ReferencesNotFoundException("did not find reference for adding into lines")
+      logger.log(Level.WARNING, "Did not find references section")
+//      throw new ReferencesNotFoundException("did not find reference for adding into lines")
     }
 
     val biblioBoundaries: Array[Long] = lineListBoundaries(lineSpans)
     val biblio: NewHtmlTokenizationSvg = tokenization.getSubspanTokenization(biblioBoundaries(0).asInstanceOf[Int], biblioBoundaries(1).asInstanceOf[Int])
-    val referenceData: RulesBibliographySegmentorSvg.ReferenceData = m_rulesBibSegmentor.segmentReferences(biblio)
+    val referenceData: RulesBibliographySegmenterSvg.ReferenceData = m_rulesBibSegmentor.segmentReferences(biblio)
     subsections.put("featuresData", biblio.getProperty("referenceFeatures"))
 
-
-    if (!referenceData.prologueList.isEmpty) {
+    if (referenceData.prologueList.nonEmpty) {
       val prologueTokenBoundaries: Array[Long] = lineListBoundaries(referenceData.prologueList)
       val prologue: NewHtmlTokenizationSvg = tokenization.getSubspanTokenization(prologueTokenBoundaries(0).asInstanceOf[Int], prologueTokenBoundaries(1).asInstanceOf[Int])
       subsections.put("prologueTokenization", prologue)
@@ -141,7 +138,7 @@ class LayoutSegmentFinderSvg {
 
     var referencesList: collection.mutable.MutableList[Any] = referenceData.referenceLineList
     val refTokenizationList: collection.mutable.MutableList[Any] = collection.mutable.MutableList[Any]()
-    while (!referencesList.isEmpty) {
+    while (referencesList.nonEmpty) {
       val referenceLine: mutable.MutableList[Any] = referencesList.head.asInstanceOf[mutable.MutableList[Any]]
       if(referencesList.size == 1 )
       {
@@ -158,7 +155,7 @@ class LayoutSegmentFinderSvg {
     subsections.put("referenceList", refTokenizationList)
     subsections.put("referenceLabels", referenceData.predictedLabels)
 
-    return subsections;
+    subsections
   }
 
   private def findMatchingLines(lineSpans: mutable.MutableList[Span], beginPattern: scala.util.matching.Regex,
@@ -207,13 +204,12 @@ class LayoutSegmentFinderSvg {
           }
         i += 1;
       }
-
-    return lineSpans.slice(subListStart, subListEnd)
+    lineSpans.slice(subListStart, subListEnd)
   }
 
 
   private def isNewPage(span: PropertyHolder): Boolean = {
-    return span.getNumericProperty("newpage") > 0.0
+    span.getNumericProperty("newpage") > 0.0
   }
 
   private def lineListBoundaries(lineList: mutable.MutableList[Span]): Array[Long] = {

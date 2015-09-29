@@ -2,16 +2,12 @@ package org.rexo.pipeline.components.svg
 
 import org.jdom2.input.SAXBuilder
 import org.jdom2.{JDOMException, Document, Element}
-import java.util.HashMap
 import scala.collection.mutable
 
-//import scala.Predef.Map
-import org.rexo.extraction.{NewHtmlTokenizationSvg, NewHtmlTokenization}
+import org.rexo.extraction.NewHtmlTokenizationSvg
 import java.io.{IOException, StringReader}
 
-/**
- * Created by klimzaporojets on 11/11/14.
- */
+
 /**
  * @author asaunders
  */
@@ -47,13 +43,9 @@ object RxDocumentSvg {
 }
 
 class RxDocumentSvg {
-//  this
-  private var _scopeMap: scala.collection.mutable.Map[String, collection.mutable.Map[_,_]] =
-    scala.collection.mutable.Map[String,collection.mutable.Map[_,_]]() //new HashMap[_, _]
+  private val _scopeMap = scala.collection.mutable.Map[String,collection.mutable.Map[_,_]]()
 
   createScopes
-
-
 
   def getSource: Element = {
     throw new UnsupportedOperationException
@@ -61,7 +53,7 @@ class RxDocumentSvg {
 
   def getDocument: Element = {
     val document: Document = getScope("document").get("document").asInstanceOf[Document]
-    return document.getRootElement.asInstanceOf[Element]
+    document.getRootElement
   }
 
   protected def createScopes {
@@ -94,8 +86,7 @@ class RxDocumentSvg {
    * Adds a document error string, which may be processed later by an error filter.
    */
   def docErrorString(error: String) {
-    var errorList: collection.mutable.MutableList[String] = null
-    errorList = getScope("document").get("error.list").getOrElse(null).asInstanceOf[mutable.MutableList[String]]
+    var errorList = getScope("document").get("error.list").getOrElse(null).asInstanceOf[mutable.MutableList[String]]
     if (errorList == null) {
       errorList = mutable.MutableList[String]()
       getScope("document").put("error.list", errorList)
@@ -108,8 +99,7 @@ class RxDocumentSvg {
    * Adds a document info string, which may be processed later by another filter.
    */
   def docInfoString(info: String) {
-    var infoList: collection.mutable.MutableList[String] = null
-    infoList = getScope("document").get("info.list").get.asInstanceOf[mutable.MutableList[String]]
+    var infoList = getScope("document").get("info.list").get.asInstanceOf[mutable.MutableList[String]]
     if (infoList == null) {
       infoList = mutable.MutableList()
       getScope("document").put("info.list", infoList)

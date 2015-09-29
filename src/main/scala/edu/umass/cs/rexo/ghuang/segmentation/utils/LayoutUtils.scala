@@ -200,10 +200,8 @@ object LayoutUtils {
   }
 
   def getCurrentLineColumn(lineInfos: Array[LineInfo], i: Int, columns: mutable.MutableList[LayoutUtils.ColumnData], equalsBothMargins: Boolean, acceptableMarginErrorLeft: Int, acceptableMarginErrorRight: Int, currentColumn: LayoutUtils.ColumnData, modeVerticalDistance: Int): LayoutUtils.ColumnData = {
-    val lineInfo: LineInfo = lineInfos(i)
     val columnData: LayoutUtils.ColumnData = getColumnData(equalsBothMargins, acceptableMarginErrorLeft, acceptableMarginErrorRight, lineInfos(i))
     var sloppyColumn: LayoutUtils.ColumnData = null
-    import scala.collection.JavaConversions._
     for (col <- columns) {
       val doesBelong: Boolean = doesBelongToColumnStrict(col, columnData)
       if (doesBelong) {
@@ -226,7 +224,6 @@ object LayoutUtils {
     val columnData: LayoutUtils.ColumnData = getColumnData(equalsBothMargins, acceptableMarginErrorLeft, acceptableMarginErrorRight, lineInfos(i))
     var colLeastDistance: LayoutUtils.ColumnData = null
     val distance: Int = -1
-    import scala.collection.JavaConversions._
     for (col <- columns) {
       if (doesBelongToColumnSloppy(col, columnData, strictLeft, rightTops, acceptableRightTopMarginError)) {
         val currDistance: Int = getVerticalDistanceFromColumn(col, columnData)
@@ -367,13 +364,11 @@ object LayoutUtils {
     return columnList
   }
 
-  private def isEqualMargin(margin1: Int, margin2: Int, acceptedErr: Int): Boolean = {
-    return (margin1 >= margin2 - acceptedErr && margin1 <= margin2 + acceptedErr)
-  }
+  private def isEqualMargin(margin1: Int, margin2: Int, acceptedErr: Int) = margin1 >= margin2 - acceptedErr && margin1 <= margin2 + acceptedErr
 
   private def smartOverlaps(columns: collection.mutable.MutableList[LayoutUtils.ColumnData], columnToCheck: LayoutUtils.ColumnData): Boolean = {
-    var numberOverlapping: Int = 0
-    var isSmart: Int = -1
+    var numberOverlapping = 0
+    var isSmart = -1
     for (col <- columns) {
       if ((col.getLeftX >= columnToCheck.getLeftX && col.getLeftX <= columnToCheck.getRightX) || (col.getRightX >= columnToCheck.getLeftX && col.getRightX <= columnToCheck.getRightX) || (col.getLeftX <= columnToCheck.getLeftX && col.getRightX >= columnToCheck.getRightX) || (col.getLeftX >= columnToCheck.getLeftX && col.getRightX <= columnToCheck.getRightX)) {
         numberOverlapping += 1
@@ -391,15 +386,11 @@ object LayoutUtils {
         }
       }
     }
-    if (numberOverlapping == 0 || (numberOverlapping == 1 && isSmart == 1)) {
-      return true
-    }
-    return false
+    if (numberOverlapping == 0 || (numberOverlapping == 1 && isSmart == 1)) true else false
   }
 
-  private def contiguousCounterpartRatio(columnData: LayoutUtils.Entry, ratio: Double): Boolean = {
-    return (columnData.getKey.asInstanceOf[LayoutUtils.ColumnData].getContiguousCounterparts.toDouble) / (columnData.getQty.toDouble) >= ratio
-  }
+  private def contiguousCounterpartRatio(columnData: LayoutUtils.Entry, ratio: Double) =
+    columnData.getKey.asInstanceOf[LayoutUtils.ColumnData].getContiguousCounterparts.toDouble / columnData.getQty >= ratio
 
   private def isOverlapping(columns: collection.mutable.MutableList[LayoutUtils.ColumnData], columnToCheck: LayoutUtils.ColumnData): Boolean = {
     for (col <- columns) {
@@ -412,26 +403,17 @@ object LayoutUtils {
 
   def isNearTheTop(lineInfo: LineInfo, page: LayoutUtils.PageData, percentFromTop: Double): Boolean = {
     val diffTops: Int = lineInfo.ury - page.getTopY
-    if ((diffTops.toDouble) / (page.getHeight.toDouble ) < percentFromTop) {
-      return true
-    }
-    return false
+    if (diffTops.toDouble / page.getHeight < percentFromTop) true else false
   }
 
   def isNearTheTop(lineInfo: LineInfo, page: LayoutUtils.PageData, pixels: Int): Boolean = {
-    val diffTops: Int = lineInfo.ury - page.getTopY
-    if (diffTops <= pixels) {
-      return true
-    }
-    return false
+    val diffTops = lineInfo.ury - page.getTopY
+    if (diffTops <= pixels) true else false
   }
 
   def isNearTheBottom(lineInfo: LineInfo, page: LayoutUtils.PageData, pixels: Int): Boolean = {
-    val diffTops: Int = page.getBottomY - lineInfo.lly
-    if (diffTops <= pixels) {
-      return true
-    }
-    return false
+    val diffTops = page.getBottomY - lineInfo.lly
+    if (diffTops <= pixels) true else false
   }
 
   private def isWidthSimilar(columns: collection.mutable.MutableList[LayoutUtils.ColumnData], columnToCheck: LayoutUtils.ColumnData, errorRatio: Double): Boolean = {
@@ -440,13 +422,12 @@ object LayoutUtils {
         return false
       }
     }
-    return true
+    true
   }
 
   def adjustPageData(urx: Int, llx: Int, ury: Int, lly: Int, page: Int, pagesData: collection.mutable.Map[Int, LayoutUtils.PageData]) {
-    var pageData: LayoutUtils.PageData = pagesData.get(page).getOrElse(null) //pagesData.get(page)
-    if (pageData == null) {
-      pageData = new LayoutUtils.PageData
+    if(!pagesData.contains(page)){
+      val pageData = new LayoutUtils.PageData
       pageData.setBottomY(lly)
       pageData.setTopY(ury)
       pageData.setLeftX(llx)
@@ -455,6 +436,7 @@ object LayoutUtils {
       pagesData.put(page, pageData)
     }
     else {
+      val pageData = pagesData(page)
       pageData.setBottomY(if (pageData.getBottomY /*>*/ < lly) lly else pageData.getBottomY)
       pageData.setTopY(if (pageData.getTopY /*<*/ > ury) ury else pageData.getTopY)
       pageData.setLeftX(if (pageData.getLeftX > llx) llx else pageData.getLeftX)
@@ -467,48 +449,43 @@ object LayoutUtils {
   }
 
   def adjustLineHeight(lineInfos: Array[LineInfo], i: Int, lineHeight: collection.mutable.MutableList[LayoutUtils.Entry/*[Integer]*/]) {
-    val height: Int = getCurrentLineHeight(lineInfos, i)
-    val currentHeightEntry: LayoutUtils.Entry = new LayoutUtils.Entry(height, 1)
-    val iOf: Int = lineHeight.indexOf(currentHeightEntry)
+    val height = getCurrentLineHeight(lineInfos, i)
+    val currentHeightEntry = new LayoutUtils.Entry(height, 1)
+    val iOf = lineHeight.indexOf(currentHeightEntry)
     if (iOf > -1) {
-      val actualData: LayoutUtils.Entry = lineHeight(iOf)
+      val actualData = lineHeight(iOf)
       actualData.setQty(actualData.getQty + 1)
     }
     else {
-      lineHeight.+=(currentHeightEntry)
+      lineHeight += currentHeightEntry
     }
   }
 
-  def getCurrentLineHeight(lineInfos: Array[LineInfo], i: Int): Int = {
-    return lineInfos(i).lly - lineInfos(i).ury
-  }
+  def getCurrentLineHeight(lineInfos: Array[LineInfo], i: Int) = lineInfos(i).lly - lineInfos(i).ury
 
   def isCentered(lineInfo: LineInfo, columnLeftMargin: Int, columnRightMargin: Int, errRatio: Int): Boolean = {
-    val leftDiff: Int = lineInfo.llx - columnLeftMargin
-    val rightDiff: Int = columnRightMargin - lineInfo.urx
-    if (leftDiff >= 10 && rightDiff >= 10 && leftDiff >= rightDiff - errRatio && leftDiff <= rightDiff + errRatio) {
-      return true
-    }
-    return false
+    val leftDiff = lineInfo.llx - columnLeftMargin
+    val rightDiff = columnRightMargin - lineInfo.urx
+    if (leftDiff >= 10 && rightDiff >= 10 && leftDiff >= rightDiff - errRatio && leftDiff <= rightDiff + errRatio) true else false
   }
 
   def getWordsInDictionary(lineOfText: String, dictionary: EnglishDictionary, exact: Boolean): Int = {
     val cleanedText: String = lineOfText.replaceAll("[,\\.\\(\\)\\[\\]]", "").toLowerCase
     val tokenized: Array[String] = cleanedText.split(" ")
-    val tokSet: collection.mutable.Set[String] = collection.mutable.Set[String]() //new HashSet[String]
+    val tokSet = collection.mutable.Set[String]()
     for (word <- tokenized) {
       tokSet.add(word.trim)
     }
-    var cont: Int = 0
+    var count = 0
     if (tokenized.length < 3 && !exact) {
       return -1
     }
     for (word <- tokSet) {
       if (dictionary.contains(word)) {
-        cont += 1
+        count += 1
       }
     }
-    return cont
+    return count
   }
 
   def adjustWordsInDictionaryPerLine(currentLineText: String, wordsInDictionaryPerLine: collection.mutable.MutableList[LayoutUtils.Entry/*[Integer]*/], dictionary: EnglishDictionary) {
@@ -528,13 +505,9 @@ object LayoutUtils {
   }
 
   def getPixelsPerCharacter(lineInfos: Array[LineInfo], i: Int): Int = {
-    val width: Int = lineInfos(i).urx - lineInfos(i).llx
-    val text: String = lineInfos(i).text
-    if (width == 1) {
-      return -1
-    }
-    val pxlsXCharacter: Int = Math.round((width.toDouble) / (text.length.toDouble)).toInt
-    return pxlsXCharacter
+    val width = lineInfos(i).urx - lineInfos(i).llx
+    val text = lineInfos(i).text
+    if (width == 1) -1 else Math.round(width.toDouble/text.length).toInt
   }
 
   def adjustPixelsPerCharacter(lineInfos: Array[LineInfo], i: Int, pixelsPerCharacter: collection.mutable.MutableList[LayoutUtils.Entry/*[Integer]*/]) {
@@ -613,14 +586,15 @@ object LayoutUtils {
   }
 
   private def getColumnData(equalsBothMargins: Boolean, acceptableMarginErrorLeft: Int, acceptableMarginErrorRight: Int, lineInfo: LineInfo): LayoutUtils.ColumnData = {
-    val columnData: LayoutUtils.ColumnData = new LayoutUtils.ColumnData(equalsBothMargins, acceptableMarginErrorLeft, acceptableMarginErrorRight)
+    val columnData = new LayoutUtils.ColumnData(equalsBothMargins, acceptableMarginErrorLeft, acceptableMarginErrorRight)
     columnData.setLeftX(lineInfo.llx)
     columnData.setRightX(lineInfo.urx)
     columnData.setTopY(lineInfo.ury)
     columnData.setBottomY(lineInfo.lly)
-    return columnData
+    columnData
   }
 
+  // todo wtf is this
   def checkCounterparts(equalsBothMargins: Boolean, acceptableMarginErrorLeft: Int, acceptableMarginErrorRight: Int, columnData: LayoutUtils.ColumnData, lineInfos: Array[LineInfo], i: Int) {
     var columnData1: LayoutUtils.ColumnData = null
     if (i > 0) {
@@ -643,11 +617,11 @@ object LayoutUtils {
                        columnsData: collection.mutable.Map[Int, collection.mutable.MutableList[LayoutUtils.Entry]],
                        equalsBothMargins: Boolean, acceptableMarginErrorLeft: Int, acceptableMarginErrorRight: Int, currentSpan: Span) {
     val columnData: LayoutUtils.ColumnData = getColumnData(equalsBothMargins, acceptableMarginErrorLeft, acceptableMarginErrorRight, lineInfos(i))
-    if (columnsData.get(lineInfos(i).page).getOrElse(null) == null) {
-      val colData: collection.mutable.MutableList[LayoutUtils.Entry] = collection.mutable.MutableList[LayoutUtils.Entry]()
-      colData.+=(new LayoutUtils.Entry(columnData, 1))
+    if (!columnsData.contains(lineInfos(i).page)) {
+      val colData = collection.mutable.MutableList[LayoutUtils.Entry]()
+      colData += new LayoutUtils.Entry(columnData, 1)
       checkCounterparts(equalsBothMargins, acceptableMarginErrorLeft, acceptableMarginErrorRight, columnData, lineInfos, i)
-      columnsData.put(lineInfos(i).page, colData)
+      columnsData(lineInfos(i).page) = colData
     }
     else {
       val currEntry: LayoutUtils.Entry = new LayoutUtils.Entry(columnData, 1)
@@ -662,11 +636,8 @@ object LayoutUtils {
         if (lineInfos(i).lly > existentEntry.getKey.asInstanceOf[LayoutUtils.ColumnData].getBottomY) {
           existentEntry.getKey.asInstanceOf[LayoutUtils.ColumnData].setBottomY(lineInfos(i).lly)
         }
-        //TODO: check if it works, now tsting with result_test18.html, worked well on result_test18.html!,
-        //TODO: any change to the following if should also work well with result_test18.html
-        if (lineInfos(i).urx > existentEntry.getKey.asInstanceOf[LayoutUtils.ColumnData].getRightX)
-        {
-          //only do when column width not greater than max allowed per collumn?
+        if (lineInfos(i).urx > existentEntry.getKey.asInstanceOf[LayoutUtils.ColumnData].getRightX) {
+          //only do when column width not greater than max allowed per column?
           existentEntry.getKey.asInstanceOf[LayoutUtils.ColumnData].setRightX(lineInfos(i).urx)
         }
         checkCounterparts(equalsBothMargins, acceptableMarginErrorLeft, acceptableMarginErrorRight,
@@ -675,7 +646,7 @@ object LayoutUtils {
       else {
         checkCounterparts(equalsBothMargins, acceptableMarginErrorLeft, acceptableMarginErrorRight,
               currEntry.getKey.asInstanceOf[LayoutUtils.ColumnData], lineInfos, i)
-        columnsData.get(lineInfos(i).page).get.+=(currEntry)
+        columnsData(lineInfos(i).page) += currEntry
       }
     }
   }

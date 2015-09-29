@@ -1,7 +1,7 @@
 package edu.umass.cs.rexo.ghuang.segmentation
 
 import org.rexo.base.{Instance, Pipe}
-import org.rexo.extraction.{NewHtmlTokenizationSvg, NewHtmlTokenization}
+import org.rexo.extraction.NewHtmlTokenizationSvg
 import org.rexo.extra.types.Token
 import org.rexo.extra.extract.Span
 import org.rexo.span.CompositeSpan
@@ -31,76 +31,67 @@ class NewHtmlTokenization2LineInfoSvg extends Pipe with Serializable {
 
     val pageNum =  LayoutUtils.getProperty(realElem.asInstanceOf[Span], "pageNum")
 
-    blockId + "_" +  pageNum.asInstanceOf[Double].intValue
+    blockId + "_" +  pageNum.asInstanceOf[Int]
   }
 
   def pipe(carrier: Instance): Instance = {
-    val htmlTokenization: NewHtmlTokenizationSvg = carrier.getData.asInstanceOf[NewHtmlTokenizationSvg]
-    val lineInfos: collection.mutable.MutableList[LineInfo] = collection.mutable.MutableList[LineInfo]() // ArrayList[_] = new ArrayList[_]
+    val htmlTokenization = carrier.getData.asInstanceOf[NewHtmlTokenizationSvg]
+    val lineInfos = collection.mutable.MutableList[LineInfo]()
     var prevLineNum: Int = -1
     var lineInfo: LineInfo = null
     var lineText: StringBuffer = new StringBuffer
-
     var ti: Int = 0
     while (ti < htmlTokenization.size) {
-      {
-        val token: Token = htmlTokenization.getToken(ti)
-
-
-        val tokLineNum: Int = token.getNumericProperty("lineNum").asInstanceOf[Int]
-        if (tokLineNum == 0) {
-          //continue //todo: continue is not supported
+      val token: Token = htmlTokenization.getToken(ti)
+      val tokLineNum: Int = token.getNumericProperty("lineNum").asInstanceOf[Int]
+      if (tokLineNum == 0) {
+        //continue //todo: continue is not supported
+      }
+      else if (tokLineNum != prevLineNum) {
+        prevLineNum = tokLineNum
+        if (lineText.length > 0) {
+          lineInfo.text = lineText.toString
+          lineInfos += lineInfo
         }
-        else if (tokLineNum != prevLineNum) {
-          prevLineNum = tokLineNum
-          if (lineText.length > 0) {
-            lineInfo.text = lineText.toString
-            lineInfos.+=(lineInfo)  //.add(lineInfo)
-          }
-          lineInfo = new LineInfo
-          lineText = new StringBuffer(token.getText + " ")
-          val divElement:scala.Tuple2[Integer,Any] = LayoutUtils.getProperty(token, "divElement").asInstanceOf[scala.Tuple2[Integer, Any]]
-          lineInfo.blockId = divElement._1.toInt
+        lineInfo = new LineInfo
+        lineText = new StringBuffer(token.getText + " ")
+        val divElement = LayoutUtils.getProperty(token, "divElement").asInstanceOf[(Int, Any)]
+        lineInfo.blockId = divElement._1.toInt
 
-          lineInfo.page = token.getNumericProperty("pageNum").asInstanceOf[Int]
-          lineInfo.llx = token.getNumericProperty("llx").asInstanceOf[Int]
-          lineInfo.lly = token.getNumericProperty("lly").asInstanceOf[Int]
-          lineInfo.urx = token.getNumericProperty("urx").asInstanceOf[Int]
-          lineInfo.ury = token.getNumericProperty("ury").asInstanceOf[Int]
-          lineInfo.font = token.getProperty("fontname").asInstanceOf[String]
-        }
-        else {
-          lineText.append(token.getText + " ")
-          if (token.getNumericProperty("firstInTextBox") > 0) {
-            lineInfo.multibox = true
-            lineInfo.llx = Math.min(lineInfo.llx, token.getNumericProperty("llx")).asInstanceOf[Int]
-            lineInfo.lly = Math.min(lineInfo.lly, token.getNumericProperty("lly")).asInstanceOf[Int]
-            lineInfo.urx = Math.max(lineInfo.urx, token.getNumericProperty("urx")).asInstanceOf[Int]
-            lineInfo.ury = Math.max(lineInfo.ury, token.getNumericProperty("ury")).asInstanceOf[Int]
-          }
+        lineInfo.page = token.getNumericProperty("pageNum").toInt
+        lineInfo.llx = token.getNumericProperty("llx").toInt
+        lineInfo.lly = token.getNumericProperty("lly").toInt
+        lineInfo.urx = token.getNumericProperty("urx").toInt
+        lineInfo.ury = token.getNumericProperty("ury").toInt
+        lineInfo.font = token.getProperty("fontname").asInstanceOf[String]
+      }
+      else {
+        lineText.append(token.getText + " ")
+        if (token.getNumericProperty("firstInTextBox") > 0) {
+          lineInfo.multibox = true
+          lineInfo.llx = Math.min(lineInfo.llx, token.getNumericProperty("llx")).toInt
+          lineInfo.lly = Math.min(lineInfo.lly, token.getNumericProperty("lly")).toInt
+          lineInfo.urx = Math.max(lineInfo.urx, token.getNumericProperty("urx")).toInt
+          lineInfo.ury = Math.max(lineInfo.ury, token.getNumericProperty("ury")).toInt
         }
       }
-      ({
-        ti += 1; ti - 1
-      })
+      ti += 1
     }
 
-    assert((lineInfo != null))
+    assert(lineInfo != null)
     if (lineText.toString != null) {
       lineInfo.text = lineText.toString
-      lineInfos.+=(lineInfo)
+      lineInfos += lineInfo
     }
-    val newData: Array[LineInfo] = new Array[LineInfo](lineInfos.size)
+    val newData = new Array[LineInfo](lineInfos.size)
 
-    var i: Int = 0
+    var i = 0
     while (i < lineInfos.size) {
-      newData(i) = lineInfos.get(i).get.asInstanceOf[LineInfo]
-      ({
-        i += 1; i - 1
-      })
+      newData(i) = lineInfos.get(i).get
+      i += 1
     }
 
     carrier.setData(newData)
-    return carrier
+    carrier
   }
 }
