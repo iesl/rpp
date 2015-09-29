@@ -123,7 +123,6 @@ class RulesBibliographySegmenterSvg {
     val ret = new RulesBibliographySegmenterSvg.ReferenceData
     ret.predictedLabels = predictedLabels
     val warning: String = RulesBibliographySegmenterSvg.checkAndSegmentReferences(htmlTokenization.getLineSpans, predictedLabels, ret)
-    println(warning)
     ret
   }
 }

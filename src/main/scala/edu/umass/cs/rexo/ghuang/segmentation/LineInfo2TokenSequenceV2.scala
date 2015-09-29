@@ -383,9 +383,9 @@ class LineInfo2TokenSequenceV2 extends Pipe with Serializable {
     var noFirstLinePattern = false
     i = 0
     while (i < lineInfos.length){
-
         //feature to see how close a particular line is to the first and second margins given in cols
         if(colsPerPage(lineInfos(i).page)(0) != None &&
+          colsPerPage(lineInfos(i).page)(0).nonEmpty &&
           colsPerPage(lineInfos(i).page)(0).head != None &&
           colsPerPage(lineInfos(i).page)(0).head.getLeftX <= lineInfos(i).llx &&
           colsPerPage(lineInfos(i).page)(0).head.getLeftX >= lineInfos(i).llx - 2){
