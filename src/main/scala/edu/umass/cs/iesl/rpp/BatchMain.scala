@@ -19,6 +19,7 @@ class BatchOpts extends DefaultCmdOptions {
   val logFile = new CmdOption("log-file", "", "STRING", "write logging info to this file")
   val dataFilesFile = new CmdOption("data-files-file", "", "STRING", "file containing a list of paths to data files, one per line")
   val mode = new CmdOption("mode", "tag", "STRING", "Mode: segment or tag")
+  val numCores = new CmdOption("num-cores", 1, "INT", "number of cores to use")
 }
 
 object BatchMain extends HyperparameterMain {
@@ -46,59 +47,78 @@ object BatchMain extends HyperparameterMain {
     val headerTagger = if(opts.mode.value == "tag") new HeaderTagger(new URL(headerTaggerModelFile)) else null
 
     val startTime = System.currentTimeMillis()
+    def deltaSecs(startTime: Long) = (System.currentTimeMillis() - startTime) / 1000.0
 
-    inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
-
-      val startTimeMillis: Long = System.currentTimeMillis()
-      def deltaSecs = (System.currentTimeMillis() - startTimeMillis) / 1000.0
-
-      try {
-        println(s"* processing\t$inputFile")
-
-        // start the processing pipeline, using a separate thread to cancel long-running files. NB: this approach
-        // is flawed and needs more work. it works for many long-running files, BUT NOT ALL, apparently because called
-        // code does not check for the cancel() state. it is mysterious why it *does* work. TODO investigate, say via
-        // http://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
-        val executor: ExecutorService = Executors.newSingleThreadExecutor()
-        val processFuture: Future[Annotator] = executor.submit(new Callable[Annotator]() {
-          override def call(): Annotator = opts.mode.value match {
-            case "tag" => Main.process(trainer, headerTagger, inputFile)
-            case "segment" => Main.segment(inputFile)
-            case m => throw new Error(s"Unrecognized mode `$m'")
-          }
-        })
-        try {
-          processFuture.get(5, TimeUnit.MINUTES) // TODO instead of hard-coding, pass timeout as a command line option
-        } catch {
-          case e: TimeoutException =>
-            println(s"** TimeoutException\t$inputFile\t${deltaSecs} seconds")
-            processFuture.cancel(true)
-        }
-        executor.shutdownNow()
-
-        // processing done
-        println(s"** writing\t$outputFile\t${deltaSecs}")
-        val pw = new PrintWriter(new File(outputFile), codec)
-        val annotator = processFuture.get()
-
-        // for debugging coarse segmentation, use this line instead of xml one to print basic information:
-        val outputStr = opts.mode.value match{
-          case "tag" => MakeXML.mkXML(annotator) // previously mkXML(annotator)
-          case "segment" => Main.coarseOutputStrForAnnotator(annotator, inputFile)
-        }
-
-        pw.write(outputStr)
-        pw.close()
-        println(s"** done\t$inputFile\t${deltaSecs} seconds")
-      } catch {
-        case e: Exception =>
-          println(s"** failed\t$e\t${deltaSecs} seconds")
-          e.printStackTrace()
-          badFiles += inputFile
+    Threading.parForeach(inputFilenames.zip(outputFilenames), opts.numCores.value){ case (inputFile, outputFile) =>
+      val docStartTime = System.currentTimeMillis()
+      println(s"* processing\t$inputFile")
+      val anno = opts.mode.value match {
+        case "tag" => Main.process(trainer, headerTagger, inputFile)
+        case "segment" => Main.segment(inputFile)
+        case m => throw new Error(s"Unrecognized mode `$m'")
       }
+      println(s"** writing\t$outputFile\t${deltaSecs(docStartTime)}")
+      val pw = new PrintWriter(new File(outputFile), codec)
+      val outputStr = opts.mode.value match{
+        case "tag" => MakeXML.mkXML(anno) // previously mkXML(annotator)
+        case "segment" => Main.coarseOutputStrForAnnotator(anno, inputFile)
+      }
+      pw.write(outputStr)
+      pw.close()
+      println(s"** done\t$inputFile\t${deltaSecs(docStartTime)} seconds")
     }
-    val totalTime = (System.currentTimeMillis()-startTime) / 1000.0
 
+//    inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
+//
+//      val startTimeMillis: Long = System.currentTimeMillis()
+//      def deltaSecs = (System.currentTimeMillis() - startTimeMillis) / 1000.0
+//
+//      try {
+//        println(s"* processing\t$inputFile")
+//
+//        // start the processing pipeline, using a separate thread to cancel long-running files. NB: this approach
+//        // is flawed and needs more work. it works for many long-running files, BUT NOT ALL, apparently because called
+//        // code does not check for the cancel() state. it is mysterious why it *does* work. TODO investigate, say via
+//        // http://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
+//        val executor: ExecutorService = Executors.newSingleThreadExecutor()
+//        val processFuture: Future[Annotator] = executor.submit(new Callable[Annotator]() {
+//          override def call(): Annotator = opts.mode.value match {
+//            case "tag" => Main.process(trainer, headerTagger, inputFile)
+//            case "segment" => Main.segment(inputFile)
+//            case m => throw new Error(s"Unrecognized mode `$m'")
+//          }
+//        })
+//        try {
+//          processFuture.get(5, TimeUnit.MINUTES) // TODO instead of hard-coding, pass timeout as a command line option
+//        } catch {
+//          case e: TimeoutException =>
+//            println(s"** TimeoutException\t$inputFile\t${deltaSecs} seconds")
+//            processFuture.cancel(true)
+//        }
+//        executor.shutdownNow()
+//
+//        // processing done
+//        println(s"** writing\t$outputFile\t${deltaSecs}")
+//        val pw = new PrintWriter(new File(outputFile), codec)
+//        val annotator = processFuture.get()
+//
+//        // for debugging coarse segmentation, use this line instead of xml one to print basic information:
+//        val outputStr = opts.mode.value match{
+//          case "tag" => MakeXML.mkXML(annotator) // previously mkXML(annotator)
+//          case "segment" => Main.coarseOutputStrForAnnotator(annotator, inputFile)
+//        }
+//
+//        pw.write(outputStr)
+//        pw.close()
+//        println(s"** done\t$inputFile\t${deltaSecs} seconds")
+//      } catch {
+//        case e: Exception =>
+//          println(s"** failed\t$e\t${deltaSecs} seconds")
+//          e.printStackTrace()
+//          badFiles += inputFile
+//      }
+//    }
+    val totalTime = deltaSecs(startTime)
     println(s"* failed to process ${badFiles.length}/${inputFilenames.length} files.")
     println(s"* Total time to process: ${totalTime} seconds (${totalTime/inputFilenames.length} seconds/document average)")
     if (opts.logFile.wasInvoked) {
@@ -117,7 +137,6 @@ class ParallelOpts extends BatchOpts {
   val dir = new CmdOption("dir", "", "STRING", "directory of files to process")
   val numJobs = new CmdOption("num-jobs", 8, "INT", "number of jobs to distribute processing over")
   val memPerJob = new CmdOption("mem", 8, "INT", "GB of memory to request per job")
-  val numCores = new CmdOption("num-cores", 1, "INT", "number of cores to use")
 }
 
 
