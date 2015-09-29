@@ -158,27 +158,22 @@ object MetaDataSvgAnnotator {
     require(!tokens.isEmpty)
 
     def loop(mapAcc: Map[String, String])(toks: ArrayBuffer[Token], lId: Int): Map[String, String] = {
-
       val currentToken:Token = toks.head
-      val tokenBlockId:Int = currentToken.getProperty("divElement").asInstanceOf[scala.Tuple2[Any, Any]]._1.toString.toInt
+      val tokenBlockId:Int = currentToken.getProperty("divElement").asInstanceOf[(Any, Any)]._1.toString.toInt
       val pageNumber:Int = currentToken.getProperty("pageNum").asInstanceOf[Double].toInt
       val tokTail = toks.tail
-      val pair = (tokenBlockId + "_" + pageNumber).toString -> labels.get(lId).toString
+      val pair = (tokenBlockId + "_" + pageNumber) -> labels.get(lId).toString
+      val newLId = if(perLine && hasSameLine(currentToken, tokTail.head)) lId else lId + 1
+      //      println(s"labels(${tokenBlockId}_$pageNumber)=${labels.get(lId)}: ${currentToken.getText}")
 
-      if (toks.size > 1) {
-        if(perLine && hasSameLine(currentToken, tokTail.head)){
-          loop(mapAcc + pair)(tokTail, lId)
-        } else {
-          loop(mapAcc + pair)(tokTail, lId + 1)
-        }
-      } else {
-        mapAcc + pair
-      }
-
+      /* Known bug where the last column in a two-column pdf is cut off, don't want to throw an exception if newLId == labels.size */
+      //      if(newLId == labels.size && toks.size > 1)
+      //        logger.log(Level.WARNING, s"Document cutoff: part of this document was probably lost (token: `${currentToken.getText}', page: ${pageNumber}, toks left: ${toks.size}: ${tokTail.map("`" + _.text + "'").mkString(" ")})")
+      if (toks.size > 1 && newLId != labels.size)
+        loop(mapAcc + pair)(tokTail, newLId)
+      else mapAcc + pair
     }
-
     loop(Map[String, String]())(tokens, labelId)
-
   }
 
   private def insertLast(listTags:List[Tuple3[Int,String,String]]):List[Tuple3[Int,String,String]] =

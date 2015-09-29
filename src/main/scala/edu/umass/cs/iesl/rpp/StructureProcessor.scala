@@ -1,19 +1,17 @@
 package edu.umass.cs.iesl.rpp
 
+import org.rexo.pipeline.components.svg.RxFilterSvd.ReturnCode
 import org.rexo.util.EnglishDictionary
 import java.io._
 import com.typesafe.scalalogging.Logger
 import org.slf4j.LoggerFactory
 import org.rexo.extraction.NewHtmlTokenizationSvg
-import org.rexo.pipeline.components.RxDocument
 
 import org.rexo.pipeline.components.svg.{RxDocumentSvg, RxPipelineSvg}
 import edu.umass.cs.rexo.ghuang.segmentation.svg.SegmentationFilterSvg
 import org.rexo.pipeline.svg.BodyExtractionFilterSvg
-import scala.Some
 import edu.umass.cs.rexo.ghuang.segmentation.utils.LayoutUtils
 
-import org.jdom2.Document
 import org.rexo.extra.extract.Span
 import scala.collection.mutable
 import org.rexo.span.CompositeSpan
@@ -62,19 +60,15 @@ object StructureProcessor extends Processor {
     val pipeline: RxPipelineSvg = buildPipeline(Map[Any, Any]())
 
     try {
-      pipeline.execute(rdoc)
-      logger.info("writing output file")
-      val a = annotateRx(rdoc)
-      if (a == null) annotator else a
+      val errorCode = pipeline.execute(rdoc)
+      if(errorCode == ReturnCode.OK) annotateRx(rdoc) else annotator
     } catch {
       case e: Exception => {
         e.printStackTrace()
         annotator
       }
     }
-
   }
-
 
   private def mkRDoc(annotator: Annotator) = {
     val dataDir:String = null
@@ -99,29 +93,32 @@ object StructureProcessor extends Processor {
 
     pipeline
   }
-private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
-    val tokenization: NewHtmlTokenizationSvg = rdoc.getTokenization
-    val segmentations: collection.mutable.Map[Any, Any] = rdoc.getScope("document").get("segmentation").getOrElse(null).asInstanceOf[collection.mutable.Map[Any, Any]]
+
+  private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
+    val tokenization = rdoc.getTokenization
+    val segmentations = rdoc.getScope("document").get("segmentation").getOrElse(null).asInstanceOf[collection.mutable.Map[String, NewHtmlTokenizationSvg]]
     if (tokenization == null) {
       null
     } else {
+      val referencesTokenization = segmentations.get("referencesTokenization").get
+      val headerTokenization = segmentations.get("headerTokenization").get
+      val bodyTokenization = segmentations.get("bodyTokenization").get
 
-      val referencesTokenization:NewHtmlTokenizationSvg = segmentations.get("referencesTokenization").get.asInstanceOf[NewHtmlTokenizationSvg]
-      val headerTokenization:NewHtmlTokenizationSvg = segmentations.get("headerTokenization").get.asInstanceOf[NewHtmlTokenizationSvg]
-      val bodyTokenization:NewHtmlTokenizationSvg = segmentations.get("bodyTokenization").get.asInstanceOf[NewHtmlTokenizationSvg]
-
-      val bodyLabels:Sequence = segmentations.get("bodyLabels").get.asInstanceOf[Sequence]
-      val referenceLabels:Sequence = segmentations.get("referenceLabels").get.asInstanceOf[Sequence]
+      val bodyLabels = segmentations.get("bodyLabels").get.asInstanceOf[Sequence]
+      val referenceLabels = segmentations.get("referenceLabels").get.asInstanceOf[Sequence]
 
       val annoReference:Annotator = annotateV2(referenceString, referenceChar, referencesTokenization, rdoc.getTokenization._annotator)
       val annoRefAndHeader:Annotator = annotateV2(headerString, headerChar, headerTokenization, annoReference)
-      val annoRefHeadBody:Annotator = annotateV2(bodyString, bodyChar, bodyTokenization, annoRefAndHeader)
-      val annotatedBody = MetaDataSvgAnnotator.annotateBody(bodyTokenization, bodyLabels, annoRefHeadBody)
-      val annotatedReference = MetaDataSvgAnnotator.annotateReferences(referencesTokenization, referenceLabels, annotatedBody)
-      annotatedReference
 
+      if(bodyTokenization == null) null
+      else {
+        val annoRefHeadBody: Annotator = annotateV2(bodyString, bodyChar, bodyTokenization, annoRefAndHeader)
+        val annotatedBody = MetaDataSvgAnnotator.annotateBody(bodyTokenization, bodyLabels, annoRefHeadBody)
+        val annotatedReference = MetaDataSvgAnnotator.annotateReferences(referencesTokenization, referenceLabels, annotatedBody)
+        //      println(annotatedReference.getTextSeq("biblio-marker").map(_._2).mkString(" "))
+        annotatedReference
+      }
     }
-
   }
 
   def getBlockId(elem:Span):String = {
@@ -182,8 +179,7 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
 
     val firstLineSpan:Span = lineSpans.head
     val lastLineSpan:Span = lineSpans.last
-    //:scala.collection.immutable [Tuple2[String, Option[Label]]]
-    val resSliding: scala.collection.immutable.::[Tuple2[String, Option[Label]]] =
+    val resSliding: scala.collection.immutable.::[(String, Option[Label])] =
       lineSpans.iterator.toList.map { x =>
       if(x.getStartIdx == firstLineSpan.getStartIdx) {
         (getBlockId(x), Some(B(annoLetter)))
@@ -194,28 +190,14 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
       } else if (!isPartOfBody(x)) {
         (getBlockId(x), Some(O))
       }
-    }.asInstanceOf[scala.collection.immutable.::[Tuple2[String, Option[Label]]]]
+    }.asInstanceOf[scala.collection.immutable.::[(String, Option[Label])]]
 
     val resSlidingMap = resSliding.toMap
 
-    val resAnnot = { 
-      val table = resSlidingMap.flatMap {
-        case (blockIndexStr, labelOp) =>
-          val blockIndex = blockIndexStr.take(blockIndexStr.indexOf('_')).toInt
-          labelOp.flatMap(l => {
-            if (blockIndex < 0) {
-              None
-            } else {
-              Some((blockIndex, 0) -> l)
-            }
-          })
-
-      }
-
-      annotator.annotateWithIndexPairMap(List(annotation -> annoLetter), Single(SegmentCon(lineString)), table)
+    val table = resSlidingMap.flatMap{case (blockIndexStr, labelOp) =>
+      val blockIndex = blockIndexStr.take(blockIndexStr.indexOf('_')).toInt
+      labelOp.flatMap(label => if (blockIndex < 0) None else Some((blockIndex, 0) -> label))
     }
-
-    resAnnot
+    annotator.annotateWithIndexPairMap(List(annotation -> annoLetter), Single(SegmentCon(lineString)), table)
   }
-
 }
