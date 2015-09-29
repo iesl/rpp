@@ -19,7 +19,7 @@ CP=`cat $RPP_ROOT/CP.hack`
 
 root=$RPP_ROOT
 outputDir="--output=$2"
-dir="--dir=$1"
+dir="--data-files-file=$1"
 njobs="--num-jobs=$3"
 memPerJob="--mem=$4"
 ncores="--num-cores=$5"
