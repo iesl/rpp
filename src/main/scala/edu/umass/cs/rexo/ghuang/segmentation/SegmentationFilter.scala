@@ -2,15 +2,9 @@ package edu.umass.cs.rexo.ghuang.segmentation
 
 import org.rexo.pipeline.components.{RxPipeline, RxDocument, RxFilter}
 import org.rexo.referencetagging.SegmentationException
-import org.rexo.extraction.{CRFOutputFormatter, NewHtmlTokenization}
+import org.rexo.extraction.CRFOutputFormatter
 
 import org.rexo.pipeline.components.RxFilter.ReturnCode
-
-/**
- * Created by klimzaporojets on 9/25/14.
- */
-object SegmentationFilter {
-}
 
 class SegmentationFilter extends RxFilter {
 
