@@ -79,6 +79,11 @@ object Lightweight extends App {
         inHeader = false
         inAbstract = false
       }
+      else if(lineInfo.text.contains("Keywords")){ // todo expand this
+        label = "keywords"
+        inAbstract = false
+        inHeader = false
+      }
       else if(lineInfo.text.contains("Appendix")) { // todo expand this capitalization etc.
         inBib = false
         label = "appendixPrologue"
@@ -87,7 +92,6 @@ object Lightweight extends App {
         label = "abstract"
       }
       else if(inHeader){
-        if(lineInfo.presentFeatures.contains("isHeaderFooterLine")) println("isHeaderFooterLine")
         label = "header"
       }
       else if (lineInfo.presentFeatures.contains("ignore")) {
@@ -198,266 +202,271 @@ object Lightweight extends App {
       i += 1
     }
 
-    var indentationType: Int = IndentationType.SAME
-    if ((sameAfterFirst.toDouble / (sameAfterFirst + indentedAfterFirst + untabbedAfterFirst).toDouble) > 0.5) {
-      indentationType = IndentationType.SAME
-    }
-    else if (((indentedAfterFirst).toDouble /
-      (sameAfterFirst + indentedAfterFirst + untabbedAfterFirst).toDouble) > 0.5) {
-      indentationType = IndentationType.INDENTED
-    }
-    else if (((indentedAfterFirst).toDouble /
-      (sameAfterFirst + indentedAfterFirst + untabbedAfterFirst).toDouble) > 0.5) {
-      indentationType = IndentationType.UNTABBED
-    }
-    val tolerance: Int = 1
-    val avgLineLength: Double = sumLineLengths / lineInfos.length
-    var refFont: String = ""
-    var maxCount: Int = 0
-    val iter = refFontCounts.keySet.iterator
-    while (iter.hasNext) {
-      val fontNum = iter.next
-      val count = refFontCounts(fontNum)
-      if (count > maxCount) {
-        maxCount = count
-        refFont = fontNum
+    // if firstLine is null, that means no bibliography section was found (todo should log)
+    if(firstLine != null) {
+
+      var indentationType: Int = IndentationType.SAME
+      if ((sameAfterFirst.toDouble / (sameAfterFirst + indentedAfterFirst + untabbedAfterFirst).toDouble) > 0.5) {
+        indentationType = IndentationType.SAME
       }
-    }
-    verticalDistance = verticalDistance.sortWith(_.getQty > _.getQty)
-    widthLine = widthLine.sortWith(_.getQty > _.getQty)
-
-    /* This is just sorting each entry */
-    val colsPerPage = collection.mutable.Map[Int, collection.mutable.Map[Int, collection.mutable.MutableList[LayoutUtils.ColumnData]]]()
-    columnsData.keySet.foreach{ key =>
-      columnsData(key) = columnsData(key).sortWith(_.getQty > _.getQty)
-      colsPerPage(key) = getColumns(null, columnsData(key), pagesData(key), firstLine, false, indentationType, lineInfos)
-    }
-
-    //in case the indentations are in 0, it means that the pattern of the first line is not recognized, therefore
-    //here they are re-calculated based on the cols margins. In the first version only based on the first col.
-    if(sameAfterFirst == 0 && indentedAfterFirst == 0 && untabbedAfterFirst == 0){
-      i = 0
-      var tabulationHappened = false
-      var breakLoop = false
-      var startLooking = false
-      var firstLlx = -1
-      while (i < lineInfos.length && !(tabulationHappened || breakLoop )){
-        if(lineInfos(i).presentFeatures.contains("firstReferenceLine")) {
-          startLooking = true
-          firstLlx = lineInfos(i).llx
+      else if (((indentedAfterFirst).toDouble /
+        (sameAfterFirst + indentedAfterFirst + untabbedAfterFirst).toDouble) > 0.5) {
+        indentationType = IndentationType.INDENTED
+      }
+      else if (((indentedAfterFirst).toDouble /
+        (sameAfterFirst + indentedAfterFirst + untabbedAfterFirst).toDouble) > 0.5) {
+        indentationType = IndentationType.UNTABBED
+      }
+      val tolerance: Int = 1
+      val avgLineLength: Double = sumLineLengths / lineInfos.length
+      var refFont: String = ""
+      var maxCount: Int = 0
+      val iter = refFontCounts.keySet.iterator
+      while (iter.hasNext) {
+        val fontNum = iter.next
+        val count = refFontCounts(fontNum)
+        if (count > maxCount) {
+          maxCount = count
+          refFont = fontNum
         }
-        if((lineInfos(i).presentFeatures.contains("newColumn") || lineInfos(i).presentFeatures.contains("newPage"))
-          && !lineInfos(i).presentFeatures.contains("bibliography")){
-          breakLoop = true
-        }
-        else if(startLooking){
-          if(lineInfos(i).llx >= firstLlx + 5) {
-            indentationType = IndentationType.INDENTED
-            tabulationHappened = true
+      }
+      verticalDistance = verticalDistance.sortWith(_.getQty > _.getQty)
+      widthLine = widthLine.sortWith(_.getQty > _.getQty)
+
+      /* This is just sorting each entry */
+      val colsPerPage = collection.mutable.Map[Int, collection.mutable.Map[Int, collection.mutable.MutableList[LayoutUtils.ColumnData]]]()
+      println("columns: " + columnsData.keySet.mkString(", "))
+
+      columnsData.keySet.foreach { key =>
+        columnsData(key) = columnsData(key).sortWith(_.getQty > _.getQty)
+        colsPerPage(key) = getColumns(null, columnsData(key), pagesData(key), firstLine, false, indentationType, lineInfos)
+      }
+
+      //in case the indentations are in 0, it means that the pattern of the first line is not recognized, therefore
+      //here they are re-calculated based on the cols margins. In the first version only based on the first col.
+      if (sameAfterFirst == 0 && indentedAfterFirst == 0 && untabbedAfterFirst == 0) {
+        i = 0
+        var tabulationHappened = false
+        var breakLoop = false
+        var startLooking = false
+        var firstLlx = -1
+        while (i < lineInfos.length && !(tabulationHappened || breakLoop)) {
+          if (lineInfos(i).presentFeatures.contains("firstReferenceLine")) {
+            startLooking = true
+            firstLlx = lineInfos(i).llx
           }
-          else if(lineInfos(i).llx <= firstLlx - 5 ) {
-            indentationType = IndentationType.UNTABBED
-            tabulationHappened = true
+          if ((lineInfos(i).presentFeatures.contains("newColumn") || lineInfos(i).presentFeatures.contains("newPage"))
+            && !lineInfos(i).presentFeatures.contains("bibliography")) {
+            breakLoop = true
           }
-        }
-        i += 1
-      }
-    }
-
-    var refsEndingInPoint: Int = 0
-    var refsNotEndingInPoint: Int = 0
-    var totRefsSoFar: Int = 0
-    var sumVertDistRefs: Int = 0
-    var currentPage: Int = lineInfos(0).page
-    var movedMargin: Boolean = false
-    val ignore: Ignore = new Ignore
-    ignore.setIgnorePage(0)
-
-
-    //indicates if the first line doesn't have any recognizable pattern
-    var noFirstLinePattern = false
-    i = 0
-    while (i < lineInfos.length){
-      //feature to see how close a particular line is to the first and second margins given in cols
-      if(colsPerPage(lineInfos(i).page)(0) != None &&
-        colsPerPage(lineInfos(i).page)(0).nonEmpty &&
-        colsPerPage(lineInfos(i).page)(0).head != None &&
-        colsPerPage(lineInfos(i).page)(0).head.getLeftX <= lineInfos(i).llx &&
-        colsPerPage(lineInfos(i).page)(0).head.getLeftX >= lineInfos(i).llx - 2){
-        lineInfos(i).presentFeatures.add("closeFirstMargin")
-      }
-      if(colsPerPage(lineInfos(i).page).contains(1) &&
-        colsPerPage(lineInfos(i).page)(1).nonEmpty &&
-        colsPerPage(lineInfos(i).page)(1).head != None &&
-        colsPerPage(lineInfos(i).page)(1).head.getLeftX <= lineInfos(i).llx &&
-        colsPerPage(lineInfos(i).page)(1).head.getLeftX >= lineInfos(i).llx - 2){
-        lineInfos(i).presentFeatures.add("closeFirstMargin")
-      }
-
-      if(lineInfos(i).presentFeatures.contains("firstReferenceLine")
-        && !lineInfos(i).presentFeatures.contains("samePatternAsInFirst")){
-        noFirstLinePattern = true
-      }
-      if (ignore.getIgnoreType == IgnoreType.IGNORE || ignore.getIgnorePage != lineInfos(i).page) {
-        ignore.setIgnoreType(IgnoreType.CLEAN)
-        ignore.setIgnorePage(lineInfos(i).page)
-      }
-      if (ignore.getIgnoreType == IgnoreType.IGNORE_UNLESS_Y_SMALLER && lineInfos(i).ury > /*<*/ ignore.getIgnoreY) {
-        ignore.setIgnoreType(IgnoreType.CLEAN)
-      }
-      if (lineInfos(i).urx - lineInfos(i).llx <= 0.75 * avgLineLength) lineInfos(i).presentFeatures.add("shortLineLength")
-      if (i > 0 && !lineInfos(i).presentFeatures.contains("newPage") && !lineInfos(i).presentFeatures.contains("newColumn") && dist2prevLine(i) - dist2prevLine(i - 1) > tolerance) lineInfos(i).presentFeatures.add("bigVertSpaceBefore")
-      if (lineInfos(i).font == refFont) lineInfos(i).presentFeatures.add("usesRefFont")
-      else if (refFont != -1 && !lineInfos(i).presentFeatures.contains("containsMultiFonts")) lineInfos(i).presentFeatures.add("doesntUseRefFont")
-      val currentWidth: Int = lineInfos(i).urx - lineInfos(i).llx
-      val iOf: Int = widthLine.indexOf(new LayoutUtils.Entry(currentWidth, 0))
-      if (iOf == 0) {
-        lineInfos(i).presentFeatures.add("firstCommonWidth")
-      }
-      else if (iOf == 1) {
-        lineInfos(i).presentFeatures.add("secondCommonWidth")
-      }
-      else if (iOf == 2) {
-        lineInfos(i).presentFeatures.add("thirdCommonWidth")
-      }
-      if (i + 1 < lineInfos.length && lineInfos(i).page == lineInfos(i + 1).page && lineInfos(i).lly /*>*/ < lineInfos(i + 1).lly) {
-        val currVertDistance: Int = lineInfos(i + 1).lly - lineInfos(i).lly //lineInfos(i).lly - lineInfos(i + 1).lly
-        if ((verticalDistance.size > 1 && verticalDistance.indexOf(new LayoutUtils.Entry/*[Integer]*/(currVertDistance, 0)) > 1)) {
-          lineInfos(i).presentFeatures.add("verticalOutlier")
-        }
-        else if ((verticalDistance.size > 1 && verticalDistance.indexOf(new LayoutUtils.Entry/*[Integer]*/(currVertDistance, 0)) == 1) && (verticalDistance(0).getQty.asInstanceOf[Double] / verticalDistance(1).getQty.asInstanceOf[Double] > 0.15)) {
-          lineInfos(i).presentFeatures.add("verticalSpace")
-        }
-      }
-      if (ignore.getIgnoreType == IgnoreType.CLEAN && lineInfos(i).presentFeatures.contains("shortLineLength") && lineInfos(i).presentFeatures.contains("lastLineOnPage") && lineInfos(i).presentFeatures.contains("bigVertSpaceBefore")) {
-        //          println(s"SETTING IGNORE A: ${lineInfos(i).text}")
-        ignore.setIgnoreType(IgnoreType.IGNORE)
-        ignore.setIgnorePage(lineInfos(i).page)
-      }
-      if (ignore.getIgnoreType == IgnoreType.CLEAN && i > 0 &&
-        !lineInfos(i).presentFeatures.contains("newColumn") &&
-        lineInfos(i).page == lineInfos(i - 1).page &&
-        lineInfos(i).lly /*>*/ < lineInfos(i - 1).lly) {
-        //          println(s"SETTING IGNORE B: ${lineInfos(i).text}")
-        ignore.setIgnoreType(IgnoreType.IGNORE)
-        ignore.setIgnorePage(lineInfos(i).page)
-      }
-      if (ignore.getIgnoreType == IgnoreType.CLEAN && !lineInfos(i).presentFeatures.contains("sameLine") && !lineInfos(i).presentFeatures.contains("newColumn")) {
-        val colsInPage = colsPerPage(lineInfos(i).page)
-        var ignoreMiddle = false
-        var ignoreMargin = false
-        for (indents <- colsInPage.values) {
-          if(!indents.isEmpty){ // used to also check that first isn't null?
-          val leftIndent = indents.head
-            val rightIndent = if (indents.size > 1) indents(1) else new LayoutUtils.ColumnData
-            val maxX: Int = if (leftIndent.getRightX > rightIndent.getRightX) leftIndent.getRightX else rightIndent.getRightX
-            if (leftIndent.isInitialized) {
-              if (lineInfos(i).llx >= leftIndent.getLeftX && lineInfos(i).llx <= maxX && (lineInfos(i).urx > maxX + 10)) {
-                ignoreMiddle = true
-              }
-              else if (lineInfos(i).llx >= leftIndent.getLeftX - 10 && lineInfos(i).llx <= maxX + 10 && (lineInfos(i).urx < maxX + 10)) {
-                ignoreMiddle = false
-              }
-              if (rightIndent.isInitialized && (indentationType == IndentationType.INDENTED || indentationType == IndentationType.UNTABBED) && lineInfos(i).llx >= leftIndent.getLeftX && lineInfos(i).llx <= maxX && lineInfos(i).llx - rightIndent.getLeftX > 5) {
-                ignoreMargin = true
-              }
-              else if (rightIndent.isInitialized && (indentationType == IndentationType.INDENTED || indentationType == IndentationType.UNTABBED) && lineInfos(i).llx >= leftIndent.getLeftX && lineInfos(i).llx <= maxX && lineInfos(i).llx - leftIndent.getLeftX <= 30) {
-                ignoreMargin = false
-              }
+          else if (startLooking) {
+            if (lineInfos(i).llx >= firstLlx + 5) {
+              indentationType = IndentationType.INDENTED
+              tabulationHappened = true
+            }
+            else if (lineInfos(i).llx <= firstLlx - 5) {
+              indentationType = IndentationType.UNTABBED
+              tabulationHappened = true
             }
           }
+          i += 1
         }
-        if (ignoreMargin || ignoreMiddle) {
-//          println(s"SETTING IGNORE (${if(ignoreMiddle) "ignoreMiddle" else "ignoreMargin"}): ${lineInfos(i).text}")
+      }
+
+      var refsEndingInPoint: Int = 0
+      var refsNotEndingInPoint: Int = 0
+      var totRefsSoFar: Int = 0
+      var sumVertDistRefs: Int = 0
+      var currentPage: Int = lineInfos(0).page
+      var movedMargin: Boolean = false
+      val ignore: Ignore = new Ignore
+      ignore.setIgnorePage(0)
+
+      //indicates if the first line doesn't have any recognizable pattern
+      var noFirstLinePattern = false
+      i = 0
+      while (i < lineInfos.length) {
+        //feature to see how close a particular line is to the first and second margins given in cols
+        if (colsPerPage(lineInfos(i).page)(0) != None &&
+          colsPerPage(lineInfos(i).page)(0).nonEmpty &&
+          colsPerPage(lineInfos(i).page)(0).head != None &&
+          colsPerPage(lineInfos(i).page)(0).head.getLeftX <= lineInfos(i).llx &&
+          colsPerPage(lineInfos(i).page)(0).head.getLeftX >= lineInfos(i).llx - 2) {
+          lineInfos(i).presentFeatures.add("closeFirstMargin")
+        }
+        if (colsPerPage(lineInfos(i).page).contains(1) &&
+          colsPerPage(lineInfos(i).page)(1).nonEmpty &&
+          colsPerPage(lineInfos(i).page)(1).head != None &&
+          colsPerPage(lineInfos(i).page)(1).head.getLeftX <= lineInfos(i).llx &&
+          colsPerPage(lineInfos(i).page)(1).head.getLeftX >= lineInfos(i).llx - 2) {
+          lineInfos(i).presentFeatures.add("closeFirstMargin")
+        }
+
+        if (lineInfos(i).presentFeatures.contains("firstReferenceLine")
+          && !lineInfos(i).presentFeatures.contains("samePatternAsInFirst")) {
+          noFirstLinePattern = true
+        }
+        if (ignore.getIgnoreType == IgnoreType.IGNORE || ignore.getIgnorePage != lineInfos(i).page) {
+          ignore.setIgnoreType(IgnoreType.CLEAN)
+          ignore.setIgnorePage(lineInfos(i).page)
+        }
+        if (ignore.getIgnoreType == IgnoreType.IGNORE_UNLESS_Y_SMALLER && lineInfos(i).ury > /*<*/ ignore.getIgnoreY) {
+          ignore.setIgnoreType(IgnoreType.CLEAN)
+        }
+        if (lineInfos(i).urx - lineInfos(i).llx <= 0.75 * avgLineLength) lineInfos(i).presentFeatures.add("shortLineLength")
+        if (i > 0 && !lineInfos(i).presentFeatures.contains("newPage") && !lineInfos(i).presentFeatures.contains("newColumn") && dist2prevLine(i) - dist2prevLine(i - 1) > tolerance) lineInfos(i).presentFeatures.add("bigVertSpaceBefore")
+        if (lineInfos(i).font == refFont) lineInfos(i).presentFeatures.add("usesRefFont")
+        else if (refFont != -1 && !lineInfos(i).presentFeatures.contains("containsMultiFonts")) lineInfos(i).presentFeatures.add("doesntUseRefFont")
+        val currentWidth: Int = lineInfos(i).urx - lineInfos(i).llx
+        val iOf: Int = widthLine.indexOf(new LayoutUtils.Entry(currentWidth, 0))
+        if (iOf == 0) {
+          lineInfos(i).presentFeatures.add("firstCommonWidth")
+        }
+        else if (iOf == 1) {
+          lineInfos(i).presentFeatures.add("secondCommonWidth")
+        }
+        else if (iOf == 2) {
+          lineInfos(i).presentFeatures.add("thirdCommonWidth")
+        }
+        if (i + 1 < lineInfos.length && lineInfos(i).page == lineInfos(i + 1).page && lineInfos(i).lly /*>*/ < lineInfos(i + 1).lly) {
+          val currVertDistance: Int = lineInfos(i + 1).lly - lineInfos(i).lly //lineInfos(i).lly - lineInfos(i + 1).lly
+          if ((verticalDistance.size > 1 && verticalDistance.indexOf(new LayoutUtils.Entry /*[Integer]*/ (currVertDistance, 0)) > 1)) {
+            lineInfos(i).presentFeatures.add("verticalOutlier")
+          }
+          else if ((verticalDistance.size > 1 && verticalDistance.indexOf(new LayoutUtils.Entry /*[Integer]*/ (currVertDistance, 0)) == 1) && (verticalDistance(0).getQty.asInstanceOf[Double] / verticalDistance(1).getQty.asInstanceOf[Double] > 0.15)) {
+            lineInfos(i).presentFeatures.add("verticalSpace")
+          }
+        }
+        if (ignore.getIgnoreType == IgnoreType.CLEAN && lineInfos(i).presentFeatures.contains("shortLineLength") && lineInfos(i).presentFeatures.contains("lastLineOnPage") && lineInfos(i).presentFeatures.contains("bigVertSpaceBefore")) {
+          //          println(s"SETTING IGNORE A: ${lineInfos(i).text}")
           ignore.setIgnoreType(IgnoreType.IGNORE)
           ignore.setIgnorePage(lineInfos(i).page)
         }
-      }
-      //        if (ignore.getIgnoreType != IgnoreType.IGNORE_ALL_POSTERIOR && i > 0 &&
-      //          lineInfos(i).page == lineInfos(i - 1).page && lineInfos(i).urx < lineInfos(i - 1).llx &&
-      //          !lineInfos(i - 1).presentFeatures.contains("sameLine") &&
-      //          !(ignore.getIgnoreType == IgnoreType.IGNORE_UNLESS_Y_SMALLER &&
-      //                ignore.getIgnoreY > lineInfos(i - 1).lly)) {
-      //          println("IGNORE_UNLESS_Y_SMALLER")
-      //          println(s"lineInfos(i).urx = ${lineInfos(i).urx} < lineInfos(i - 1).llx = ${lineInfos(i - 1).llx}")
-      //          ignore.setIgnoreType(IgnoreType.IGNORE_UNLESS_Y_SMALLER)
-      //          ignore.setIgnoreY(lineInfos(i - 1).lly)
-      //          ignore.setIgnorePage(lineInfos(i).page)
-      //        }
-
-      if (ignore.getIgnoreType != IgnoreType.IGNORE_ALL_POSTERIOR && i > 0 &&
-        lineInfos(i).page == lineInfos(i - 1).page && lineInfos(i).lly < lineInfos(i - 1).ury &&
-        lineInfos(i).llx < lineInfos(i - 1).llx &&
-        !lineInfos(i - 1).presentFeatures.contains("sameLine") &&
-        !(ignore.getIgnoreType == IgnoreType.IGNORE_UNLESS_Y_SMALLER &&
-          ignore.getIgnoreY  > lineInfos(i - 1).lly)) {
-        ignore.setIgnoreType(IgnoreType.IGNORE_UNLESS_Y_SMALLER)
-        ignore.setIgnoreY(lineInfos(i - 1).lly)
-        ignore.setIgnorePage(lineInfos(i).page)
-      }
-
-
-      if (ignore.getIgnoreType == IgnoreType.CLEAN && lineInfos(i).presentFeatures.contains("bibliography")) {
-        ignore.setIgnoreType(IgnoreType.IGNORE)
-      }
-      if (totRefsSoFar > 0) {
-        val avgDistBetwRef = (sumVertDistRefs.toDouble/totRefsSoFar).toInt
-        val toAdd = Math.max(Math.ceil(avgDistBetwRef * 0.1), 2).toInt
-        val maxLimitDist = avgDistBetwRef + toAdd
-        val percentile = (pagesData(lineInfos(i).page).getBottomY - lineInfos(i).lly).toDouble / pagesData(lineInfos(i).page).getHeight
-        if (i > 0 && indentationType == IndentationType.INDENTED &&
+        if (ignore.getIgnoreType == IgnoreType.CLEAN && i > 0 &&
           !lineInfos(i).presentFeatures.contains("newColumn") &&
           lineInfos(i).page == lineInfos(i - 1).page &&
-          lineInfos(i - 1).lly < lineInfos(i).lly &&
-          lineInfos(i).lly - lineInfos(i - 1).lly > maxLimitDist && percentile < 0.08){
-          ignore.setIgnoreType(IgnoreType.IGNORE_ALL_POSTERIOR)
+          lineInfos(i).lly /*>*/ < lineInfos(i - 1).lly) {
+          //          println(s"SETTING IGNORE B: ${lineInfos(i).text}")
+          ignore.setIgnoreType(IgnoreType.IGNORE)
           ignore.setIgnorePage(lineInfos(i).page)
-          lineInfos(i).presentFeatures.add("ignoreAllPosteriorOnPage")
         }
-      }
-      if (ignore.getIgnoreType == IgnoreType.CLEAN) {
-        if ((!movedMargin && lineInfos(i).presentFeatures.contains("samePatternAsInFirst")) ||
-          (!movedMargin && i > 0 && !lineInfos(i).presentFeatures.contains("newPage") &&
-            !lineInfos(i).presentFeatures.contains("newColumn") &&
-            lineInfos(i - 1).presentFeatures.contains("possibleInit") &&
-            !lineInfos(i).presentFeatures.contains("indentedFromPrevLine") &&
-            indentationType  == IndentationType.INDENTED)){
-          lineInfos(i).presentFeatures.add("possibleInit")
-        }
-        if (!movedMargin && indentationType == IndentationType.INDENTED && (i + 1) < lineInfos.length && lineInfos(i + 1).presentFeatures.contains("indentedFromPrevLine") && (!lineInfos(i).presentFeatures.contains("bibliography"))) {
-          lineInfos(i).presentFeatures.add("possibleInit")
-          movedMargin = true
-        }
-
-        //in case there is no numbering
-        if(noFirstLinePattern && lineInfos(i).presentFeatures.contains("newPage")
-          && lineInfos(i).presentFeatures.contains("closeFirstMargin") &&
-          indentationType == IndentationType.INDENTED)
-        {
-          lineInfos(i).presentFeatures.add("possibleInit")
-        }
-
-        if (lineInfos(i).presentFeatures.contains("possibleInit")) {
-          refsEndingInPoint = refsEndingInPoint + refEndsInPoint(i, lineInfos)
-          refsNotEndingInPoint = refsNotEndingInPoint + refNotEndsInPoint(i, lineInfos)
-          val vertDist: Int = vertDifFromPrevRef(i, lineInfos)
-          if (vertDist > 0) {
-            totRefsSoFar += 1
-            sumVertDistRefs += vertDifFromPrevRef(i, lineInfos)
+        if (ignore.getIgnoreType == IgnoreType.CLEAN && !lineInfos(i).presentFeatures.contains("sameLine") && !lineInfos(i).presentFeatures.contains("newColumn")) {
+          val colsInPage = colsPerPage(lineInfos(i).page)
+          var ignoreMiddle = false
+          var ignoreMargin = false
+          for (indents <- colsInPage.values) {
+            if (!indents.isEmpty) {
+              // used to also check that first isn't null?
+              val leftIndent = indents.head
+              val rightIndent = if (indents.size > 1) indents(1) else new LayoutUtils.ColumnData
+              val maxX: Int = if (leftIndent.getRightX > rightIndent.getRightX) leftIndent.getRightX else rightIndent.getRightX
+              if (leftIndent.isInitialized) {
+                if (lineInfos(i).llx >= leftIndent.getLeftX && lineInfos(i).llx <= maxX && (lineInfos(i).urx > maxX + 10)) {
+                  ignoreMiddle = true
+                }
+                else if (lineInfos(i).llx >= leftIndent.getLeftX - 10 && lineInfos(i).llx <= maxX + 10 && (lineInfos(i).urx < maxX + 10)) {
+                  ignoreMiddle = false
+                }
+                if (rightIndent.isInitialized && (indentationType == IndentationType.INDENTED || indentationType == IndentationType.UNTABBED) && lineInfos(i).llx >= leftIndent.getLeftX && lineInfos(i).llx <= maxX && lineInfos(i).llx - rightIndent.getLeftX > 5) {
+                  ignoreMargin = true
+                }
+                else if (rightIndent.isInitialized && (indentationType == IndentationType.INDENTED || indentationType == IndentationType.UNTABBED) && lineInfos(i).llx >= leftIndent.getLeftX && lineInfos(i).llx <= maxX && lineInfos(i).llx - leftIndent.getLeftX <= 30) {
+                  ignoreMargin = false
+                }
+              }
+            }
+          }
+          if (ignoreMargin || ignoreMiddle) {
+            //          println(s"SETTING IGNORE (${if(ignoreMiddle) "ignoreMiddle" else "ignoreMargin"}): ${lineInfos(i).text}")
+            ignore.setIgnoreType(IgnoreType.IGNORE)
+            ignore.setIgnorePage(lineInfos(i).page)
           }
         }
-      }
-      else {
-//        println(s"IGNORE: ${lineInfos(i).text}, ignoreType=${ignore.getIgnoreType}")
-        lineInfos(i).presentFeatures.add("ignore")
-      }
+        //        if (ignore.getIgnoreType != IgnoreType.IGNORE_ALL_POSTERIOR && i > 0 &&
+        //          lineInfos(i).page == lineInfos(i - 1).page && lineInfos(i).urx < lineInfos(i - 1).llx &&
+        //          !lineInfos(i - 1).presentFeatures.contains("sameLine") &&
+        //          !(ignore.getIgnoreType == IgnoreType.IGNORE_UNLESS_Y_SMALLER &&
+        //                ignore.getIgnoreY > lineInfos(i - 1).lly)) {
+        //          println("IGNORE_UNLESS_Y_SMALLER")
+        //          println(s"lineInfos(i).urx = ${lineInfos(i).urx} < lineInfos(i - 1).llx = ${lineInfos(i - 1).llx}")
+        //          ignore.setIgnoreType(IgnoreType.IGNORE_UNLESS_Y_SMALLER)
+        //          ignore.setIgnoreY(lineInfos(i - 1).lly)
+        //          ignore.setIgnorePage(lineInfos(i).page)
+        //        }
 
-      if (((indentationType == IndentationType.INDENTED && (i + 1) < lineInfos.length && lineInfos(i + 1).presentFeatures.contains("unTabbedFromPrevLine")) || ((i + 1) < lineInfos.length && lineInfos(i + 1).presentFeatures.contains("newColumn") && lineInfos(i + 1).presentFeatures.contains("samePatternAsInFirst")) || ((i + 1) < lineInfos.length && lineInfos(i + 1).presentFeatures.contains("newPage") && lineInfos(i + 1).presentFeatures.contains("samePatternAsInFirst")))) {
-        movedMargin = false
+        if (ignore.getIgnoreType != IgnoreType.IGNORE_ALL_POSTERIOR && i > 0 &&
+          lineInfos(i).page == lineInfos(i - 1).page && lineInfos(i).lly < lineInfos(i - 1).ury &&
+          lineInfos(i).llx < lineInfos(i - 1).llx &&
+          !lineInfos(i - 1).presentFeatures.contains("sameLine") &&
+          !(ignore.getIgnoreType == IgnoreType.IGNORE_UNLESS_Y_SMALLER &&
+            ignore.getIgnoreY > lineInfos(i - 1).lly)) {
+          ignore.setIgnoreType(IgnoreType.IGNORE_UNLESS_Y_SMALLER)
+          ignore.setIgnoreY(lineInfos(i - 1).lly)
+          ignore.setIgnorePage(lineInfos(i).page)
+        }
+
+
+        if (ignore.getIgnoreType == IgnoreType.CLEAN && lineInfos(i).presentFeatures.contains("bibliography")) {
+          ignore.setIgnoreType(IgnoreType.IGNORE)
+        }
+        if (totRefsSoFar > 0) {
+          val avgDistBetwRef = (sumVertDistRefs.toDouble / totRefsSoFar).toInt
+          val toAdd = Math.max(Math.ceil(avgDistBetwRef * 0.1), 2).toInt
+          val maxLimitDist = avgDistBetwRef + toAdd
+          val percentile = (pagesData(lineInfos(i).page).getBottomY - lineInfos(i).lly).toDouble / pagesData(lineInfos(i).page).getHeight
+          if (i > 0 && indentationType == IndentationType.INDENTED &&
+            !lineInfos(i).presentFeatures.contains("newColumn") &&
+            lineInfos(i).page == lineInfos(i - 1).page &&
+            lineInfos(i - 1).lly < lineInfos(i).lly &&
+            lineInfos(i).lly - lineInfos(i - 1).lly > maxLimitDist && percentile < 0.08) {
+            ignore.setIgnoreType(IgnoreType.IGNORE_ALL_POSTERIOR)
+            ignore.setIgnorePage(lineInfos(i).page)
+            lineInfos(i).presentFeatures.add("ignoreAllPosteriorOnPage")
+          }
+        }
+        if (ignore.getIgnoreType == IgnoreType.CLEAN) {
+          if ((!movedMargin && lineInfos(i).presentFeatures.contains("samePatternAsInFirst")) ||
+            (!movedMargin && i > 0 && !lineInfos(i).presentFeatures.contains("newPage") &&
+              !lineInfos(i).presentFeatures.contains("newColumn") &&
+              lineInfos(i - 1).presentFeatures.contains("possibleInit") &&
+              !lineInfos(i).presentFeatures.contains("indentedFromPrevLine") &&
+              indentationType == IndentationType.INDENTED)) {
+            lineInfos(i).presentFeatures.add("possibleInit")
+          }
+          if (!movedMargin && indentationType == IndentationType.INDENTED && (i + 1) < lineInfos.length && lineInfos(i + 1).presentFeatures.contains("indentedFromPrevLine") && (!lineInfos(i).presentFeatures.contains("bibliography"))) {
+            lineInfos(i).presentFeatures.add("possibleInit")
+            movedMargin = true
+          }
+
+          //in case there is no numbering
+          if (noFirstLinePattern && lineInfos(i).presentFeatures.contains("newPage")
+            && lineInfos(i).presentFeatures.contains("closeFirstMargin") &&
+            indentationType == IndentationType.INDENTED) {
+            lineInfos(i).presentFeatures.add("possibleInit")
+          }
+
+          if (lineInfos(i).presentFeatures.contains("possibleInit")) {
+            refsEndingInPoint = refsEndingInPoint + refEndsInPoint(i, lineInfos)
+            refsNotEndingInPoint = refsNotEndingInPoint + refNotEndsInPoint(i, lineInfos)
+            val vertDist: Int = vertDifFromPrevRef(i, lineInfos)
+            if (vertDist > 0) {
+              totRefsSoFar += 1
+              sumVertDistRefs += vertDifFromPrevRef(i, lineInfos)
+            }
+          }
+        }
+        else {
+          //        println(s"IGNORE: ${lineInfos(i).text}, ignoreType=${ignore.getIgnoreType}")
+          lineInfos(i).presentFeatures.add("ignore")
+        }
+
+        if (((indentationType == IndentationType.INDENTED && (i + 1) < lineInfos.length && lineInfos(i + 1).presentFeatures.contains("unTabbedFromPrevLine")) || ((i + 1) < lineInfos.length && lineInfos(i + 1).presentFeatures.contains("newColumn") && lineInfos(i + 1).presentFeatures.contains("samePatternAsInFirst")) || ((i + 1) < lineInfos.length && lineInfos(i + 1).presentFeatures.contains("newPage") && lineInfos(i + 1).presentFeatures.contains("samePatternAsInFirst")))) {
+          movedMargin = false
+        }
+        //      println(s"processing line (ignore=${lineInfos(i).presentFeatures.contains("ignore")}): ${lineInfos(i).text}")
+        currentPage = lineInfos(i).page
+        i += 1
       }
-//      println(s"processing line (ignore=${lineInfos(i).presentFeatures.contains("ignore")}): ${lineInfos(i).text}")
-      currentPage = lineInfos(i).page
-      i += 1
     }
   }
 
@@ -638,7 +647,7 @@ object Lightweight extends App {
         lly=414.54229999999995
         llx=72.00164400000001
         lineNum=19.0
-        
+
      */
 
     htmlTokenization.getLineSpans.foreach { lineSpan =>
