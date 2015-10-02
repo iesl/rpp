@@ -5,7 +5,6 @@ import org.rexo.extra.extract.{Span, StringSpan}
 import org.rexo.base.{Instance, Pipe}
 import org.rexo.base.pipe.SerialPipes
 import org.rexo.extraction.NewHtmlTokenization
-import edu.umass.cs.rexo.ghuang.segmentation.LineInfo2TokenSequenceV2
 import scala.collection.mutable
 
 /**
@@ -111,6 +110,7 @@ class RulesBibliographySegmentor {
           }
           else if (tkn.getFeatures.hasProperty("ignore")) {
             label = "junk"
+            println(s"adding label JUNK (RulesBibliographySegmentor): ${tkn.getText}")
           }
           else {
             label = "biblio-I"

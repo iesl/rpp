@@ -103,7 +103,7 @@ class RulesBibliographySegmenterSvg {
           label = "biblio-B"
         }
         else if (tkn.getFeatures.hasProperty("ignore")) {
-//          println(s"adding label JUNK: ${tkn.getText}")
+//          println(s"adding label JUNK (RulesBibliographySegmenterSvg): ${tkn.getText}")
           label = "junk"
         }
         else {

@@ -86,7 +86,7 @@ object MetaDataSvgAnnotator {
   }
 
   private def trimOthersInList(listTags:List[(Int,String,String)]):List[(Int,String,String)] = {
-    if(listTags.size == 0) listTags
+    if(listTags.isEmpty) listTags
     else {
       val rest = if (listTags.size > 1) listTags.tail else List()
       val head = listTags.head
@@ -120,9 +120,9 @@ object MetaDataSvgAnnotator {
 //  }
 
   //TAIL RECURSIVE getSegmentRawType
-  private def getSegmentRawType(tokens:ArrayBuffer[Token], labelId:Int, labels:Sequence, perLine:Boolean): Map[String,String] = {
+  private def getSegmentRawType(tokens:Iterable[Token], labelId:Int, labels:Sequence, perLine:Boolean): Map[String,String] = {
     require(!tokens.isEmpty)
-    def loop(mapAcc: Map[String, String])(toks: ArrayBuffer[Token], lId: Int): Map[String, String] = {
+    def loop(mapAcc: Map[String, String])(toks: List[Token], lId: Int): Map[String, String] = {
       val currentToken:Token = toks.head
       val tokenBlockId:Int = currentToken.getProperty("divElement").asInstanceOf[(Any, Any)]._1.toString.toInt
       val pageNumber:Int = currentToken.getProperty("pageNum").asInstanceOf[Double].toInt
@@ -138,7 +138,7 @@ object MetaDataSvgAnnotator {
         loop(mapAcc + pair)(tokTail, newLId)
       else mapAcc + pair
     }
-    loop(Map[String, String]())(tokens, labelId)
+    loop(Map[String, String]())(tokens.toList, labelId)
   }
 
   private def insertLast(listTags:List[(Int,String,String)]):List[(Int,String,String)] =
@@ -152,8 +152,7 @@ object MetaDataSvgAnnotator {
     }
   }
 
-  def annotateRec(annotations:List[(String, (String,Char), Map[String, String])], annotator:Annotator, labelNames:Map[String,String]):Annotator =
-  {
+  def annotateRec(annotations:List[(String, (String,Char), Map[String, String])], annotator:Annotator, labelNames:Map[String,String]):Annotator = {
     if(annotations.size==1)
       getAnnotations(annotations.head, annotator, labelNames)
     else

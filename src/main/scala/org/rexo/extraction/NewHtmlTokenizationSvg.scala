@@ -279,6 +279,7 @@ class NewHtmlTokenizationSvg extends TokenSequence with Tokenization {
           _constructionInfo._docText.append(lineText)
           _constructionInfo.textofs += lineText.length
           val paginationToken: StringSpan = new StringSpan(_constructionInfo._docText, lineStartOfs, _constructionInfo.textofs)
+          println("setting isHeaderFooterLine")
           paginationToken.setNumericProperty("isHeaderFooterLine", 1.0)
           val tboxI: Iterator[_] = tboxList.iterator
           var locUrx: Double = -1

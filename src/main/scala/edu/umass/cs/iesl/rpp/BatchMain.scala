@@ -49,7 +49,7 @@ object BatchMain extends HyperparameterMain {
     val startTime = System.currentTimeMillis()
     def deltaSecs(startTime: Long) = (System.currentTimeMillis() - startTime) / 1000.0
 
-    Threading.parForeach(inputFilenames.zip(outputFilenames), opts.numCores.value){ case (inputFile, outputFile) =>
+    def processFile(inputFile: String, outputFile: String) = {
       val docStartTime = System.currentTimeMillis()
       println(s"* processing\t$inputFile")
       val anno = opts.mode.value match {
@@ -67,6 +67,12 @@ object BatchMain extends HyperparameterMain {
       pw.close()
       println(s"** done\t$inputFile\t${deltaSecs(docStartTime)} seconds")
     }
+
+    if(opts.numCores.value > 1)
+    Threading.parForeach(inputFilenames.zip(outputFilenames), opts.numCores.value){ case (inputFile, outputFile) =>
+      processFile(inputFile, outputFile)
+    }
+    else inputFilenames.zip(outputFilenames).foreach{case (inputFile, outputFile) => processFile(inputFile, outputFile)}
 
 //    inputFilenames.zip(outputFilenames).foreach { case (inputFile, outputFile) =>
 //

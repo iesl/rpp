@@ -71,7 +71,7 @@ object Main {
   def coarseOutputStrForAnnotator(annotator: Annotator, inFilePath: String): String = {
     val outputSB = new StringBuilder()
     outputSB.append("#Header\n")
-    getHeaderLines(annotator).foreach(outputSB.append)
+    getHeaderLines(annotator).foreach(hline => outputSB.append(hline + " "))
     val references: Seq[String] = getReferences(annotator)
     outputSB.append(s"\n#References")
     references.foreach(s => outputSB.append("\n" + s))
