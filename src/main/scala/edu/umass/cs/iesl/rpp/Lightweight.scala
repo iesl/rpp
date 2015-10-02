@@ -8,8 +8,7 @@ import edu.umass.cs.rexo.ghuang.segmentation.LineInfo
 import edu.umass.cs.rexo.ghuang.segmentation.svg.LayoutSegmentFinderSvg
 import edu.umass.cs.rexo.ghuang.segmentation.utils.LayoutUtils
 import org.jdom2.input.SAXBuilder
-import org.rexo.extra.extract.StringSpan
-import org.rexo.extra.types.{PropertyHolder, Token}
+import org.rexo.extra.types.{Token}
 import org.rexo.extraction.NewHtmlTokenizationSvg
 import org.rexo.span.CompositeSpan
 import org.rexo.util.EnglishDictionary
@@ -51,7 +50,7 @@ object Lightweight extends App {
     // todo fix this slow and dumb
     printWriter.println("#Header")
     lineInfos.foreach{lineInfo => if(lineInfo.label == "header" || lineInfo.label == "abstract") printWriter.println(lineInfo.text)}
-    printWriter.println("#Bibliography")
+    printWriter.println("#References")
     lineInfos.foreach{lineInfo => if(lineInfo.label.startsWith("biblio")) printWriter.println(lineInfo.text)}
     println(s"Done ${outputFilename} (${(System.currentTimeMillis()-docStartTime)/1000.0} seconds)")
     printWriter.close()
@@ -235,7 +234,6 @@ object Lightweight extends App {
 
       /* This is just sorting each entry */
       val colsPerPage = collection.mutable.Map[Int, collection.mutable.Map[Int, collection.mutable.MutableList[LayoutUtils.ColumnData]]]()
-      println("columns: " + columnsData.keySet.mkString(", "))
 
       columnsData.keySet.foreach { key =>
         columnsData(key) = columnsData(key).sortWith(_.getQty > _.getQty)
