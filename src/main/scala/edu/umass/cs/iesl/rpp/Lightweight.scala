@@ -49,7 +49,7 @@ object Lightweight extends App {
 //    lineInfos.foreach{lineInfo => println(lineInfo.label + ": " + lineInfo.text)}
     // todo fix this slow and dumb
     printWriter.println("#Header")
-    lineInfos.foreach{lineInfo => if(lineInfo.label == "header" || lineInfo.startsWith("abstract")) printWriter.println(lineInfo.text)}
+    lineInfos.foreach{lineInfo => if(lineInfo.label == "header" || lineInfo.label.startsWith("abstract")) printWriter.println(lineInfo.text)}
     printWriter.println("#References")
     lineInfos.foreach{lineInfo => if(lineInfo.label.startsWith("biblio")) printWriter.println(lineInfo.text)}
     println(s"Done ${outputFilename} (${(System.currentTimeMillis()-docStartTime)/1000.0} seconds)")
