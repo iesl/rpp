@@ -3,7 +3,7 @@
 root=$1
 lexicons=$2
 citeCRF="file://$root/citationCRF.factorie"
-headerCRF="$root/headerCRF.factorie"
+headerCRF="file://$root/headerCRF.factorie"
 inputDir=$3
 outputDir=$4
 
