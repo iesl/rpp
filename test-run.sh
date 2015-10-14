@@ -1,6 +1,6 @@
 #!/bin/bash
 
-root="/home/kate/AI2/rpp"
+root="/path/to/RPP"
 lexicons="$root/src/main/resources/lexicons"
 input="$root/input"
 output="$root/output"
