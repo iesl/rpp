@@ -6,7 +6,9 @@ import scala.collection.immutable.IntMap
 
 import edu.umass.cs.iesl.xml_annotator.Annotator
 
-import edu.umass.cs.iesl.bibie._
+import edu.umass.cs.iesl.bibie.model.{DefaultCitationTagger, CitationLabel}
+import edu.umass.cs.iesl.bibie.segment.OverSegmenter
+
 import cc.factorie.app.nlp.Document
 import cc.factorie.app.nlp.segment.DeterministicTokenizer
 import cc.factorie.app.nlp.Sentence
@@ -74,15 +76,15 @@ object ReferencePartProcessor {
   val refAddressString = "ref-address"
   val refAddressChar = 'r'
 
-  def apply(trainer: CitationCRFTrainer): ReferencePartProcessor = {
-    new ReferencePartProcessor(trainer)
+  def apply(citationTagger: DefaultCitationTagger): ReferencePartProcessor = {
+    new ReferencePartProcessor(citationTagger)
   }
 
 
 }
 
 
-class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
+class ReferencePartProcessor(citationTagger: DefaultCitationTagger) extends Processor {
   import Annotator._
   import ReferencePartProcessor._
 
@@ -158,8 +160,10 @@ class ReferencePartProcessor(trainer: CitationCRFTrainer) extends Processor {
           DPT(doc, breakMap, index2TokenLabelMap)
         }
       }
-      
-      TestCitationModel.process(dpts.map(_.doc).filter(_.tokens.size > 1), trainer, false)
+
+      val docs = dpts.map(_.doc).filter(_.tokens.size > 1)
+      OverSegmenter.overSegment(docs, citationTagger.lexicons.urlPrefix)
+      docs.foreach(citationTagger.process)
 
       dpts
       

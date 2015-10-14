@@ -6,7 +6,7 @@ import cc.factorie.util._
 import edu.umass.cs.iesl.xml_annotator.Annotator
 import edu.umass.cs.iesl.xml_annotator.Annotator._
 import edu.umass.cs.iesl.paperheader.tagger._
-import edu.umass.cs.iesl.bibie.TestCitationModel
+import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
 
 import scala.io.StdIn
 import scala.collection.mutable
@@ -65,7 +65,7 @@ object Cli {
           val ht = new HeaderTagger(new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
-          val ct = TestCitationModel.loadModel(citeModel, lexiconPrefix)
+          val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
           val ann = List(
             LineProcessor,
             StructureProcessor,
@@ -84,7 +84,7 @@ object Cli {
           val ht = new HeaderTagger(new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
-          val ct = TestCitationModel.loadModel(citeModel, lexiconPrefix)
+          val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
           val ann = List(
             LineProcessor,
             StructureProcessor,
@@ -119,7 +119,7 @@ object Cli {
     val ht = new HeaderTagger(new java.net.URL(opts.htModel.value))
     val lexiconPrefix = getClass.getResource("/lexicons").toString
     val citeModel = opts.citeModel.value
-    val ct = TestCitationModel.loadModel(citeModel, lexiconPrefix)
+    val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
     anns ++= docs.map { dom =>
       val ann = List(
         LineProcessor,

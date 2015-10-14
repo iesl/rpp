@@ -2,7 +2,7 @@ package edu.umass.cs.iesl.rpp
 
 import java.io.File
 
-import edu.umass.cs.iesl.bibie._
+import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
 import edu.umass.cs.iesl.paperheader.tagger.HeaderTagger
 import edu.umass.cs.iesl.xml_annotator.Annotator
 import edu.umass.cs.iesl.xml_annotator.Annotator._
@@ -16,17 +16,19 @@ object Main {
     val inFilePath = args(2)
     val outFilePath = args(3)
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
-    val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
+
+    val citationModelURL = new java.net.URL(referenceModelUri)
+    val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
 
     val headerTagger = new HeaderTagger
     headerTagger.deserialize(new java.io.FileInputStream(headerTaggerModelFile))
 
-    val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
+    val annotator = process(citationTagger, headerTagger, inFilePath).write(outFilePath)
     printExampleQueriesFromMain(annotator)
   }
 
 
-  def process(trainer: CitationCRFTrainer, headerTagger: HeaderTagger, inFilePath: String): Annotator = {
+  def process(citationTagger: DefaultCitationTagger, headerTagger: HeaderTagger, inFilePath: String): Annotator = {
     val builder = new SAXBuilder()
     val dom = builder.build(new File(inFilePath))
 
@@ -34,7 +36,7 @@ object Main {
       LineProcessor,
       StructureProcessor,
       HeaderPartProcessor(headerTagger),
-      ReferencePartProcessor(trainer),
+      ReferencePartProcessor(citationTagger),
       CitationProcessor,
       CitationReferenceLinkProcessor
     )

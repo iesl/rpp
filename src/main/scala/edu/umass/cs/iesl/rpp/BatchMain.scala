@@ -2,7 +2,7 @@ package edu.umass.cs.iesl.rpp
 
 import java.util.concurrent._
 
-import edu.umass.cs.iesl.bibie.TestCitationModel
+import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
 import edu.umass.cs.iesl.paperheader.tagger._
 import edu.umass.cs.iesl.xml_annotator._
 import cc.factorie.util._
@@ -33,8 +33,8 @@ object BatchMain extends HyperparameterMain {
     val headerTaggerModelFile = opts.headerTaggerModelFile.value
 
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
-    val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
-
+    val citationModelURL = new URL(referenceModelUri)
+    val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
     val headerTagger = new HeaderTagger(new URL(headerTaggerModelFile))
 
     val inputFilenames =
@@ -62,7 +62,7 @@ object BatchMain extends HyperparameterMain {
         val executor: ExecutorService = Executors.newSingleThreadExecutor()
         val processFuture: Future[Annotator] = executor.submit(new Callable[Annotator]() {
           override def call(): Annotator = {
-            Main.process(trainer, headerTagger, inputFile)
+            Main.process(citationTagger, headerTagger, inputFile)
           }
         })
         try {
