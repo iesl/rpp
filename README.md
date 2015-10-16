@@ -1,7 +1,7 @@
 # RPP #
 Research Paper Processor
 
-This branch of RPP outputs paragraph markers. Currently under developement.
+This branch of RPP outputs paragraph markers. Currently under development.
 
 ## Setup Prerequisites ##
 
