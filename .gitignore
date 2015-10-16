@@ -19,3 +19,6 @@ lib_managed
 
 #crf model
 *.factorie
+
+#DS_Store
+.DS_Store

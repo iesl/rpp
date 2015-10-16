@@ -1,46 +1,53 @@
-RPP
-===
-
+# RPP #
 Research Paper Processor
+This branch of RPP outputs paragraph markers. Currently under developement.
 
-Build and run Main from command line
-------------------------------------
-```bash
-  run.sh file:///lexicons/uri file:///reference/crf/model/uri header/crf/model/path \
-    input/pdf/file/path output/svg/file/path
+## Setup Prerequisites ##
+
+### Bibie ###
+
+Clone and install the project bibie:
+
+```
+git clone https://github.com/iesl/bibie
+cd bibie
+mvn install
 ```
 
-Manage with SBT
-----------------
-```scala
-  libraryDependencies += "edu.umass.cs.iesl.rpp" % "rpp" % "0.1-SNAPSHOT"
+### Paper Header ###
+
+Clone and install the project paper_header:
+
+```
+git clone https://github.com/iesl/paper-header
+cd paper-header
+mvn install
 ```
 
-Use from Scala 
---------------
-```scala
-  import org.jdom2.input.SAXBuilder
-  val builder = new SAXBuilder()
-  val dom = builder.build(new File(/*input pdf path*/)) 
 
-  val l = List(
-      LineProcessor, 
-      StructureProcessor, 
-      ReferencePartProcessor("file:///your/reference/crf/model/uri"), 
-      CitationProcessor, 
-      CitationReferenceLinkProcessor, 
-      HeaderPartProcessor("your/header/crf/model") /* 
-      * Depends on FACTORIE's lexicon files.
-      * The files can be loaded from cli when you run your java/scala program: 
-      * java -Dcc.factorie.app.nlp.lexicon.Lexicon="file:///your/lexicons/uri"
-      * or
-      * sbt -Dcc.factorie.app.nlp.lexicon.Lexicon="file:///your/lexicons/uri"
-      */
-  )
+## Clone \& Build ##
 
-  val annotator = l.foldLeft(Annotator(dom)) {
-    case (annoAcc, pro) => pro.process(annoAcc)
-  } 
+```
+git clone https://github.com/iesl/rpp
 ```
 
-See Main.scala for more details
+We need to build the project and jar the classes with the dependencies
+
+```
+mvn clean package -Pjar-with-dependencies
+```
+
+## Running the project ##
+
+Unzip the models in the rpp repo:
+
+```
+tar -xvf models.tgz
+```
+
+Obtain the lexicon files (if necessarily). You can email me if you do not have these files.
+
+See [this script](../../scripts/rpp/batchrun.sh) for an example of running RPP.
+
+
+
