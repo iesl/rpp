@@ -1,5 +1,6 @@
 # RPP #
 Research Paper Processor
+
 This branch of RPP outputs paragraph markers. Currently under developement.
 
 ## Setup Prerequisites ##
@@ -47,7 +48,7 @@ tar -xvf models.tgz
 
 Obtain the lexicon files (if necessarily). You can email me if you do not have these files.
 
-See [this script](../../scripts/rpp/batchrun.sh) for an example of running RPP.
+See [this script](/batchrun.sh) for an example of running RPP.
 
 
 
