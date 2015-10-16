@@ -161,25 +161,6 @@ object MakeXML {
       val pElement = new Element(PARA_TAG)
       annos.foreach(t => pElement.addContent(t.trim))
       parasElement.addContent(pElement)
-
-//      val authorsElement = new Element(AUTHORS_TAG)
-//      val authorBIndexSet = annotator.getBIndexSetWithinRange(headerAuthor)(headerRange)
-//      authorBIndexSet.foreach(ai => {
-//        val personElement = new Element(PERSON_TAG)
-//        val tokens = annotator.getRange(headerAuthor)(ai).toList.flatMap(authorRange => {
-//          val tokenBIndexSet = annotator.getFilteredBIndexSetWithinRange(headerAuthor, headerToken)(authorRange)
-//          tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak))
-//        })
-//        val name = tokens.mkString(" ")
-//        val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
-//        if (partsOption.isDefined) {
-//          val parts = partsOption.get
-//          personElement.addContent(new Element(PERSON_FIRST_TAG).addContent(parts.givenNames.mkString(" ")))
-//          personElement.addContent(new Element(PERSON_LAST_TAG).addContent(parts.surNames.mkString(" ")))
-//          authorsElement.addContent(personElement)
-//        }
-//      })
-//      paraElement.addContent(authorsElement)
     })
     parasElement
   }

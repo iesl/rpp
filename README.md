@@ -50,5 +50,5 @@ Obtain the lexicon files. You can email me if you do not have these files.
 
 See [this script](/batchrun.sh) for an example of running RPP.
 
-
+Note the input to RPP are svg files which can be obtained from the PDF using [iesl-pdf-to-text](https://github.com/iesl/iesl-pdf-to-text)
 
