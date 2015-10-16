@@ -22,7 +22,8 @@ object MakeXML {
   final val REFERENCES_TAG = "references"
   final val DATE_TAG = "date"
   final val VENUE_TAG = "venue"
-
+  final val PARAGRAPHS_TAG = "paragraphs"
+  final val PARA_TAG = "p"
   /**
    * Convert the annotator's markup to an XML string
    * @param annotator
@@ -31,6 +32,7 @@ object MakeXML {
   def mkXML(annotator: Annotator): String = {
     val docElement = new Element(DOCUMENT_TAG)
     docElement.addContent(mkHeaderXML(annotator))
+    docElement.addContent(mkParagraphXML(annotator))
     docElement.addContent(mkReferenceXML(annotator))
     val doc = new JDOMDocument(docElement)
     val xmlOutput = new XMLOutputter()
@@ -142,6 +144,44 @@ object MakeXML {
       })
     })
     referencesElement
+  }
+
+
+  /**
+   * Convert the paragraph information into XML
+   * @param annotator
+   * @return
+   */
+  def mkParagraphXML(implicit annotator: Annotator): Element = {
+    val parasElement = new Element(PARAGRAPHS_TAG)
+    val annoType = "paragraph"
+    annotator.getRangeSet(annoType).foreach(paraRange => {
+      val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(paraRange)
+      val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak)).take(1)
+      val pElement = new Element(PARA_TAG)
+      annos.foreach(t => pElement.addContent(t.trim))
+      parasElement.addContent(pElement)
+
+//      val authorsElement = new Element(AUTHORS_TAG)
+//      val authorBIndexSet = annotator.getBIndexSetWithinRange(headerAuthor)(headerRange)
+//      authorBIndexSet.foreach(ai => {
+//        val personElement = new Element(PERSON_TAG)
+//        val tokens = annotator.getRange(headerAuthor)(ai).toList.flatMap(authorRange => {
+//          val tokenBIndexSet = annotator.getFilteredBIndexSetWithinRange(headerAuthor, headerToken)(authorRange)
+//          tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak))
+//        })
+//        val name = tokens.mkString(" ")
+//        val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
+//        if (partsOption.isDefined) {
+//          val parts = partsOption.get
+//          personElement.addContent(new Element(PERSON_FIRST_TAG).addContent(parts.givenNames.mkString(" ")))
+//          personElement.addContent(new Element(PERSON_LAST_TAG).addContent(parts.surNames.mkString(" ")))
+//          authorsElement.addContent(personElement)
+//        }
+//      })
+//      paraElement.addContent(authorsElement)
+    })
+    parasElement
   }
   
   
