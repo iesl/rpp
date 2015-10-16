@@ -46,7 +46,7 @@ Unzip the models in the rpp repo:
 tar -xvf models.tgz
 ```
 
-Obtain the lexicon files (if necessarily). You can email me if you do not have these files.
+Obtain the lexicon files. You can email me if you do not have these files.
 
 See [this script](/batchrun.sh) for an example of running RPP.
 
