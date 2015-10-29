@@ -2,6 +2,7 @@ package edu.umass.cs.iesl.rpp
 
 import java.io.File
 
+import cc.factorie.app.nlp.lexicon.{LexiconsProvider, StaticLexicons}
 import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
 import edu.umass.cs.iesl.paperheader.tagger.HeaderTagger
 import edu.umass.cs.iesl.xml_annotator.Annotator
@@ -20,8 +21,8 @@ object Main {
     val citationModelURL = new java.net.URL(referenceModelUri)
     val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
 
-    val headerTagger = new HeaderTagger
-    headerTagger.deserialize(new java.io.FileInputStream(headerTaggerModelFile))
+    val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
+    val headerTagger = new HeaderTagger(lexicon, headerTaggerModelFile)
 
     val annotator = process(citationTagger, headerTagger, inFilePath).write(outFilePath)
     printExampleQueriesFromMain(annotator)

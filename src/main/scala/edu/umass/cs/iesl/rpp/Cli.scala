@@ -1,6 +1,8 @@
 package edu.umass.cs.iesl.rpp
 
 //import cc.factorie.app.nlp._
+
+import cc.factorie.app.nlp.lexicon.{LexiconsProvider, StaticLexicons}
 import cc.factorie.util._
 
 import edu.umass.cs.iesl.xml_annotator.Annotator
@@ -62,7 +64,8 @@ object Cli {
           printAnnots(ann)
         case "all" =>
           val dom = docs(idx)
-          val ht = new HeaderTagger(new java.net.URL(opts.htModel.value))
+          val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
+          val ht = new HeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
           val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
@@ -81,7 +84,8 @@ object Cli {
           }
         case "cite" =>
           val dom = docs(idx)
-          val ht = new HeaderTagger(new java.net.URL(opts.htModel.value))
+          val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
+          val ht = new HeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
           val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
@@ -116,7 +120,8 @@ object Cli {
   }
 
   def processDocs(): Unit = {
-    val ht = new HeaderTagger(new java.net.URL(opts.htModel.value))
+    val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
+    val ht = new HeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
     val lexiconPrefix = getClass.getResource("/lexicons").toString
     val citeModel = opts.citeModel.value
     val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)

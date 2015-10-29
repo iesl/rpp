@@ -3,7 +3,7 @@ package edu.umass.cs.iesl.rpp
 import java.util.concurrent._
 
 import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
-import edu.umass.cs.iesl.paperheader.tagger._
+import edu.umass.cs.iesl.paperheader.load.LoadModel
 import edu.umass.cs.iesl.xml_annotator._
 import cc.factorie.util._
 import java.io.{FilenameFilter, File, PrintWriter}
@@ -35,7 +35,8 @@ object BatchMain extends HyperparameterMain {
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
     val citationModelURL = new URL(referenceModelUri)
     val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
-    val headerTagger = new HeaderTagger(new URL(headerTaggerModelFile))
+
+    val headerTagger = LoadModel.fromFilename(headerTaggerModelFile)
 
     val inputFilenames =
       if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles(new FilenameFilter() {
