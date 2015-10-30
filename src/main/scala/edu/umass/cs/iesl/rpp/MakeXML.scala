@@ -63,6 +63,14 @@ object MakeXML {
           tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak))
         })
         val name = tokens.mkString(" ")
+
+          /** 10/30/15 TB:
+            * Problems with namejuggler.PersonNameParser.parseFullNameSafe
+            * Commented out code to tag first and last name, just output the name as it is
+            */
+        personElement.addContent(name)
+        authorsElement.addContent(personElement)
+        /*
         val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
         if (partsOption.isDefined) {
           val parts = partsOption.get
@@ -70,6 +78,7 @@ object MakeXML {
           personElement.addContent(new Element(PERSON_LAST_TAG).addContent(parts.surNames.mkString(" ")))
           authorsElement.addContent(personElement)
         }
+        */
       })
       headerElement.addContent(authorsElement)
     })
