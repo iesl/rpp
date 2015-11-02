@@ -4,7 +4,7 @@ name := "rpp"
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.7"
 
 resolvers ++= Seq(
   //"Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
@@ -15,7 +15,7 @@ resolvers ++= Seq(
 resolvers += Resolver.mavenLocal
 
 libraryDependencies ++= Seq(
-  "org.jdom" % "jdom2" % "2.0.5",
+  "org.jdom" % "jdom2" % "2.0.6",
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "cc.factorie" % "factorie_2.11" % "1.2-SNAPSHOT",
@@ -23,7 +23,7 @@ libraryDependencies ++= Seq(
   "jaxen" % "jaxen" % "1.1.6",
   "edu.umass.cs.iesl.xml_annotator" % "xml_annotator" % "0.1-SNAPSHOT",
   "edu.umass.cs.iesl.paper_header" % "paper_header" % "0.1-SNAPSHOT",
-  "edu.umass.cs.iesl.bibie" % "bibie" % "0.1-SNAPSHOT"
+  "edu.umass.cs.iesl.bibie" % "bibie" % "1.0-SNAPSHOT"
 )
 
 parallelExecution := true
