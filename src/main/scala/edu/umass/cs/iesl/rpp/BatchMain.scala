@@ -82,10 +82,16 @@ object BatchMain extends HyperparameterMain {
 
         // for debugging coarse segmentation, use this line instead of xml one to print basic information:
 //        val outputStr = Main.coarseOutputStrForAnnotator(annotator, inputFile)
-        val outputStr = MakeXML.mkXML(annotator) // previously mkXML(annotator)
-
-        pw.write(outputStr)
-        pw.close()
+        try {
+          val outputStr = MakeXML.mkXML(annotator) // previously mkXML(annotator)
+          pw.write(outputStr)
+          pw.close()
+        } catch {
+          case e: Exception =>
+            println(s"error writing XML for file $inputFile , skipping")
+            println(e)
+        }
+        
         println(s"** done\t$inputFile\t${deltaSecs()}")
       } catch {
         case e: Exception =>

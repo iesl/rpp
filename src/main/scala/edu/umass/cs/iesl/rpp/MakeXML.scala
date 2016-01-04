@@ -60,7 +60,7 @@ object MakeXML {
           val tokenBIndexSet = annotator.getFilteredBIndexSetWithinRange(headerAuthor, headerToken)(authorRange)
           tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak))
         })
-        val name = tokens.mkString(" ")
+        val name: String = tokens.mkString(" ")
         val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
         if (partsOption.isDefined) {
           val parts = partsOption.get
