@@ -4,6 +4,7 @@ import java.util.concurrent._
 
 import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
 import edu.umass.cs.iesl.paperheader.load.LoadModel
+import edu.umass.cs.iesl.paperheader.tagger.TokenFeatures
 import edu.umass.cs.iesl.xml_annotator._
 import cc.factorie.util._
 import java.io.{FilenameFilter, File, PrintWriter}
@@ -18,6 +19,7 @@ class BatchOpts extends DefaultCmdOptions {
   val inputDir = new CmdOption("input-dir", "", "STRING", "path to dir of input files")
   val logFile = new CmdOption("log-file", "", "STRING", "write logging info to this file")
   val dataFilesFile = new CmdOption("data-files-file", "", "STRING", "file containing a list of paths to data files, one per line")
+  val brownClusters = new CmdOption[String]("brown-clusters", "", "STRING", "file containg Brown clusters for header tagger")
 }
 
 
@@ -37,6 +39,14 @@ object BatchMain extends HyperparameterMain {
     val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
 
     val headerTagger = LoadModel.fromFilename(headerTaggerModelFile)
+    if (opts.brownClusters.wasInvoked) {
+      println(s"Reading brown cluster file: ${opts.brownClusters.value}")
+      for (line <- scala.io.Source.fromFile(opts.brownClusters.value).getLines()) {
+        val splitLine = line.split("\t")
+        TokenFeatures.clusters(splitLine(1)) = splitLine(0)
+      }
+      println(s"Loaded ${TokenFeatures.clusters.size} clusters for Header Tagger")
+    }
 
     val inputFilenames =
       if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles(new FilenameFilter() {
@@ -91,7 +101,7 @@ object BatchMain extends HyperparameterMain {
             println(s"error writing XML for file $inputFile , skipping")
             println(e)
         }
-        
+
         println(s"** done\t$inputFile\t${deltaSecs()}")
       } catch {
         case e: Exception =>
