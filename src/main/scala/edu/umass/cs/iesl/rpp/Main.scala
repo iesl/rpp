@@ -4,6 +4,7 @@ import java.io.File
 
 import edu.umass.cs.iesl.bibie._
 import edu.umass.cs.iesl.paperheader.tagger.HeaderTagger
+import cc.factorie.app.nlp.lexicon.{LexiconsProvider, StaticLexicons}
 import edu.umass.cs.iesl.xml_annotator.Annotator
 import edu.umass.cs.iesl.xml_annotator.Annotator._
 import org.jdom2.input.SAXBuilder
