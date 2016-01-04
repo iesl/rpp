@@ -18,8 +18,8 @@ object Main {
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
 
-    val headerTagger = new HeaderTagger
-    headerTagger.deSerialize(new java.io.FileInputStream(headerTaggerModelFile))
+    val headerLexicon = new StaticLexicons()(LexiconsProvider.classpath())
+    val headerTagger = new HeaderTagger(headerLexicon, headerTaggerModelFile)
 
     val annotator = process(trainer, headerTagger, inFilePath).write(outFilePath)
     printExampleQueriesFromMain(annotator)
