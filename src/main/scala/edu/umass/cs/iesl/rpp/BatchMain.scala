@@ -2,6 +2,7 @@ package edu.umass.cs.iesl.rpp
 
 import java.util.concurrent._
 
+import cc.factorie.app.nlp.lexicon.{LexiconsProvider, StaticLexicons}
 import edu.umass.cs.iesl.bibie.TestCitationModel
 import edu.umass.cs.iesl.paperheader.tagger._
 import edu.umass.cs.iesl.xml_annotator._
@@ -35,7 +36,8 @@ object BatchMain extends HyperparameterMain {
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
     val trainer = TestCitationModel.loadModel(referenceModelUri, lexiconUrlPrefix)
 
-    val headerTagger = new HeaderTagger(headerTaggerModelFile)
+    val headerLexicon = new StaticLexicons()(LexiconsProvider.classpath())
+    val headerTagger = new HeaderTagger(headerLexicon, headerTaggerModelFile)
 
     val inputFilenames =
       if (opts.inputDir.wasInvoked) new File(opts.inputDir.value).listFiles(new FilenameFilter() {
