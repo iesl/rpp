@@ -61,13 +61,21 @@ object MakeXML {
           tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak))
         })
         val name: String = tokens.mkString(" ")
-        val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
-        if (partsOption.isDefined) {
-          val parts = partsOption.get
-          personElement.addContent(new Element(PERSON_FIRST_TAG).addContent(parts.givenNames.mkString(" ")))
-          personElement.addContent(new Element(PERSON_LAST_TAG).addContent(parts.surNames.mkString(" ")))
-          authorsElement.addContent(personElement)
+        try {
+          val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
+          if (partsOption.isDefined) {
+            val parts = partsOption.get
+            personElement.addContent(new Element(PERSON_FIRST_TAG).addContent(parts.givenNames.mkString(" ")))
+            personElement.addContent(new Element(PERSON_LAST_TAG).addContent(parts.surNames.mkString(" ")))
+            authorsElement.addContent(personElement)
+          }
+        } catch {
+          case e: Exception =>
+            println("mkHeaderXML: problem with namejugger?")
+            println(e)
         }
+
+
       })
       headerElement.addContent(authorsElement)
     })
