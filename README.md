@@ -1,46 +1,66 @@
-RPP
-===
-
+# RPP #
 Research Paper Processor
 
-Build and run Main from command line
-------------------------------------
-```bash
-  run.sh file:///lexicons/uri file:///reference/crf/model/uri header/crf/model/path \
-    input/pdf/file/path output/svg/file/path
+This branch of RPP outputs paragraph markers. Currently under development.
+
+## Setup Prerequisites ##
+
+### XML Annotator ###
+Clone and install the project xml-annotator:
+
+```
+git clone https://github.com/iesl/xml-annotator
+cd xml-annotator
+mvn clean install
 ```
 
-Manage with SBT
-----------------
-```scala
-  libraryDependencies += "edu.umass.cs.iesl.rpp" % "rpp" % "0.1-SNAPSHOT"
+### Bibie ###
+
+Clone and install the project bibie:
+
+```
+git clone https://github.com/iesl/bibie
+cd bibie
+mvn clean install
 ```
 
-Use from Scala 
---------------
-```scala
-  import org.jdom2.input.SAXBuilder
-  val builder = new SAXBuilder()
-  val dom = builder.build(new File(/*input pdf path*/)) 
+### Paper Header ###
 
-  val l = List(
-      LineProcessor, 
-      StructureProcessor, 
-      ReferencePartProcessor("file:///your/reference/crf/model/uri"), 
-      CitationProcessor, 
-      CitationReferenceLinkProcessor, 
-      HeaderPartProcessor("your/header/crf/model") /* 
-      * Depends on FACTORIE's lexicon files.
-      * The files can be loaded from cli when you run your java/scala program: 
-      * java -Dcc.factorie.app.nlp.lexicon.Lexicon="file:///your/lexicons/uri"
-      * or
-      * sbt -Dcc.factorie.app.nlp.lexicon.Lexicon="file:///your/lexicons/uri"
-      */
-  )
+Clone and install the project paper_header:
 
-  val annotator = l.foldLeft(Annotator(dom)) {
-    case (annoAcc, pro) => pro.process(annoAcc)
-  } 
+```
+git clone https://github.com/iesl/paper-header
+cd paper-header
+mvn clean install
 ```
 
-See Main.scala for more details
+
+## Clone \& Build ##
+
+```
+git clone https://github.com/iesl/rpp
+```
+
+We need to build the project and jar the classes with the dependencies
+
+```
+mvn clean package -Pjar-with-dependencies
+```
+
+## Running the project ##
+
+Unzip the models in the rpp repo:
+
+```
+tar -xvf models.tgz
+```
+
+Obtain the lexicon files. You can email me if you do not have these files.
+
+See [this script](/batchrun.sh) for an example of running RPP. The syntax is:
+```
+./batchrun.sh /path/to/rpp/ /path/to/factorie/target/factorie_2.11-1.2-SNAPSHOT-nlp-jar-with-dependencies.jar /path/to/input_dir/ /path/to/output_dir/
+```
+
+Note the input to RPP are svg files which can be obtained from the PDF using [iesl-pdf-to-text](https://github.com/iesl/iesl-pdf-to-text)
+

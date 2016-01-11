@@ -7,8 +7,8 @@ import org.jdom2.output.{Format, XMLOutputter}
 import org.jdom2.{Document => JDOMDocument, Element}
 
 /**
- * Methods for serializing RPP output to XML. 
- * Based on previous implementation in BatchMain.mkXML 
+ * Methods for serializing RPP output to XML.
+ * Based on previous implementation in BatchMain.mkXML
  */
 object MakeXML {
 
@@ -22,7 +22,8 @@ object MakeXML {
   final val REFERENCES_TAG = "references"
   final val DATE_TAG = "date"
   final val VENUE_TAG = "venue"
-
+  final val PARAGRAPHS_TAG = "paragraphs"
+  final val PARA_TAG = "p"
   /**
    * Convert the annotator's markup to an XML string
    * @param annotator
@@ -31,6 +32,7 @@ object MakeXML {
   def mkXML(annotator: Annotator): String = {
     val docElement = new Element(DOCUMENT_TAG)
     docElement.addContent(mkHeaderXML(annotator))
+    docElement.addContent(mkParagraphXML(annotator))
     docElement.addContent(mkReferenceXML(annotator))
     val doc = new JDOMDocument(docElement)
     val xmlOutput = new XMLOutputter()
@@ -60,7 +62,15 @@ object MakeXML {
           val tokenBIndexSet = annotator.getFilteredBIndexSetWithinRange(headerAuthor, headerToken)(authorRange)
           tokenBIndexSet.toList.flatMap(tokenIndex => annotator.getTextOption(headerToken)(tokenIndex).map(lineBreak))
         })
+
         val name: String = tokens.mkString(" ")
+
+          /** 10/30/15 TB:
+            * Problems with namejuggler.PersonNameParser.parseFullNameSafe
+            * Commented out code to tag first and last name, just output the name as it is
+            */
+        personElement.addContent(name)
+        authorsElement.addContent(personElement)
         val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
         if (partsOption.isDefined) {
           val parts = partsOption.get
@@ -68,6 +78,7 @@ object MakeXML {
           personElement.addContent(new Element(PERSON_LAST_TAG).addContent(parts.surNames.mkString(" ")))
           authorsElement.addContent(personElement)
         }
+        */
       })
       headerElement.addContent(authorsElement)
     })
@@ -143,15 +154,34 @@ object MakeXML {
     })
     referencesElement
   }
-  
-  
+
+
+  /**
+   * Convert the paragraph information into XML
+   * @param annotator
+   * @return
+   */
+  def mkParagraphXML(implicit annotator: Annotator): Element = {
+    val parasElement = new Element(PARAGRAPHS_TAG)
+    val annoType = "paragraph"
+    annotator.getRangeSet(annoType).foreach(paraRange => {
+      val bIndexSet = annotator.getBIndexSetWithinRange(annoType)(paraRange)
+      val annos = bIndexSet.flatMap(i => annotator.getTextOption(annoType)(i).map(lineBreak)).take(1)
+      val pElement = new Element(PARA_TAG)
+      annos.foreach(t => pElement.addContent(t.trim))
+      parasElement.addContent(pElement)
+    })
+    parasElement
+  }
+
+
   private  def lineBreak(pair: (Int, String))(implicit annotator: Annotator) = {
     val (offset, text) = pair
     val lineBIndexSet = annotator.getBIndexSetByAnnotationType("line")
     Annotator.mkTextWithBreaks(text, lineBIndexSet.map(_ - offset), ' ')
   }
   private def normalTagHeader(s: String): String = if (s == "abstract") s else s.split("-").last
-  
+
   private def normalTagReference(s: String): String = {
     val annoMap = Map(
       "ref-first" -> "person-first",
