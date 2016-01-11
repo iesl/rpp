@@ -71,6 +71,8 @@ object MakeXML {
             */
         personElement.addContent(name)
         authorsElement.addContent(personElement)
+
+        /*
         val partsOption = cc.factorie.util.namejuggler.PersonNameParser.parseFullNameSafe(name)
         if (partsOption.isDefined) {
           val parts = partsOption.get

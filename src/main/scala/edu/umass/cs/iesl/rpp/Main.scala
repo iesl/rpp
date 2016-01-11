@@ -9,23 +9,59 @@ import edu.umass.cs.iesl.xml_annotator.Annotator
 import edu.umass.cs.iesl.xml_annotator.Annotator._
 import org.jdom2.input.SAXBuilder
 
-object Main {
+import cc.factorie.util._
+class CliOpts extends DefaultCmdOptions {
+  val refModel = new CmdOption[String]("reference-model", "", "STRING", "reference (bibie) model *.factorie file")
+  val hdrModel = new CmdOption[String]("header-model", "", "STRING", "header model *.factorie file")
+  val inputFile = new CmdOption[String]("input", "", "STRING", "input filename; 'stdin' for stream-parsing filenames from stdin, 'quit' to terminate")
+  val outputFile = new CmdOption[String]("output", "", "STRING", "output filename; for stream parsing filenames from stdin, specify --output-ext (default '.rpp.out')")
+  val outputExt = new CmdOption[String]("output-ext", ".rpp.out", "STRING", "extension to add to input files for output")
+}
 
+object Main {
   def main(args: Array[String]): Unit = {
-    val referenceModelUri = args(0)
-    val headerTaggerModelFile = args(1)
-    val inFilePath = args(2)
-    val outFilePath = args(3)
+
+    val opts = new CliOpts
+    opts.parse(args)
+
+
+    val referenceModelUri = opts.refModel.value
+    val headerTaggerModelFile = opts.hdrModel.value
+    val inFilePath = opts.inputFile.value
+    val outFileExt = opts.outputExt.value
+
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
 
-    val citationModelURL = new java.net.URL(referenceModelUri)
+    // val citationModelURL = new java.net.URL(referenceModelUri)
+    val refFile = new java.io.File(referenceModelUri)
+    val citationModelURL = refFile.toURL()
+
     val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
 
     val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
+
     val headerTagger = new HeaderTagger(lexicon, headerTaggerModelFile)
 
-    val annotator = process(citationTagger, headerTagger, inFilePath).write(outFilePath)
-    printExampleQueriesFromMain(annotator)
+    if (inFilePath == "stdin") {
+      // batch process
+      var nextline: String = io.StdIn.readLine
+      while (nextline != "quit" && nextline != null) {
+        val outFilePath = nextline+opts.outputExt.value
+        println(s"processing ${nextline} -> ${outFilePath} ")
+        val annotator = process(citationTagger, headerTagger, nextline).write(nextline+".rpp.out")
+        printExampleQueriesFromMain(annotator)
+        nextline = io.StdIn.readLine
+      }
+    } else {
+      val outFilePath = if (opts.outputFile == "") {
+        opts.inputFile.value+opts.outputExt.value
+      } else {
+        opts.outputFile.value
+      }
+      val annotator = process(citationTagger, headerTagger, inFilePath).write(outFilePath)
+      printExampleQueriesFromMain(annotator)
+    }
+
   }
 
 
