@@ -39,6 +39,7 @@ object BatchMain extends HyperparameterMain {
     val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
 
     val headerTagger = LoadModel.fromFilename(headerTaggerModelFile)
+
     if (opts.brownClusters.wasInvoked) {
       println(s"Reading brown cluster file: ${opts.brownClusters.value}")
       for (line <- scala.io.Source.fromFile(opts.brownClusters.value).getLines()) {

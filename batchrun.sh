@@ -2,7 +2,7 @@
 
 root=$1
 facjar=$2
-citeCRF="file://$root/citationCRF.factorie"
+citeCRF="file:$root/citationCRF.factorie"
 headerCRF="$root/headerCRF.factorie"
 inputDir=$3
 outputDir=$4
