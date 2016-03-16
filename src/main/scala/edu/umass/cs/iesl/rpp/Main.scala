@@ -4,7 +4,7 @@ import java.io.File
 
 import cc.factorie.app.nlp.lexicon.{LexiconsProvider, StaticLexicons}
 import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
-import edu.umass.cs.iesl.paperheader.tagger.HeaderTagger
+import edu.umass.cs.iesl.paperheader.model._
 import edu.umass.cs.iesl.xml_annotator.Annotator
 import edu.umass.cs.iesl.xml_annotator.Annotator._
 import org.jdom2.input.SAXBuilder
@@ -40,7 +40,7 @@ object Main {
 
     val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
 
-    val headerTagger = new HeaderTagger(lexicon, headerTaggerModelFile)
+    val headerTagger = new DefaultHeaderTagger(lexicon, headerTaggerModelFile)
 
     if (inFilePath == "stdin") {
       // batch process
@@ -65,7 +65,7 @@ object Main {
   }
 
 
-  def process(citationTagger: DefaultCitationTagger, headerTagger: HeaderTagger, inFilePath: String): Annotator = {
+  def process(citationTagger: DefaultCitationTagger, headerTagger: DefaultHeaderTagger, inFilePath: String): Annotator = {
     val builder = new SAXBuilder()
     val dom = builder.build(new File(inFilePath))
 

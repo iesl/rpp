@@ -2,13 +2,13 @@ package edu.umass.cs.iesl.rpp
 
 import cc.factorie.app.nlp.{Document, Token}
 import cc.factorie.app.nlp.segment.DeterministicTokenizer
-import edu.umass.cs.iesl.paperheader.tagger._
+import edu.umass.cs.iesl.paperheader.model._
 import edu.umass.cs.iesl.xml_annotator.Annotator
 
 import scala.collection.immutable.{HashMap, IntMap, SortedSet}
 
 
-class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
+class HeaderPartProcessor(val headerTagger: DefaultHeaderTagger) extends Processor {
 
   import edu.umass.cs.iesl.rpp.HeaderPartProcessor._
   import edu.umass.cs.iesl.xml_annotator.Annotator._
@@ -212,7 +212,7 @@ class HeaderPartProcessor(val headerTagger: HeaderTagger) extends Processor {
 }
 
 object HeaderPartProcessor {
-  def apply(headerTagger: HeaderTagger): HeaderPartProcessor = new HeaderPartProcessor(headerTagger)
+  def apply(headerTagger: DefaultHeaderTagger): HeaderPartProcessor = new HeaderPartProcessor(headerTagger)
 
   val headerAbstract = "abstract"
   val headerAddress = "header-address"

@@ -7,7 +7,7 @@ import cc.factorie.util._
 
 import edu.umass.cs.iesl.xml_annotator.Annotator
 import edu.umass.cs.iesl.xml_annotator.Annotator._
-import edu.umass.cs.iesl.paperheader.tagger._
+import edu.umass.cs.iesl.paperheader.model._
 import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
 
 import scala.io.StdIn
@@ -65,7 +65,7 @@ object Cli {
         case "all" =>
           val dom = docs(idx)
           val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
-          val ht = new HeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
+          val ht = new DefaultHeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
           val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
@@ -85,7 +85,7 @@ object Cli {
         case "cite" =>
           val dom = docs(idx)
           val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
-          val ht = new HeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
+          val ht = new DefaultHeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
           val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
@@ -121,7 +121,7 @@ object Cli {
 
   def processDocs(): Unit = {
     val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
-    val ht = new HeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
+    val ht = new DefaultHeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
     val lexiconPrefix = getClass.getResource("/lexicons").toString
     val citeModel = opts.citeModel.value
     val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)

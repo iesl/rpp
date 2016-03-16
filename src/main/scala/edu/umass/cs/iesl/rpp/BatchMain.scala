@@ -2,16 +2,17 @@ package edu.umass.cs.iesl.rpp
 
 import java.util.concurrent._
 
+import cc.factorie.app.nlp.lexicon.StaticLexicons
 import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
-import edu.umass.cs.iesl.paperheader.load.LoadModel
-import edu.umass.cs.iesl.paperheader.tagger.TokenFeatures
+import edu.umass.cs.iesl.paperheader.model.DefaultHeaderTagger
+import edu.umass.cs.iesl.paperheader.model.TokenFeatures
 import edu.umass.cs.iesl.xml_annotator._
 import cc.factorie.util._
 import java.io.{FilenameFilter, File, PrintWriter}
 import java.nio.file.{Files, Paths}
 import java.net.URL
 
-class BatchOpts extends DefaultCmdOptions {
+class BatchOpts extends DefaultCmdOptions with ModelProviderCmdOptions {
   val lexiconsUri = new CmdOption("lexicons-uri", "", "STRING", "URI to lexicons")
   val referenceModelUri = new CmdOption("reference-model-uri", "", "STRING", "reference model URI")
   val headerTaggerModelFile = new CmdOption("header-tagger-model", "", "STRING", "path to serialized header tagger model")
@@ -20,6 +21,7 @@ class BatchOpts extends DefaultCmdOptions {
   val logFile = new CmdOption("log-file", "", "STRING", "write logging info to this file")
   val dataFilesFile = new CmdOption("data-files-file", "", "STRING", "file containing a list of paths to data files, one per line")
   val brownClusters = new CmdOption[String]("brown-clusters", "", "STRING", "file containg Brown clusters for header tagger")
+  val lexicons = new LexiconsProviderCmdOption("lexicons")
 }
 
 
@@ -38,7 +40,9 @@ object BatchMain extends HyperparameterMain {
     val citationModelURL = new URL(referenceModelUri)
     val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
 
-    val headerTagger = LoadModel.fromFilename(headerTaggerModelFile)
+//    val lexicons = new StaticLexicons()(opts.lexicons.value)
+    val lexicons = new StaticLexicons()(opts.lexicons.value)
+    val headerTagger = new DefaultHeaderTagger(lexicons, headerTaggerModelFile)
 
     if (opts.brownClusters.wasInvoked) {
       println(s"Reading brown cluster file: ${opts.brownClusters.value}")
