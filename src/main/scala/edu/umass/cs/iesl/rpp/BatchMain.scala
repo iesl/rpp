@@ -37,7 +37,7 @@ object BatchMain extends HyperparameterMain {
 
     val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
     val citationModelURL = new URL(referenceModelUri)
-    val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
+    val citationTagger = new DefaultCitationTagger(None, lexiconUrlPrefix, url = citationModelURL)
 
     val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
     val headerTagger = new DefaultHeaderTagger(None, lexicon, headerTaggerModelFile)

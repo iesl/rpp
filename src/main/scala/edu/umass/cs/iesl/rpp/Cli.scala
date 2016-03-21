@@ -65,7 +65,7 @@ object Cli {
           val ht = new DefaultHeaderTagger(None, lexicon, new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
-          val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
+          val ct = new DefaultCitationTagger(None, lexiconPrefix, citeModel)
           val ann = List(
             LineProcessor,
             StructureProcessor,
@@ -85,7 +85,7 @@ object Cli {
           val ht = new DefaultHeaderTagger(None, lexicon, new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
-          val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
+          val ct = new DefaultCitationTagger(None, lexiconPrefix, citeModel)
           val ann = List(
             LineProcessor,
             StructureProcessor,
@@ -121,7 +121,7 @@ object Cli {
     val ht = new DefaultHeaderTagger(None, lexicon, new java.net.URL(opts.htModel.value))
     val lexiconPrefix = getClass.getResource("/lexicons").toString
     val citeModel = opts.citeModel.value
-    val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
+    val ct = new DefaultCitationTagger(None, lexiconPrefix, citeModel)
     anns ++= docs.map { dom =>
       val ann = List(
         LineProcessor,

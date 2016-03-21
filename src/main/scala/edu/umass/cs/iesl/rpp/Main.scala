@@ -36,7 +36,7 @@ object Main {
     val refFile = new java.io.File(referenceModelUri)
     val citationModelURL = refFile.toURL()
 
-    val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
+    val citationTagger = new DefaultCitationTagger(None, lexiconUrlPrefix, url = citationModelURL)
 
     val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
 
