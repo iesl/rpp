@@ -19,10 +19,7 @@ import java.io.File
 import org.jdom2.input.SAXBuilder
 import org.jdom2.Document
 
-/**
- * @author Kate println("hello world")println("hello world")Silverstein
- *         created on 9/12/15
- */
+
 object Cli {
 
   private val logger = Logger.getLogger(getClass.getName)
@@ -65,7 +62,7 @@ object Cli {
         case "all" =>
           val dom = docs(idx)
           val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
-          val ht = new DefaultHeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
+          val ht = new DefaultHeaderTagger(None, lexicon, new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
           val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
@@ -85,7 +82,7 @@ object Cli {
         case "cite" =>
           val dom = docs(idx)
           val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
-          val ht = new DefaultHeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
+          val ht = new DefaultHeaderTagger(None, lexicon, new java.net.URL(opts.htModel.value))
           val lexiconPrefix = getClass.getResource("/lexicons").toString
           val citeModel = opts.citeModel.value
           val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)
@@ -121,7 +118,7 @@ object Cli {
 
   def processDocs(): Unit = {
     val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
-    val ht = new DefaultHeaderTagger(lexicon, new java.net.URL(opts.htModel.value))
+    val ht = new DefaultHeaderTagger(None, lexicon, new java.net.URL(opts.htModel.value))
     val lexiconPrefix = getClass.getResource("/lexicons").toString
     val citeModel = opts.citeModel.value
     val ct = new DefaultCitationTagger(lexiconPrefix, citeModel)

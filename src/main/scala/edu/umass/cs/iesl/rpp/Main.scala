@@ -40,7 +40,7 @@ object Main {
 
     val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
 
-    val headerTagger = new DefaultHeaderTagger(lexicon, headerTaggerModelFile)
+    val headerTagger = new DefaultHeaderTagger(None, lexicon, headerTaggerModelFile)
 
     if (inFilePath == "stdin") {
       // batch process

@@ -21,7 +21,6 @@ class BatchOpts extends DefaultCmdOptions {
   val logFile = new CmdOption("log-file", "", "STRING", "write logging info to this file")
   val dataFilesFile = new CmdOption("data-files-file", "", "STRING", "file containing a list of paths to data files, one per line")
   val brownClusters = new CmdOption[String]("brown-clusters", "", "STRING", "file containg Brown clusters for header tagger")
-//  val lexicons = new LexiconsProviderCmdOption("lexicons")
 }
 
 
@@ -40,16 +39,9 @@ object BatchMain extends HyperparameterMain {
     val citationModelURL = new URL(referenceModelUri)
     val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
 
-//    val lexicons = new StaticLexicons()(opts.lexicons.value)
-//    val lexicons = new StaticLexicons()(opts.lexicons.value)
     val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
-    if (lexicon eq null) {
-      println("lexicon is null ...")
-    }
-    println(lexicon.toString())
-    val headerTagger = new DefaultHeaderTagger(lexicon, headerTaggerModelFile)
+    val headerTagger = new DefaultHeaderTagger(None, lexicon, headerTaggerModelFile)
     val cats = edu.umass.cs.iesl.paperheader.model.HeaderLabelDomain.categories
-    println(s"header categories: ${cats.mkString(", ")}")
 
     if (opts.brownClusters.wasInvoked) {
       println(s"Reading brown cluster file: ${opts.brownClusters.value}")
