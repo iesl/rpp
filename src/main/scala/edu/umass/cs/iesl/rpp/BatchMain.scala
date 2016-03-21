@@ -2,7 +2,7 @@ package edu.umass.cs.iesl.rpp
 
 import java.util.concurrent._
 
-import cc.factorie.app.nlp.lexicon.StaticLexicons
+import cc.factorie.app.nlp.lexicon.{LexiconsProvider, StaticLexicons}
 import edu.umass.cs.iesl.bibie.model.DefaultCitationTagger
 import edu.umass.cs.iesl.paperheader.model.DefaultHeaderTagger
 import edu.umass.cs.iesl.paperheader.model.TokenFeatures
@@ -12,7 +12,7 @@ import java.io.{FilenameFilter, File, PrintWriter}
 import java.nio.file.{Files, Paths}
 import java.net.URL
 
-class BatchOpts extends DefaultCmdOptions with ModelProviderCmdOptions {
+class BatchOpts extends DefaultCmdOptions {
   val lexiconsUri = new CmdOption("lexicons-uri", "", "STRING", "URI to lexicons")
   val referenceModelUri = new CmdOption("reference-model-uri", "", "STRING", "reference model URI")
   val headerTaggerModelFile = new CmdOption("header-tagger-model", "", "STRING", "path to serialized header tagger model")
@@ -21,7 +21,7 @@ class BatchOpts extends DefaultCmdOptions with ModelProviderCmdOptions {
   val logFile = new CmdOption("log-file", "", "STRING", "write logging info to this file")
   val dataFilesFile = new CmdOption("data-files-file", "", "STRING", "file containing a list of paths to data files, one per line")
   val brownClusters = new CmdOption[String]("brown-clusters", "", "STRING", "file containg Brown clusters for header tagger")
-  val lexicons = new LexiconsProviderCmdOption("lexicons")
+//  val lexicons = new LexiconsProviderCmdOption("lexicons")
 }
 
 
@@ -41,8 +41,15 @@ object BatchMain extends HyperparameterMain {
     val citationTagger = new DefaultCitationTagger(lexiconUrlPrefix, url = citationModelURL)
 
 //    val lexicons = new StaticLexicons()(opts.lexicons.value)
-    val lexicons = new StaticLexicons()(opts.lexicons.value)
-    val headerTagger = new DefaultHeaderTagger(lexicons, headerTaggerModelFile)
+//    val lexicons = new StaticLexicons()(opts.lexicons.value)
+    val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
+    if (lexicon eq null) {
+      println("lexicon is null ...")
+    }
+    println(lexicon.toString())
+    val headerTagger = new DefaultHeaderTagger(lexicon, headerTaggerModelFile)
+    val cats = edu.umass.cs.iesl.paperheader.model.HeaderLabelDomain.categories
+    println(s"header categories: ${cats.mkString(", ")}")
 
     if (opts.brownClusters.wasInvoked) {
       println(s"Reading brown cluster file: ${opts.brownClusters.value}")
@@ -58,6 +65,7 @@ object BatchMain extends HyperparameterMain {
         override def accept(parent: File, name: String) = name.toLowerCase.endsWith(".svg")
       }).map(_.getAbsolutePath).toSeq
       else io.Source.fromFile(opts.dataFilesFile.value).getLines().toSeq
+    println(inputFilenames.mkString("\n"))
     val outputFilenames = inputFilenames.map(fname => opts.outputDir.value + "/" + fname.replaceFirst(".*/(.*)$", "$1.tagged.txt"))
     val badFiles = new scala.collection.mutable.ArrayBuffer[String]()
 
