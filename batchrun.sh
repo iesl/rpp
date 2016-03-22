@@ -2,8 +2,8 @@
 
 root=$1
 facjar=$2
-citeCRF="file:$root/citationCRF.factorie"
-headerCRF="$root/headerCRF.factorie"
+citeCRF="file://$root/models/CitationTagger.factorie"
+headerCRF="$root/models/HeaderTagger.factorie"
 inputDir=$3
 outputDir=$4
 
@@ -16,7 +16,6 @@ java -Xmx${mem} -cp $CP edu.umass.cs.iesl.rpp.BatchMain \
 --header-tagger-model=$headerCRF \
 --input-dir=$inputDir \
 --output-dir=$outputDir
-#--data-files-file=$inputDir
 
 
 

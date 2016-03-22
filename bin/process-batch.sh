@@ -19,8 +19,8 @@ CP=`cat $RPP_ROOT/CP.hack`
 
 root=$RPP_ROOT
 lexicons=file://$1
-citeCRF="--reference-model-uri=file://$root/citationCRF.factorie"
-headerCRF="--header-tagger-model=$root/headerCRF.factorie"
+citeCRF="--reference-model-uri=file://$root/models/CitationTagger.factorie"
+headerCRF="--header-tagger-model=$root/models/HeaderTagger.factorie"
 inputDir="--input-dir=$2"
 outputDir="--output-dir=$3"
 
