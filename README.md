@@ -1,8 +1,6 @@
 # RPP #
 Research Paper Processor
 
-This branch of RPP outputs paragraph markers. Currently under development.
-
 ## Setup Prerequisites ##
 
 ### XML Annotator ###
@@ -49,10 +47,10 @@ mvn clean package -Pjar-with-dependencies
 
 ## Running the project ##
 
-Unzip the models in the rpp repo:
+Download the pre-trained models:
 
 ```
-tar -xvf models.tgz
+./download.sh
 ```
 
 Obtain the lexicon files. You can email me if you do not have these files.
