@@ -48,7 +48,7 @@ class HeaderPartProcessor(val headerTagger: DefaultHeaderTagger) extends Process
         val doc = {
           val d = new Document(text)
           DeterministicTokenizer.process(d)
-          d.tokens.foreach { token => token.attr += new HeaderLabel("I-other", token) }
+          d.tokens.foreach { token => token.attr += new HeaderLabel(headerTagger.DEFAULT_LABEL, token) }
           headerTagger.process(d)
           d
         }

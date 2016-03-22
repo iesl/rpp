@@ -147,7 +147,7 @@ class ReferencePartProcessor(citationTagger: DefaultCitationTagger) extends Proc
             DeterministicTokenizer.process(d)
             new Sentence(d.asSection, 0, d.tokens.size)
             d.tokens.foreach(t => {
-              t.attr += new CitationLabel("", t)
+              t.attr += new CitationLabel(citationTagger.DEFAULT_LABEL, t)
             })
             d
 
