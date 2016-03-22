@@ -8,5 +8,6 @@ factorieJar="/path/to/factorie/target/factorie_2.11-1.2-SNAPSHOT-nlp-jar-with-de
 
 input="$root/input"
 output="$root/output"
+mkdir -pv $output
 
-$root/batchrun.sh $root $factorieJar $input $output
+$root/bin/batchrun.sh $root $factorieJar $input $output
