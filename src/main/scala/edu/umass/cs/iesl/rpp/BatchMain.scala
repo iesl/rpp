@@ -12,10 +12,7 @@ import java.io.{FilenameFilter, File, PrintWriter}
 import java.nio.file.{Files, Paths}
 import java.net.URL
 
-class BatchOpts extends DefaultCmdOptions {
-  val lexiconsUri = new CmdOption("lexicons-uri", "", "STRING", "URI to lexicons")
-  val referenceModelUri = new CmdOption("reference-model-uri", "", "STRING", "reference model URI")
-  val headerTaggerModelFile = new CmdOption("header-tagger-model", "", "STRING", "path to serialized header tagger model")
+class BatchOpts extends CliOpts {
   val outputDir = new CmdOption("output-dir", "", "STRING", "where to store output")
   val inputDir = new CmdOption("input-dir", "", "STRING", "path to dir of input files")
   val logFile = new CmdOption("log-file", "", "STRING", "write logging info to this file")
@@ -32,15 +29,9 @@ object BatchMain extends HyperparameterMain {
     println(s"* main(): args: ${args.mkString(", ")}")
     val opts = new BatchOpts
     opts.parse(args)
-    val referenceModelUri = opts.referenceModelUri.value
-    val headerTaggerModelFile = opts.headerTaggerModelFile.value
 
-    val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
-    val citationModelURL = new URL(referenceModelUri)
-    val citationTagger = new DefaultCitationTagger(None, lexiconUrlPrefix, url = citationModelURL)
+    val pipe = Main.assemblePipeline(opts)
 
-    val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
-    val headerTagger = new DefaultHeaderTagger(None, lexicon, headerTaggerModelFile)
     val cats = edu.umass.cs.iesl.paperheader.model.HeaderLabelDomain.categories
 
     if (opts.brownClusters.wasInvoked) {
@@ -78,7 +69,7 @@ object BatchMain extends HyperparameterMain {
         val executor: ExecutorService = Executors.newSingleThreadExecutor()
         val processFuture: Future[Annotator] = executor.submit(new Callable[Annotator]() {
           override def call(): Annotator = {
-            Main.process(citationTagger, headerTagger, inputFile)
+            Main.process(pipe, inputFile)
           }
         })
         try {

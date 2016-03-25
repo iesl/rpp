@@ -8,39 +8,72 @@ import edu.umass.cs.iesl.paperheader.model._
 import edu.umass.cs.iesl.xml_annotator.Annotator
 import edu.umass.cs.iesl.xml_annotator.Annotator._
 import org.jdom2.input.SAXBuilder
+import scala.language.postfixOps
 
 import cc.factorie.util._
+
+
 class CliOpts extends DefaultCmdOptions {
   val refModel = new CmdOption[String]("reference-model", "", "STRING", "reference (bibie) model *.factorie file")
   val hdrModel = new CmdOption[String]("header-model", "", "STRING", "header model *.factorie file")
   val inputFile = new CmdOption[String]("input", "", "STRING", "input filename; 'stdin' for stream-parsing filenames from stdin, 'quit' to terminate")
   val outputFile = new CmdOption[String]("output", "", "STRING", "output filename; for stream parsing filenames from stdin, specify --output-ext (default '.rpp.out')")
   val outputExt = new CmdOption[String]("output-ext", ".rpp.out", "STRING", "extension to add to input files for output")
+  val headerTagging = new CmdOption[Boolean]("tag-headers", true, "Boolean", "set to false to skip header tagging")
+  val refTagging = new CmdOption[Boolean]("tag-references", true, "Boolean", "set to false to skip reference tagging")
+  // val lexiconsUri = new CmdOption("lexicons-uri", "", "STRING", "URI to lexicons")
 }
 
 object Main {
+
+  def assemblePipeline(opts: CliOpts): Seq[Processor] = {
+    val referenceModelUri = opts.refModel.value
+    val headerTaggerModelFile = opts.hdrModel.value
+    val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
+    val refFile = new java.io.File(referenceModelUri)
+    val citationModelURL = refFile.toURL()
+
+    val hdrPipe = if (opts.headerTagging.value) {
+      println("loading lexicons")
+      val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
+      println("loading header model")
+      val headerTagger = new DefaultHeaderTagger(None, lexicon, headerTaggerModelFile)
+      List(
+        HeaderPartProcessor(headerTagger)
+      )
+    } else List()
+
+    val refPipe = if (opts.refTagging.value) {
+      println("loading reference model")
+      val citationTagger = new DefaultCitationTagger(None, lexiconUrlPrefix, url = citationModelURL)
+      List(
+        ReferencePartProcessor(citationTagger),
+        CitationProcessor,
+        CitationReferenceLinkProcessor
+      )
+    } else List()
+
+    val pipe = List(
+      LineProcessor,
+      StructureProcessor
+    ) ++ hdrPipe ++ refPipe
+
+    println(s"""pipe is ${pipe.mkString(", ")}""")
+
+    pipe
+  }
+
   def main(args: Array[String]): Unit = {
 
     val opts = new CliOpts
     opts.parse(args)
+    val pipe = assemblePipeline(opts)
 
 
-    val referenceModelUri = opts.refModel.value
-    val headerTaggerModelFile = opts.hdrModel.value
     val inFilePath = opts.inputFile.value
     val outFileExt = opts.outputExt.value
 
-    val lexiconUrlPrefix = getClass.getResource("/lexicons").toString
 
-    // val citationModelURL = new java.net.URL(referenceModelUri)
-    val refFile = new java.io.File(referenceModelUri)
-    val citationModelURL = refFile.toURL()
-
-    val citationTagger = new DefaultCitationTagger(None, lexiconUrlPrefix, url = citationModelURL)
-
-    val lexicon = new StaticLexicons()(LexiconsProvider.classpath())
-
-    val headerTagger = new DefaultHeaderTagger(None, lexicon, headerTaggerModelFile)
 
     if (inFilePath == "stdin") {
       // batch process
@@ -48,7 +81,7 @@ object Main {
       while (nextline != "quit" && nextline != null) {
         val outFilePath = nextline+opts.outputExt.value
         println(s"processing ${nextline} -> ${outFilePath} ")
-        val annotator = process(citationTagger, headerTagger, nextline).write(nextline+".rpp.out")
+        val annotator = process(pipe, nextline).write(nextline+".rpp.out")
         printExampleQueriesFromMain(annotator)
         nextline = io.StdIn.readLine
       }
@@ -58,27 +91,19 @@ object Main {
       } else {
         opts.outputFile.value
       }
-      val annotator = process(citationTagger, headerTagger, inFilePath).write(outFilePath)
+      val annotator = process(pipe, inFilePath).write(outFilePath)
       printExampleQueriesFromMain(annotator)
     }
 
   }
 
 
-  def process(citationTagger: DefaultCitationTagger, headerTagger: DefaultHeaderTagger, inFilePath: String): Annotator = {
+  def process(pipe: Seq[Processor], inFilePath: String): Annotator = {
     val builder = new SAXBuilder()
     val dom = builder.build(new File(inFilePath))
 
-    val l = List(
-      LineProcessor,
-      StructureProcessor,
-      HeaderPartProcessor(headerTagger),
-      ReferencePartProcessor(citationTagger),
-      CitationProcessor,
-      CitationReferenceLinkProcessor
-    )
 
-    val annotator = l.foldLeft(Annotator(dom)) {
+    val annotator = pipe.foldLeft(Annotator(dom)) {
       case (annoAcc, pro) => pro.process(annoAcc)
     }
 
@@ -275,6 +300,7 @@ object Main {
       }
     }).toSeq
   }
+
 
 
   def getAllAnnotationTypes(annotator: Annotator): Seq[String] = {

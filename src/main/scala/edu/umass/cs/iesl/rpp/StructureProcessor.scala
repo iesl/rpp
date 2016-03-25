@@ -34,11 +34,11 @@ object StructureProcessor extends Processor {
   val bodyString = "body"
   val bodyChar = 'b'
   val sectionMarkerString = "section-marker"
-  val sectionMarkerChar = 's' 
+  val sectionMarkerChar = 's'
   val paragraphString = "paragraph"
   val paragraphChar = 'p'
   val headerString = "header"
-  val headerChar = 'h' 
+  val headerChar = 'h'
   val biblioMarkerString = "biblio-marker"
   val biblioMarkerChar = 'b'
 
@@ -49,9 +49,9 @@ object StructureProcessor extends Processor {
   val epilogueMarkerChar = 'e'
 
   val figureMarkerString = "figure-marker"
-  val figureMarkerChar = 'f' 
+  val figureMarkerChar = 'f'
   val tableMarkerString = "table-marker"
-  val tableMarkerChar = 't' 
+  val tableMarkerChar = 't'
 
 
   private val logger = Logger(LoggerFactory.getLogger("ScalaTagger"))
@@ -132,7 +132,7 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
     }
 
     val blockId = LayoutUtils.getProperty(realElem.asInstanceOf[Span], "divElement") match {
-      case null => -1 
+      case null => -1
       case (x, y) => x.toString.toInt
     }
 
@@ -170,8 +170,8 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
   }
 
   private def annotateV2(
-      annotation: String, 
-      annoLetter: Char, 
+      annotation: String,
+      annoLetter: Char,
       segmentation: NewHtmlTokenizationSvg,
       annotator: Annotator
   ): Annotator = {
@@ -198,7 +198,7 @@ private def annotateRx(rdoc: RxDocumentSvg): Annotator = {
 
     val resSlidingMap = resSliding.toMap
 
-    val resAnnot = { 
+    val resAnnot = {
       val table = resSlidingMap.flatMap {
         case (blockIndexStr, labelOp) =>
           val blockIndex = blockIndexStr.take(blockIndexStr.indexOf('_')).toInt
